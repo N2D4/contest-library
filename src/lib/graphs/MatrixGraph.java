@@ -1,0 +1,126 @@
+package lib.graphs;
+
+import lib.algorithms.O;
+import lib.generated.IntArrayList;
+import lib.polyfill.PolyfillIterator;
+import lib.utils.Utils;
+import lib.utils.tuples.Triple;
+import lib.utils.various.FunctionalIterators;
+import lib.vectorization.ArrayListMatrix;
+import lib.vectorization.Matrix;
+import lib.vectorization.ResizableMatrix;
+import lib.vectorization.VectorElementIterator;
+
+import java.util.*;
+import java.util.function.Function;
+import java.util.function.Predicate;
+
+public abstract class MatrixGraph extends AbstractGraph implements Graph {
+
+    private final ResizableMatrix matrix;
+    private final IntArrayList inDegrees;
+    private final IntArrayList outDegrees; // Null if undirected
+    private int edges = 0;
+    private final boolean directed;
+
+    MatrixGraph(boolean directed, ResizableMatrix matrix) {
+        if (!matrix.isSquare()) throw new IllegalArgumentException("Matrix must be square!");
+        this.directed = directed;
+        this.matrix = matrix;
+        this.inDegrees = IntArrayList.ofSize(getVertexCount());
+        if (this.directed){
+            this.outDegrees = IntArrayList.ofSize(getVertexCount());
+        } else {
+            this.outDegrees = null;
+        }
+        // TODO IMPORTANT Support for non-zero matrices (right now meta information like edges isn't updated)
+        // instead we just set the matrix to zeroes for now (NaN actually)
+        this.matrix.setAll(Double.NaN);
+    }
+
+    public ResizableMatrix getMatrix() {
+        // TODO Unmodifiable matrix?
+        return matrix;
+    }
+
+    @Override
+    public int getVertexCount() {
+        return matrix.getRowCount();
+    }
+
+    @Override
+    public int getEdgeCount() {
+        return edges;
+    }
+
+
+    @Override
+    public Iterator<Graph.Edge> edgeIterator() {
+        /* BEGIN-JAVA-8 */
+        return FunctionalIterators.filterAndMap(matrix.iterator(), a -> !Double.isNaN(a.c), a -> new Graph.Edge(a.a, a.b, a.c));
+        /* END-JAVA-8 */
+
+        /* BEGIN-POLYFILL-6 *../
+        return FunctionalIterators.filterAndMap(matrix.iterator(), new Predicate<Triple<Integer, Integer, Double>>() {
+            @Override
+            public boolean test(Triple<Integer, Integer, Double> a) {
+                return !Double.isNaN(a.c);
+            }
+        }, new Function<Triple<Integer, Integer, Double>, Edge>() {
+            @Override
+            public Edge apply(Triple<Integer, Integer, Double> a) {
+                return new Graph.Edge(a.a, a.b, a.c);
+            }
+        });
+        /..* END-POLYFILL-6 */
+    }
+
+    @Override
+    public double getEdgeWeight(int v1, int v2) {
+        rangeChecks(v1, v2);
+        return matrix.get(v1, v2);
+    }
+
+    @Override
+    public void setEdgeWeight(int v1, int v2, double weight) {
+        rangeChecks(v1, v2);
+
+        double d = weight;
+
+        int weightZ = Double.isNaN(d) ? 0 : 1;
+        int prevWeightZ = Double.isNaN(this.matrix.set(v1, v2, d)) ? 0 : 1;
+        int change = weightZ - prevWeightZ;
+
+        edges += change;
+        if (!directed) {
+            this.matrix.set(v2, v1, d);
+        }
+
+        inDegrees.set(v2, inDegrees.get(v2) + change);
+        if (directed) {
+            outDegrees.set(v1, outDegrees.get(v1) + change);
+        } else {
+            inDegrees.set(v1, inDegrees.get(v1) + change);
+        }
+    }
+
+    @Override
+    public VectorElementIterator getNeighbours(int vertex) {
+        return this.matrix.getRowNonValued(vertex, Double.NaN);
+    }
+
+
+    int getInDegree(int vertex) {
+        return inDegrees.get(vertex);
+    }
+
+    int getOutDegree(int vertex) {
+        return outDegrees.get(vertex);
+    }
+
+
+    @Override
+    public String toString() {
+        return matrix.toString();
+    }
+}
