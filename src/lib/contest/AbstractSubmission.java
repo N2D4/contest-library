@@ -6,24 +6,17 @@ import lib.utils.tuples.Triple;
 import lib.utils.various.VoidOutputStream;
 import lib.utils.various.VoidPrintStream;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.PrintStream;
-import java.lang.reflect.Constructor;
-import java.lang.reflect.Field;
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Modifier;
-import java.nio.charset.StandardCharsets;
-import java.security.MessageDigest;
-import java.security.NoSuchAlgorithmException;
+import java.io.*;
+import java.lang.reflect.*;
+import java.nio.charset.*;
+import java.security.*;
 import java.util.*;
-import java.util.concurrent.locks.Lock;
-import java.util.concurrent.locks.ReentrantLock;
 
 public abstract class AbstractSubmission {
     public Scanner sc;
     public PrintStream out;
     public PrintStream debug;
+    public volatile double score = 0;
     public volatile int testCaseCount = -1;
     public volatile int testCaseIndex;
     public volatile double progress = 0;
@@ -35,6 +28,10 @@ public abstract class AbstractSubmission {
 
     public void runSubmission(boolean debug) {
         runSubmission(System.in, System.out, debug);
+    }
+
+    public void runSubmission(InputStream in, PrintStream out) {
+        runSubmission(in, out,  false);
     }
 
     public void runSubmission(InputStream in, PrintStream out, boolean debug) {
@@ -167,11 +164,17 @@ public abstract class AbstractSubmission {
 
 
     protected static void buildAndRun(Class<? extends AbstractSubmission> clss, String path, String identifier) throws Exception {
-        FileTest.testFrom(path, clss, b64Hash(clss.getName() + " " + identifier.hashCode()));
-        BuildOutput.buildFromProblem(getType(clss), path, clss.getSimpleName(), identifier);
+        ContestType contestType = getType(clss);
 
-        System.out.println("\n\n\n\n\n\n\nWaiting on stdin for a testcase");
-        AbstractSubmission.create(clss).runSubmission(true);
+        if (!contestType.isOptimizer) FileTest.testFrom(path, clss, b64Hash(clss.getName() + " " + identifier.hashCode()));
+        BuildOutput.buildFromProblem(contestType, path, clss.getSimpleName(), identifier);
+
+        if (contestType.isOptimizer) {
+            System.out.println("Created Main.java. Compile and run it to start the optimizer");
+        } else {
+            System.out.println("\n\n\n\n\n\n\nWaiting on stdin for a testcase");
+            AbstractSubmission.create(clss).runSubmission(true);
+        }
     }
     /* END-NO-BUNDLE */
 

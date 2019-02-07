@@ -2,15 +2,12 @@
 
 package lib.contest;
 
-import java.awt.Desktop;
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStreamReader;
+import java.awt.*;
+import java.io.*;
 import java.nio.file.*;
-import java.security.MessageDigest;
-import java.security.NoSuchAlgorithmException;
+import java.security.*;
 import java.util.*;
-import java.util.regex.Pattern;
+import java.util.regex.*;
 
 public class BuildOutput {
     public static int javaVersion;
@@ -296,6 +293,12 @@ public class BuildOutput {
             replacerRegex = "(?s)\\/\\*\\s*BEGIN-JAVA-8\\s*\\*\\/.*?\\/\\*\\s*END-JAVA-8\\s*\\*\\/";
         } else {
             replacerRegex = "(?s)\\/\\*\\s*BEGIN-POLYFILL-6\\s*\\*\\/.*?\\/\\*\\s*END-POLYFILL-6\\s*\\*\\/";
+        }
+        code = code.replaceAll(replacerRegex, "");
+        if (type.isOptimizer) {
+            replacerRegex += "(?s)\\/\\*\\s*BEGIN-NO-OPTIMIZER\\s*\\*\\/.*?\\/\\*\\s*END-NO-OPTIMIZER\\s*\\*\\/";
+        } else {
+            replacerRegex += "(?s)\\/\\*\\s*BEGIN-OPTIMIZER\\s*\\*\\/.*?\\/\\*\\s*END-OPTIMIZER\\s*\\*\\/";
         }
         code = code.replaceAll(replacerRegex, "");
         code = code.replaceAll("(?s)\\/\\*\\s*BEGIN-NO-BUNDLE\\s*\\*\\/.*?\\/\\*\\s*END-NO-BUNDLE\\s*\\*\\/", "");

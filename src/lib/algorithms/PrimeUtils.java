@@ -1,9 +1,7 @@
 package lib.algorithms;
 
-import java.math.BigInteger;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
+import java.math.*;
+import java.util.*;
 
 public final class PrimeUtils extends Algorithm {
 
