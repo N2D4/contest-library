@@ -1,7 +1,5 @@
 package lib.utils.various;
 
-import lib.utils.tuples.Tuple;
-
 import java.io.Serializable;
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;

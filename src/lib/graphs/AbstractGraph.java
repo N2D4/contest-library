@@ -1,13 +1,9 @@
 package lib.graphs;
 
 import lib.utils.Utils;
-import lib.utils.tuples.Triple;
 
 import java.io.Serializable;
 import java.util.*;
-import java.util.function.Consumer;
-import java.util.function.Function;
-import java.util.function.Supplier;
 
 public abstract class AbstractGraph implements Graph, Serializable {
 

@@ -5,7 +5,6 @@ import lib.utils.Utils;
 import lib.utils.tuples.Triple;
 
 import java.io.Serializable;
-import java.util.Iterator;
 import java.util.Objects;
 
 public abstract class AbstractMatrix implements Matrix, Serializable {

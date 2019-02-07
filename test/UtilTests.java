@@ -1,6 +1,5 @@
 import lib.algorithms.PrimeUtils;
 import lib.utils.StringUtils;
-import lib.utils.Utils;
 import org.junit.jupiter.api.Test;
 
 import java.math.BigInteger;

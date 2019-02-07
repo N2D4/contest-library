@@ -4,7 +4,6 @@ import lib.polyfill.PolyfillIterator;
 
 import java.util.Iterator;
 import java.util.NoSuchElementException;
-import java.util.Optional;
 import java.util.function.Function;
 import java.util.function.Predicate;
 

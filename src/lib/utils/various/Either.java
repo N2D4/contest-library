@@ -1,7 +1,5 @@
 package lib.utils.various;
 
-import java.io.Serializable;
-
 public class Either<A, B> extends Structure {
 
     private final A a;

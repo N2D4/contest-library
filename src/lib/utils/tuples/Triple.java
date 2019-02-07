@@ -1,7 +1,5 @@
 package lib.utils.tuples;
 
-import java.io.Serializable;
-
 public class Triple<A, B, C> extends Tuple {
 
     public A a;

@@ -1,6 +1,5 @@
 package lib.ml;
 
-import lib.contest.AbstractSubmission;
 import lib.utils.tuples.Pair;
 import lib.utils.various.VoidPrintStream;
 

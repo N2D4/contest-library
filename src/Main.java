@@ -1,4 +1,3 @@
-import lib.contest.AbstractSubmission;
 import lib.ml.GeneticOptimizer;
 import lib.utils.tuples.Pair;
 

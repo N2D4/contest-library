@@ -1,19 +1,11 @@
 package lib.graphs;
 
-import lib.algorithms.O;
 import lib.generated.IntArrayList;
-import lib.polyfill.PolyfillIterator;
-import lib.utils.Utils;
-import lib.utils.tuples.Triple;
 import lib.utils.various.FunctionalIterators;
-import lib.vectorization.ArrayListMatrix;
-import lib.vectorization.Matrix;
 import lib.vectorization.ResizableMatrix;
 import lib.vectorization.VectorElementIterator;
 
 import java.util.*;
-import java.util.function.Function;
-import java.util.function.Predicate;
 
 public abstract class MatrixGraph extends AbstractGraph implements Graph {
 

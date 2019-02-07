@@ -1,7 +1,5 @@
 package lib.utils.tuples;
 
-import java.util.Map;
-
 public class Monad<A> extends Tuple {
 
     public A value;

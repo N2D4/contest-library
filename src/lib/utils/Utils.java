@@ -2,7 +2,6 @@ package lib.utils;
 
 /* BEGIN-JAVA-8 */
 import java.util.*;
-import java.util.concurrent.Callable;
 import java.util.function.Consumer;
 /* END-JAVA-8 */
 

@@ -4,7 +4,6 @@ package lib.contest;
 import lib.utils.tuples.Pair;
 
 import java.io.*;
-import java.lang.reflect.InvocationTargetException;
 import java.nio.file.*;
 import java.text.DecimalFormat;
 import java.util.*;

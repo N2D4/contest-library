@@ -1,8 +1,6 @@
 package lib.utils.tuples;
 
-import java.io.Serializable;
 import java.util.Map;
-import java.util.Objects;
 
 public class Pair<A, B> extends Tuple implements Map.Entry<A, B> {
 

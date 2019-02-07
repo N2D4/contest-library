@@ -86,10 +86,8 @@ public abstract class AbstractSortedSet<T> extends AbstractSet<T> implements Sor
             @Override
             public int size() {
                 int size = 0;
-                Iterator<T> iterator = iterator();
-                while (iterator.hasNext()) {
+                for (T t : this) {
                     size++;
-                    iterator.next();
                 }
                 return size;
             }

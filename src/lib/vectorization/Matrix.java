@@ -1,12 +1,7 @@
 package lib.vectorization;
 
-import lib.generated.IntIterator;
 import lib.utils.MathUtils;
-import lib.utils.tuples.Pair;
 import lib.utils.tuples.Triple;
-import lib.utils.various.AbstractSortedMap;
-import lib.utils.various.FunctionalIterators;
-import lib.utils.various.Range;
 
 import java.util.*;
 import java.util.function.BiFunction;

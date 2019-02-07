@@ -2,7 +2,6 @@ package lib.graphs.algorithms;
 
 import lib.algorithms.Algorithm;
 import lib.algorithms.O;
-import lib.generated.IntArrayList;
 import lib.graphs.DirectedGraph;
 import lib.graphs.Graph;
 import lib.graphs.UndirectedGraph;
@@ -10,9 +9,6 @@ import lib.trees.Tree;
 import lib.trees.TreeNode;
 import lib.trees.algorithms.TreeTraversal;
 import lib.utils.tuples.Monad;
-import lib.utils.tuples.Pair;
-import lib.utils.tuples.Triple;
-import lib.utils.various.FlagSet;
 import lib.utils.various.Structure;
 import lib.vectorization.VectorElementIterator;
 

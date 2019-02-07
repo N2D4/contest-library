@@ -3,7 +3,6 @@ package lib.vectorization;
 import lib.generated.DoubleArrayList;
 import lib.generated.IntArrayList;
 import lib.utils.MathUtils;
-import lib.utils.Utils;
 
 import java.io.Serializable;
 import java.util.*;

@@ -1,10 +1,8 @@
 package lib.utils.various;
 
 import lib.polyfill.PolyfillIterator;
-import lib.utils.ArrayUtils;
 import lib.utils.tuples.Pair;
 
-import java.util.Collection;
 import java.util.Iterator;
 import java.util.stream.IntStream;
 

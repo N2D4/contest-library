@@ -1,7 +1,5 @@
 package lib.trees;
 
-import lib.utils.various.Structure;
-
 import java.io.Serializable;
 import java.util.*;
 

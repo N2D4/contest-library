@@ -5,7 +5,6 @@ import lib.vectorization.VectorElementIterator;
 
 import java.util.*;
 import java.util.stream.IntStream;
-import java.util.stream.Stream;
 
 public interface Graph {
     int getVertexCount();

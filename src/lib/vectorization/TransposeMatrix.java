@@ -3,9 +3,6 @@ package lib.vectorization;
 import lib.utils.tuples.Triple;
 
 import java.util.Iterator;
-import java.util.NavigableMap;
-import java.util.NoSuchElementException;
-import java.util.SortedMap;
 import java.util.function.DoublePredicate;
 
 // TODO: TransposeMatrix.Sparse and TransposeMatrix.Resizable.Sparse

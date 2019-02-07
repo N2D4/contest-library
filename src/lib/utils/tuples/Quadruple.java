@@ -1,7 +1,5 @@
 package lib.utils.tuples;
 
-import java.io.Serializable;
-
 public class Quadruple<A, B, C, D> extends Tuple {
 
     public A a;

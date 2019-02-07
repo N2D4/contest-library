@@ -3,7 +3,6 @@ package lib.contest;
 import lib.utils.Utils;
 import lib.utils.tuples.Pair;
 import lib.utils.tuples.Triple;
-import lib.utils.various.VoidOutputStream;
 import lib.utils.various.VoidPrintStream;
 
 import java.io.*;
