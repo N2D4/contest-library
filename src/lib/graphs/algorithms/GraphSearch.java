@@ -134,7 +134,7 @@ public abstract class GraphSearch extends Algorithm {
         GraphSearch.Type BREADTH_FIRST = new GraphSearch.Type() {
             @Override
             public Queue<TreeNode<Integer>> newQueue(Graph graph) {
-                return new ArrayDeque<TreeNode<Integer>>();
+                return new ArrayDeque<>();
             }
         };
 
@@ -175,7 +175,14 @@ public abstract class GraphSearch extends Algorithm {
         GraphSearch.Type DIJKSTRA = new GraphSearch.Type() {
             @Override
             public Queue<TreeNode<Integer>> newQueue(Graph graph) {
-                return new PriorityQueue<TreeNode<Integer>>();
+                return new PriorityQueue<>();
+            }
+        };
+
+        GraphSearch.Type PRIM = new GraphSearch.Type() {
+            @Override
+            public Queue<TreeNode<Integer>> newQueue(Graph graph) {
+                return new PriorityQueue<>(Comparator.comparingDouble(a -> a.getDistanceToParent()));
             }
         };
     }

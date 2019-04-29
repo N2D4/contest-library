@@ -115,6 +115,8 @@ public class BuildOutput {
             Path outfol = root.resolve("out");
             if (!Files.exists(outfol)) Files.createDirectory(outfol);
 
+            result = "// Hash: " + Base64.getEncoder().encodeToString(hash(result)) + "\n\n" + result;
+
             Path hashp = outfol.resolve(className + ".hash.meta");
             byte[] hash = hash(result);
             if (Files.exists(hashp)) {
@@ -296,9 +298,9 @@ public class BuildOutput {
         }
         code = code.replaceAll(replacerRegex, "");
         if (type.isOptimizer) {
-            replacerRegex += "(?s)\\/\\*\\s*BEGIN-NO-OPTIMIZER\\s*\\*\\/.*?\\/\\*\\s*END-NO-OPTIMIZER\\s*\\*\\/";
+            replacerRegex = "(?s)\\/\\*\\s*BEGIN-NO-OPTIMIZER\\s*\\*\\/.*?\\/\\*\\s*END-NO-OPTIMIZER\\s*\\*\\/";
         } else {
-            replacerRegex += "(?s)\\/\\*\\s*BEGIN-OPTIMIZER\\s*\\*\\/.*?\\/\\*\\s*END-OPTIMIZER\\s*\\*\\/";
+            replacerRegex = "(?s)\\/\\*\\s*BEGIN-OPTIMIZER\\s*\\*\\/.*?\\/\\*\\s*END-OPTIMIZER\\s*\\*\\/";
         }
         code = code.replaceAll(replacerRegex, "");
         code = code.replaceAll("(?s)\\/\\*\\s*BEGIN-NO-BUNDLE\\s*\\*\\/.*?\\/\\*\\s*END-NO-BUNDLE\\s*\\*\\/", "");

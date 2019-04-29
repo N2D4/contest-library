@@ -15,6 +15,11 @@ public class GraphComponents extends Algorithm {
     }
 
     @O("n + m")
+    public static boolean isConnected(UndirectedGraph graph) {
+        return getComponents(graph).size() <= 1;
+    }
+
+    @O("n + m")
     public static List<List<Integer>> getComponents(UndirectedGraph graph) {
         return GraphSearch.getComponents(graph);
     }

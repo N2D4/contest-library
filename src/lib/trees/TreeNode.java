@@ -48,6 +48,10 @@ public class TreeNode<T> implements Comparable<TreeNode<T>>, Serializable {
         return distance;
     }
 
+    public double getDistanceToParent() {
+        return getDistance() - parent.getDistance();
+    }
+
     public List<TreeNode<T>> getChildren() {
         return Collections.unmodifiableList(children);
     }

@@ -44,17 +44,17 @@ public abstract class AbstractSubmission {
 
         ContestType type = getType();
 
-        if (type.testCaseCount <= 0) {
-            // Read the number of testcases to follow
+        testCaseCount = type.testCaseCount;
+
+        init();
+
+        if (testCaseCount <= 0) {
+            // Read the number of test cases to follow
             testCaseCount = sc.nextInt();
             sc.nextLine();
-        } else {
-            testCaseCount = type.testCaseCount;
         }
 
         testCaseIndex = 0;
-
-        init();
 
         // Iterate over the testcases and solve the problem
         for (testCaseIndex = 1; testCaseIndex <= testCaseCount; testCaseIndex++) {

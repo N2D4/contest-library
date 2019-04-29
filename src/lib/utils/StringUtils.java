@@ -20,6 +20,14 @@ public final class StringUtils {
         return it.hasNext() ? it.next() : -1;
     }
 
+    public static String reverse(String s) {
+        return new StringBuilder(s).reverse().toString();
+    }
+
+    public static boolean isPalindrome(String s) {
+        return s.equals(reverse(s));
+    }
+
 
     public static Iterator<Integer> indicesOf(String s, String sub) {
         return indicesOf(s, sub);

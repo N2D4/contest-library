@@ -51,6 +51,10 @@ public class $CAP_TYPE$ArrayList implements Serializable {
         return Arrays.copyOf(arr, length);
     }
 
+    public ArrayList<$WRAPPER_TYPE$> toArrayList() {
+        return new ArrayList<>(Arrays.asList(arr));
+    }
+
 
 
 

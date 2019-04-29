@@ -5,7 +5,7 @@ import lib.graphs.DirectedGraph;
 import lib.graphs.Graph;
 import lib.trees.TreeNode;
 
-public class GraphFlow extends Algorithm {
+public final class GraphFlow extends Algorithm {
 
     private GraphFlow() {
         // Quite dusty here...

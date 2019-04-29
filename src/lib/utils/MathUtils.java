@@ -1,6 +1,7 @@
 package lib.utils;
 
 /* BEGIN-JAVA-8 */
+import java.math.BigInteger;
 import java.util.function.IntBinaryOperator;
 /* END-JAVA-8 */
 
@@ -81,5 +82,35 @@ public final class MathUtils {
 
     public static double sq(double a) {
         return a*a;
+    }
+
+
+    /**
+     * Real modulo (never returns a negative number)
+     */
+    public static long realMod(long i, long mod) {
+        return i < 0 ? (i % mod + mod) % mod : i % mod;
+    }
+
+    /**
+     * Overflow-aware modular multiplication. Never overflows
+     */
+    public static long modMul(long a, long b, long mod) {
+        a = realMod(a, mod);
+        if (a == 0) return 0;
+        b = realMod(b, mod);
+        if (b <= Long.MAX_VALUE / a) {
+            return MathUtils.realMod(a * b, mod);
+        }
+        return BigInteger.valueOf(a).multiply(BigInteger.valueOf(b)).mod(BigInteger.valueOf(mod)).longValueExact();
+    }
+
+    /**
+     * Overflow-aware modular addition. Never overflows
+     */
+    public static long modAdd(long a, long b, long mod) {
+        a = realMod(a, mod);
+        b = realMod(b, mod);
+        return realMod(a - mod + b, mod);
     }
 }
