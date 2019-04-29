@@ -37,22 +37,16 @@ public final class TreeTraversal extends Algorithm {
     @O("n")
     private static <T> void traverse(final List<T> list, TreeNode<T> node, final boolean preOrder) {
         new IterativeRecursionIterable<TreeNode<T>, Void>(Arrays.asList(node),
-                new BiFunction<TreeNode<T>, Consumer<TreeNode<T>>, T>() {
-                    @Override
-                    public T apply(TreeNode<T> node, Consumer<TreeNode<T>> stack) {
-                        if (preOrder) list.add(node.getValue());
-                        for (TreeNode<T> child : node.getChildren()) {
-                            stack.accept(child);
-                        }
-                        return node.getValue();
+                (node1, stack) -> {
+                    if (preOrder) list.add(node1.getValue());
+                    for (TreeNode<T> child : node1.getChildren()) {
+                        stack.accept(child);
                     }
+                    return node1.getValue();
                 },
-                new Function<T, Void>() {
-                    @Override
-                    public Void apply(T t) {
-                        if (!preOrder) list.add(t);
-                        return null;
-                    }
+                t -> {
+                    if (!preOrder) list.add(t);
+                    return null;
                 }
         ).runAll();
     }
