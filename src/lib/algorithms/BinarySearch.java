@@ -25,18 +25,26 @@ public final class BinarySearch extends Algorithm {
 
 
 
-    private static <T> int search(List<T> list, Predicate<T> isBigger) {
-        int a = 0;
-        int b = list.size();
+
+    /**
+     * Returns the first i for which isBigger(i) is true, assuming it's false for all j < i and true for all j >= i
+     */
+    public static <T> long searchInRange(Range range, Predicate<Long> isBigger) {
+        long a = range.a;
+        long b = range.b;
         while (a < b) {
-            int mid = (a + b) / 2;
-            if (isBigger.test(list.get(mid))) {
+            long mid = (a + b) / 2;
+            if (isBigger.test(mid)) {
                 b = mid;
             } else {
                 a = mid + 1;
             }
         }
         return a;
+    }
+
+    private static <T> int search(List<T> list, Predicate<T> isBigger) {
+        return (int) searchInRange(new Range(0, list.size()), (i) -> isBigger.test(list.get((int) (long) i)));
     }
 
     private static <T> Range search(List<T> list, Predicate<T> isBiggerA, Predicate<T> isBiggerB) {

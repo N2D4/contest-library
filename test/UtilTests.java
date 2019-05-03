@@ -1,4 +1,4 @@
-import lib.algorithms.PrimeUtils;
+import lib.utils.PrimeUtils;
 import lib.utils.StringUtils;
 import org.junit.jupiter.api.Test;
 
