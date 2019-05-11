@@ -2,12 +2,16 @@
 
 package lib.contest;
 
+import lib.utils.tuples.Pair;
+
 import java.awt.*;
 import java.io.*;
 import java.nio.file.*;
 import java.security.*;
 import java.util.*;
 import java.util.regex.*;
+import java.util.stream.Collectors;
+import java.util.stream.StreamSupport;
 
 public class BuildOutput {
     public static int javaVersion;
@@ -15,7 +19,7 @@ public class BuildOutput {
     public static boolean removeUnused;
     public static String launcher;
     public static ContestType type;
-    public static final String[] defaultImports6 = {"java.io.*", "java.util.*", "java.util.concurrent.*", "java.lang.annotation.*", "java.util.concurrent.*", "java.lang.reflect.*"};
+    public static final String[] defaultImports6 = {"java.io.*", "java.util.*", "java.util.concurrent.*", "java.lang.annotation.*", "java.util.concurrent.*", "java.lang.reflect.*", "java.math.*"};
     public static final String[] defaultImports8 = {"java.util.function.*", "java.util.stream.*"};
     public static final String[] ignoredPackages = {"lib.*"};
     public static final String[] entryFiles = {"Solution", "Main"};
@@ -48,28 +52,35 @@ public class BuildOutput {
     }
 
 
-    public static void buildOutput(Iterable<Path> roots, boolean runTests, String copyPath, String className, String identifier) throws IOException, InterruptedException, NoSuchAlgorithmException {
-        ArrayList<Path> sroots = new ArrayList<>();
+    public static void buildOutput(Iterable<Path> rootsi, boolean runTests, String copyPath, String className, String identifier) throws IOException, InterruptedException, NoSuchAlgorithmException {
+        ArrayList<Path> roots = new ArrayList<>();
+        rootsi.forEach(roots::add);
+        ArrayList<Pair<Path, Integer>> sroots = new ArrayList<>();
         for (Path root : roots) {
-            if (buildOutput(root, copyPath, className, identifier)) {
-                sroots.add(root);
-            }
+            int res = buildOutput(root, copyPath, className, identifier);
+            sroots.add(new Pair<>(root, res));
+        }
+
+        if (sroots.stream().filter(a -> a.b != 1).count() <= 0) {
+            System.out.println("No valid roots found! Please check whether the main file can be found at one of these locations:");
+            System.out.println("  " + roots.stream().filter(Files::isDirectory).map(root -> root.resolve("src/" + className + ".java")).collect(Collectors.toList()));
         }
 
         if (runTests) {
-            for (Path root : sroots) {
-                runTest(root, className);
+            for (Pair<Path, Integer> root : sroots) {
+                if (root.b != 0) continue;
+                runTest(root.a, className);
             }
         }
     }
 
-    public static boolean buildOutput(Path root, String copyPath, String className, String identifier) throws IOException, NoSuchAlgorithmException {
-        if (!Files.isDirectory(root)) return false;
-        if (!Files.exists(root.resolve("src/" + className + ".java"))) return false;
+    public static int buildOutput(Path root, String copyPath, String className, String identifier) throws IOException, NoSuchAlgorithmException {
+        if (!Files.isDirectory(root)) return 1;
+        if (!Files.exists(root.resolve("src/" + className + ".java"))) return 1;
 
 
         long startNs = System.nanoTime();
-        System.out.println("Building file for " + className + " in " + root);
+        System.out.println("Building file for " + className + " in " + root.resolve("src/" + className + ".java"));
 
         try {
             TreeMap<String, String> sources = new TreeMap<>(Comparator.comparing(a -> a.equals(className) ? "" : a));
@@ -81,8 +92,8 @@ public class BuildOutput {
 
             String searchin = sources.firstEntry().getValue();
             if (!searchin.contains(identifier) || !searchin.contains(type.name())) {
-                System.out.println("Main file does not contain type " + type.name() + " or identifier " + identifier);
-                return false;
+                System.out.println("Main file " + sources.firstEntry().getKey() + " either does not contain type " + type.name() + " or identifier " + identifier + " in its text representation");
+                return 1;
             }
 
             Pattern pattern = Pattern.compile("\\/\\*\\s*JAVA-6-COMPATIBILITY-MODE:\\s*TRUE\\s*\\*\\/");
@@ -123,7 +134,7 @@ public class BuildOutput {
                 byte[] rhash = Files.readAllBytes(hashp);
                 if (Arrays.equals(hash, rhash)) {
                     System.out.println("Hashes match; file not modified");
-                    return false;
+                    return 2;
                 }
             }
             Files.write(hashp, hash, StandardOpenOption.CREATE);
@@ -138,7 +149,7 @@ public class BuildOutput {
             System.out.println("Created merged file at " + out.toString());
             System.out.println("Total size: " + out.toFile().length() + " bytes");
 
-            return true;
+            return 0;
 
         } finally {
             long endNs = System.nanoTime();

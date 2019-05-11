@@ -4,6 +4,7 @@ package lib.contest;
 import lib.utils.tuples.Pair;
 
 import java.io.*;
+import java.lang.reflect.InvocationTargetException;
 import java.nio.file.*;
 import java.text.DecimalFormat;
 import java.util.*;
@@ -16,9 +17,67 @@ import java.util.zip.ZipInputStream;
 import java.util.zip.ZipOutputStream;
 
 public class FileTest {
-    public static void testFrom(String directory, Class<? extends AbstractSubmission> clss, String taskName) throws IOException, InterruptedException {
+    public static void testFrom(String directory, Class<? extends AbstractSubmission> clss, String taskName) throws IOException, InterruptedException, InvocationTargetException, NoSuchMethodException, InstantiationException, IllegalAccessException {
         ExecutorService service = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors() + 2);
         List<Pair<String, TestTask>> tasks = new ArrayList<>();
+
+
+        Path testingToolPath = Paths.get(directory, "testing_tool.sh");
+        if (Files.exists(testingToolPath)) {
+            System.out.println();
+            System.out.println("Found testing tool at " + testingToolPath);
+            System.out.println("Note that the testing tool does not support @Cached caching");
+            Process tester = new ProcessBuilder("./" + testingToolPath.getFileName().toString())
+                    .directory(testingToolPath.getParent().toFile())
+                    .redirectError(ProcessBuilder.Redirect.INHERIT)
+                    .start();
+            InputStream in = new InputStream() {
+                @Override
+                public int read() throws IOException {
+                    int b = tester.getInputStream().read();
+                    if (b >= 0) System.out.write(b);
+                    return b;
+                }
+
+                @Override
+                public int read(byte b[], int off, int len) throws IOException {
+                    int res = tester.getInputStream().read(b, off, len);
+                    if (res >= 0) System.out.write(b, off, res);
+                    return res;
+                }
+            };
+            OutputStream out = new OutputStream() {
+                @Override
+                public void write(int b) throws IOException {
+                    System.out.write(b);
+                    tester.getOutputStream().write(b);
+                }
+
+                @Override
+                public void write(byte b[], int off, int len) throws IOException {
+                    System.out.write(b, off, len);
+                    tester.getOutputStream().write(b, off, len);
+                    tester.getOutputStream().flush();
+                }
+
+                @Override
+                public void flush() throws IOException {
+                    tester.getOutputStream().flush();
+                    System.out.flush();
+                }
+            };
+            AbstractSubmission.create(clss).runSubmission(in, out, System.err);
+
+            tester.destroy();
+
+            System.out.println();
+        } else {
+            System.out.println();
+            System.out.println("No testing tool found at " + testingToolPath);
+            System.out.println();
+        }
+
+
 
         try {
             Path dirpath = Paths.get(directory);

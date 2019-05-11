@@ -1,4 +1,6 @@
-package lib.utils.various;
+package lib.collections;
+
+import lib.utils.various.FunctionalIterators;
 
 import java.util.*;
 

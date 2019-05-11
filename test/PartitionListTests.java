@@ -1,4 +1,4 @@
-import lib.utils.various.PartitionList;
+import lib.collections.PartitionList;
 import lib.utils.various.Range;
 import org.junit.jupiter.api.Test;
 

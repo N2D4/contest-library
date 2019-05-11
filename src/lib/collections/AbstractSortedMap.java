@@ -1,4 +1,4 @@
-package lib.utils.various;
+package lib.collections;
 
 import lib.utils.tuples.Pair;
 

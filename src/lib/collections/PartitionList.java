@@ -1,7 +1,8 @@
-package lib.utils.various;
+package lib.collections;
 
 import lib.utils.Utils;
 import lib.utils.tuples.Pair;
+import lib.utils.various.Range;
 
 import java.io.Serializable;
 import java.util.*;
@@ -108,7 +109,7 @@ public class PartitionList<T> extends AbstractList<T> implements RandomAccess, S
         modCount++;
 
         resize(size() + count);
-        for (Map.Entry<Integer, T> entry : new ArrayList<Map.Entry<Integer, T>>(map.tailMap(index, true).descendingMap().entrySet())) {
+        for (Map.Entry<Integer, T> entry : new ArrayList<>(map.tailMap(index, true).descendingMap().entrySet())) {
             int npos = entry.getKey() + count;
             if (npos >= size()) continue;
             T val = entry.getValue();

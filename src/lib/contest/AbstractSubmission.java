@@ -13,6 +13,7 @@ import java.util.*;
 
 public abstract class AbstractSubmission {
     public Scanner sc;
+    public InputStream in;
     public PrintStream out;
     public PrintStream debug;
     public volatile double score = 0;
@@ -37,10 +38,11 @@ public abstract class AbstractSubmission {
         runSubmission(in, out,  debug ? out : new VoidPrintStream());
     }
 
-    public void runSubmission(InputStream in, PrintStream out, PrintStream debug) {
-        this.sc = new Scanner(in);
-        this.out = out;
-        this.debug = debug;
+    public void runSubmission(InputStream in, OutputStream out, OutputStream debug) {
+        this.in = in;
+        this.sc = new Scanner(this.in);
+        this.out = new PrintStream(out);
+        this.debug = new PrintStream(debug);
 
         ContestType type = getType();
 
@@ -59,7 +61,7 @@ public abstract class AbstractSubmission {
         // Iterate over the testcases and solve the problem
         for (testCaseIndex = 1; testCaseIndex <= testCaseCount; testCaseIndex++) {
             progress = 0;
-            out.printf(type.caseString, testCaseIndex, testCaseCount);
+            this.out.printf(type.caseString, testCaseIndex, testCaseCount);
             testCase();
         }
     }

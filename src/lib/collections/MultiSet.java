@@ -1,7 +1,18 @@
 package lib.collections;
 
-import java.util.Collection;
+import lib.utils.tuples.Pair;
 
-public interface MultiSet<E> extends Collection<E> {
+import java.util.Iterator;
+import java.util.Set;
+import java.util.stream.Stream;
 
+public interface MultiSet<E> {
+    int count(Object o);
+    boolean addN(int n, E e);
+    boolean removeN(int n, Object o);
+    boolean removeAll(Object o);
+    Set<E> toSet();
+    Set<Pair<E, Integer>> entrySet();
+    Stream<Pair<E, Integer>> entryStream();
+    Iterator<Pair<E, Integer>> entryIterator();
 }
