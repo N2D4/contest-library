@@ -57,6 +57,13 @@ public class ArrayUtils {
         }
 
         @Override
+        public T set(int index, T val) {
+            T oldValue = get(index);
+            java.lang.reflect.Array.set(arr, index, val);
+            return oldValue;
+        }
+
+        @Override
         public int size() {
             return length;
         }

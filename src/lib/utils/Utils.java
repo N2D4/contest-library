@@ -30,7 +30,7 @@ public final class Utils {
         long start = System.nanoTime();
         runnable.run();
         long end = System.nanoTime();
-        return (start - end) / 1_000_000_000.0;
+        return (end - start) / 1_000_000_000.0;
     }
 
     private static int timingId = 0;

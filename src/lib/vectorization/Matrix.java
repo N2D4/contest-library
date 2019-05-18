@@ -11,18 +11,9 @@ import java.util.function.Function;
 public interface Matrix extends Iterable<Triple<Integer, Integer, Double>> {
     double get(int row, int column);
     double set(int row, int column, double value);
-    /* BEGIN-JAVA-8 */
     default void setAll(double value) {
-        for (int i = 0; i < getRowCount(); i++) {
-            for (int j = 0; j < getColumnCount(); j++) {
-                set(i, j, value);
-            }
-        }
+        apply(a -> value);
     }
-    /* END-JAVA-8 */
-    /* BEGIN-POLYFILL-6 *../
-    void setAll(double value);
-    /..* END-POLYFILL-6 */
 
     default void apply(Function<Double, Double> func) {
         for (Triple<Integer, Integer, Double> triple : this) {

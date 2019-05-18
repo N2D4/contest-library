@@ -47,6 +47,10 @@ public class LongRange extends Pair<Long, Long> implements Iterable<Long> {
         };
     }
 
+    public boolean contains(long l) {
+        return l >= this.a && l < this.b;
+    }
+
     public void intersectWith(LongRange range) {
         a = Math.max(range.a, a);
         b = Math.min(range.b, b);

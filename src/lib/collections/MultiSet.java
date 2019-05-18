@@ -2,11 +2,12 @@ package lib.collections;
 
 import lib.utils.tuples.Pair;
 
+import java.util.Collection;
 import java.util.Iterator;
 import java.util.Set;
 import java.util.stream.Stream;
 
-public interface MultiSet<E> {
+public interface MultiSet<E> extends Collection<E> {
     int count(Object o);
     boolean addN(int n, E e);
     boolean removeN(int n, Object o);

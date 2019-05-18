@@ -47,6 +47,10 @@ public class Range extends Pair<Integer, Integer> implements Iterable<Integer> {
         };
     }
 
+    public boolean contains(int l) {
+        return l >= this.a && l < this.b;
+    }
+
     public void intersectWith(Range range) {
         a = Math.max(range.a, a);
         b = Math.min(range.b, b);

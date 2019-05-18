@@ -56,6 +56,10 @@ public class TreeNode<T> implements Comparable<TreeNode<T>>, Serializable {
         return Collections.unmodifiableList(children);
     }
 
+    public int getChildCount() {
+        return children.size();
+    }
+
     public TreeNode<T> addChild(T value) {
         return addChild(value, 1);
     }

@@ -48,23 +48,7 @@ public abstract class MatrixGraph extends AbstractGraph implements Graph {
 
     @Override
     public Iterator<Graph.Edge> edgeIterator() {
-        /* BEGIN-JAVA-8 */
         return FunctionalIterators.filterAndMap(matrix.iterator(), a -> !Double.isNaN(a.c), a -> new Graph.Edge(a.a, a.b, a.c));
-        /* END-JAVA-8 */
-
-        /* BEGIN-POLYFILL-6 *../
-        return FunctionalIterators.filterAndMap(matrix.iterator(), new Predicate<Triple<Integer, Integer, Double>>() {
-            @Override
-            public boolean test(Triple<Integer, Integer, Double> a) {
-                return !Double.isNaN(a.c);
-            }
-        }, new Function<Triple<Integer, Integer, Double>, Edge>() {
-            @Override
-            public Edge apply(Triple<Integer, Integer, Double> a) {
-                return new Graph.Edge(a.a, a.b, a.c);
-            }
-        });
-        /..* END-POLYFILL-6 */
     }
 
     @Override

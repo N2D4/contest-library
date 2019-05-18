@@ -12,4 +12,8 @@ public class HashMultiSet<T> extends MapMultiSet<T> {
         super(new HashMap<>(), c);
     }
 
+    public HashMultiSet(int initialCapacity) {
+        super(new HashMap<>(initialCapacity));
+    }
+
 }
