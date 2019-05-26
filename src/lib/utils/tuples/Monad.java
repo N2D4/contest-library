@@ -1,5 +1,7 @@
 package lib.utils.tuples;
 
+import java.util.function.Function;
+
 public class Monad<A> extends Tuple {
 
     public A value;
@@ -14,6 +16,10 @@ public class Monad<A> extends Tuple {
 
     public void setValue(A value) {
         this.value = value;
+    }
+
+    public <T> Monad<T> map(Function<A, T> mappingFunction) {
+        return new Monad<>(mappingFunction.apply(this.value));
     }
 
     @Override

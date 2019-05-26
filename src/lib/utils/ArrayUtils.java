@@ -5,6 +5,21 @@ import java.util.Arrays;
 import java.util.List;
 
 public class ArrayUtils {
+    public static long[] asLongArray(byte[] arr) {
+        return asList(arr).stream().mapToLong(a -> a).toArray();
+    }
+
+    public static long[] asLongArray(short[] arr) {
+        return asList(arr).stream().mapToLong(a -> a).toArray();
+    }
+
+    public static long[] asLongArray(char[] arr) {
+        return asList(arr).stream().mapToLong(a -> a).toArray();
+    }
+
+    public static long[] asLongArray(int[] arr) {
+        return Arrays.stream(arr).mapToLong(a -> a).toArray();
+    }
 
     public static List<Byte> asList(byte[] arr) {
         return new BackedList<>(arr);

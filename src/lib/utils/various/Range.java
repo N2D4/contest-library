@@ -24,6 +24,10 @@ public class Range extends Pair<Integer, Integer> implements Iterable<Integer> {
         return this.stream().toArray();
     }
 
+    public LongRange toLongRange() {
+        return new LongRange(this.a, this.b);
+    }
+
 
     /* BEGIN-JAVA-8 */
     public IntStream stream() {

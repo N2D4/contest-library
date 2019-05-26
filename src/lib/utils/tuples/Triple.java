@@ -1,5 +1,7 @@
 package lib.utils.tuples;
 
+import java.util.function.Function;
+
 public class Triple<A, B, C> extends Tuple {
 
     public A a;
@@ -34,6 +36,10 @@ public class Triple<A, B, C> extends Tuple {
 
     public void setRight(C c) {
         this.c = c;
+    }
+
+    public <A1, B1, C1> Triple<A1, B1, C1> map(Function<A, A1> mapA, Function<B, B1> mapB, Function<C, C1> mapC) {
+        return new Triple<>(mapA.apply(this.a), mapB.apply(this.b), mapC.apply(this.c));
     }
 
 

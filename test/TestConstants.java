@@ -1,3 +1,3 @@
-public class TestConstants {
-    public static final int SCALE = 1;
+public final class TestConstants {
+    public static final long SCALE = 1;
 }

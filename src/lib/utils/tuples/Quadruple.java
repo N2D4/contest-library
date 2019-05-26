@@ -1,5 +1,7 @@
 package lib.utils.tuples;
 
+import java.util.function.Function;
+
 public class Quadruple<A, B, C, D> extends Tuple {
 
     public A a;
@@ -12,6 +14,10 @@ public class Quadruple<A, B, C, D> extends Tuple {
         this.b = b;
         this.c = c;
         this.d = d;
+    }
+
+    public <A1, B1, C1, D1> Quadruple<A1, B1, C1, D1> map(Function<A, A1> mapA, Function<B, B1> mapB, Function<C, C1> mapC, Function<D, D1> mapD) {
+        return new Quadruple<>(mapA.apply(this.a), mapB.apply(this.b), mapC.apply(this.c), mapD.apply(this.d));
     }
 
 

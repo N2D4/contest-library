@@ -2,6 +2,7 @@ package lib.algorithms;
 
 import lib.utils.ArrayUtils;
 import lib.utils.tuples.Pair;
+import lib.utils.various.LongRange;
 import lib.utils.various.Range;
 
 import java.util.Comparator;
@@ -25,11 +26,17 @@ public final class BinarySearch extends Algorithm {
 
 
 
+    /**
+     * Returns the first i for which isBigger(i) is true, assuming it's false for all j < i and true for all j >= i
+     */
+    public static int searchInRange(Range range, Predicate<Integer> isBigger) {
+        return (int) searchInRange(range.toLongRange(), l -> isBigger.test((int) (long) l));
+    }
 
     /**
      * Returns the first i for which isBigger(i) is true, assuming it's false for all j < i and true for all j >= i
      */
-    public static <T> long searchInRange(Range range, Predicate<Long> isBigger) {
+    public static long searchInRange(LongRange range, Predicate<Long> isBigger) {
         long a = range.a;
         long b = range.b;
         while (a < b) {

@@ -20,8 +20,12 @@ public class LongRange extends Pair<Long, Long> implements Iterable<Long> {
         return this.b - this.a;
     }
 
-    public long[] toIntArray() {
+    public long[] toLongArray() {
         return this.stream().toArray();
+    }
+
+    public Range toIntRange() {
+        return new Range((int) (long) this.a, (int) (long) this.b);
     }
 
 
