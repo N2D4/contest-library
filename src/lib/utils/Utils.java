@@ -6,6 +6,8 @@ import java.util.function.Consumer;
 /* END-JAVA-8 */
 
 import java.util.function.Supplier;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
 public final class Utils {
     private Utils() {
@@ -88,6 +90,32 @@ public final class Utils {
         return result;
     }
     /..* END-POLYFILL-6 */
+
+
+    /**
+     * Returns a map containing each element of the collection and a set of its indices in the iterator order as a
+     * key-value pair. The sets are immutable and ordered.
+     *
+     * Usually used in lists. Often used on arrays in conjunction with ArrayUtils.asList(...).
+     */
+    public static <T> Map<T, Set<Integer>> invert(Collection<T> coll) {
+        Map<T, Set<Integer>> map = new HashMap<>();
+        int i = 0;
+        for (T t : coll) {
+            Set<Integer> set = map.get(t);
+            if (set == null) {
+                map.put(t, Collections.singleton(i));
+            } else {
+                if (!(set instanceof LinkedHashSet)) {
+                    set = new LinkedHashSet<>(set);
+                    map.put(t, set);
+                }
+                set.add(i);
+            }
+            i++;
+        }
+        return Collections.unmodifiableMap(map);
+    }
 
 
 

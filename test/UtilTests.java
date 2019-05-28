@@ -1,10 +1,12 @@
+import lib.utils.ArrayUtils;
 import lib.utils.PrimeUtils;
 import lib.utils.StringUtils;
+import lib.utils.Utils;
 import lib.utils.tuples.*;
 import org.junit.jupiter.api.Test;
 
 import java.math.BigInteger;
-import java.util.Random;
+import java.util.*;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -28,6 +30,23 @@ public class UtilTests {
                 assertEquals(s.indexOf(sub, i), StringUtils.indexOf(s, sub, i));
             }
         }
+    }
+
+    @Test
+    public void invertListTests() {
+        Random random = new Random("invert list tests".hashCode());
+        for (long i = 0; i < 100_000 * TestConstants.SCALE; i++) {
+            int l = random.nextInt(20);
+            int[] arr = new int[l];
+            for (int j = 0; j < l; j++) {
+                arr[j] = random.nextBoolean() ? random.nextInt() : random.nextInt(5);
+            }
+            Map<Integer, Set<Integer>> inverse = Utils.invert(ArrayUtils.asList(arr));
+            for (int j = 0; j < l; j++) {
+                assertTrue(inverse.get(arr[j]).contains(j));
+            }
+        }
+
     }
 
 
