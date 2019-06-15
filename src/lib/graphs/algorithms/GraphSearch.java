@@ -128,7 +128,7 @@ public abstract class GraphSearch extends Algorithm {
 
 
     public interface Type {
-        <T> Queue<T> newQueue(Graph graph);
+        Queue<TreeNode<Integer>> newQueue(Graph graph);
 
 
         GraphSearch.Type BREADTH_FIRST = new GraphSearch.Type() {

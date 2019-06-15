@@ -17,18 +17,34 @@ public final class TreeTraversal extends Algorithm {
         // Quite dusty here...
     }
 
+    @O("n")
     public static <T> List<T> leafNodes(Tree<T> tree) {
-        return traverse(tree, 2);
+        return leafNodes(tree.getRoot());
     }
 
     @O("n")
     public static <T> List<T> preOrder(Tree<T> tree) {
-        return traverse(tree, 0);
+        return preOrder(tree.getRoot());
     }
 
     @O("n")
     public static <T> List<T> postOrder(Tree<T> tree) {
-        return traverse(tree, 1);
+        return postOrder(tree.getRoot());
+    }
+
+    @O("n")
+    public static <T> List<T> leafNodes(TreeNode<T> root) {
+        return traverse(root, 2);
+    }
+
+    @O("n")
+    public static <T> List<T> preOrder(TreeNode<T> root) {
+        return traverse(root, 0);
+    }
+
+    @O("n")
+    public static <T> List<T> postOrder(TreeNode<T> root) {
+        return traverse(root, 1);
     }
 
 
@@ -36,9 +52,9 @@ public final class TreeTraversal extends Algorithm {
      * Mode 0 = pre-order, mode 1 = post-order, mode 2 = leaf nodes
      */
     @O("n")
-    private static <T> List<T> traverse(Tree<T> tree, int mode) {
+    private static <T> List<T> traverse(TreeNode<T> root, int mode) {
         List<T> list = new ArrayList<T>();
-        traverse(list, tree.getRoot(), mode);
+        traverse(list, root, mode);
         return list;
     }
 

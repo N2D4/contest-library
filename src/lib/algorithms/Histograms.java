@@ -1,15 +1,11 @@
 package lib.algorithms;
 
-import com.sun.deploy.util.ArrayUtil;
 import lib.utils.ArrayUtils;
 import lib.utils.tuples.Pair;
 import lib.utils.various.Range;
 
 import java.util.ArrayDeque;
-import java.util.Comparator;
 import java.util.Deque;
-import java.util.List;
-import java.util.function.Predicate;
 
 public final class Histograms extends Algorithm {
     private Histograms() {
