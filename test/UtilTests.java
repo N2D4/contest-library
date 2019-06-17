@@ -3,10 +3,12 @@ import lib.utils.PrimeUtils;
 import lib.utils.StringUtils;
 import lib.utils.Utils;
 import lib.utils.tuples.*;
+import lib.utils.various.BruteForceIterable;
 import org.junit.jupiter.api.Test;
 
 import java.math.BigInteger;
 import java.util.*;
+import java.util.stream.IntStream;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -45,6 +47,49 @@ public class UtilTests {
             for (int j = 0; j < l; j++) {
                 assertTrue(inverse.get(arr[j]).contains(j));
             }
+        }
+
+    }
+
+    @Test
+    public void bruteForceIterableTest() {
+        Random random = new Random("brute force iterable tests".hashCode());
+        for (long i = 0; i < 1_000_000 * TestConstants.SCALE; i++) {
+            int l = random.nextInt(4) + 1;
+            int[] max = new int[l];
+            for (int j = 0; j < l; j++) {
+                max[j] = random.nextInt(4);
+                if (random.nextInt(4) != 0) max[j]++;
+            }
+            int[] min = null;
+            if (random.nextBoolean()) {
+                min = new int[l];
+                for (int j = 0; j < l; j++) {
+                    if (max[j] == 0) {
+                        min[j] = 0;
+                        continue;
+                    }
+                    min[j] = random.nextInt(max[j]);
+                    if (random.nextInt(4) == 1) min[j]++;
+                }
+            }
+            final int[] fmin = min == null ? new int[l] : min;
+            int count = 0;
+            int expectedCount = IntStream.range(0, l).map(a -> max[a] - fmin[a]).reduce(1, (a, b) -> a * b);
+            Set<Long> all = new HashSet<>();
+            for (int[] arr : new BruteForceIterable(min, max)) {
+                count++;
+                long a = 0;
+                for (int j = 0; j < l; j++) {
+                    assertTrue(arr[j] >= fmin[j]);
+                    assertTrue(arr[j] < max[j]);
+                    a *= max[j];
+                    a += arr[j];
+                }
+                assertFalse(all.contains(a));
+                all.add(a);
+            }
+            assertEquals(expectedCount, count);
         }
 
     }

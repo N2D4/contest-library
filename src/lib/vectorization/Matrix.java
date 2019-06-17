@@ -71,7 +71,7 @@ public interface Matrix extends Iterable<Triple<Integer, Integer, Double>> {
             }
 
             @Override
-            public int next() {
+            public int nextInt() {
                 if (!hasNext()) throw new NoSuchElementException();
                 isValid = false;
                 return cur;
@@ -117,7 +117,7 @@ public interface Matrix extends Iterable<Triple<Integer, Integer, Double>> {
             }
 
             @Override
-            public int next() {
+            public int nextInt() {
                 if (!hasNext()) throw new NoSuchElementException();
                 isValid = false;
                 return cur;

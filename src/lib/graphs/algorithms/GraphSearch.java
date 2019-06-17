@@ -13,6 +13,7 @@ import lib.utils.various.Structure;
 import lib.vectorization.VectorElementIterator;
 
 import java.util.*;
+import java.util.function.Supplier;
 
 public abstract class GraphSearch extends Algorithm {
 
@@ -78,7 +79,7 @@ public abstract class GraphSearch extends Algorithm {
 
                 VectorElementIterator neighbours = graph.getNeighbours(v);
                 while (neighbours.hasNext()) {
-                    int key = neighbours.next();
+                    int key = neighbours.nextInt();
                     double edgeWeight = neighbours.getValue();
 
                     if (onInspectEdge(v, key, edgeWeight)) continue;
@@ -131,60 +132,40 @@ public abstract class GraphSearch extends Algorithm {
         Queue<TreeNode<Integer>> newQueue(Graph graph);
 
 
-        GraphSearch.Type BREADTH_FIRST = new GraphSearch.Type() {
+        GraphSearch.Type BREADTH_FIRST = graph -> new ArrayDeque<>();
+
+        GraphSearch.Type DEPTH_FIRST = graph -> new AbstractQueue<TreeNode<Integer>>() {
+            ArrayDeque<TreeNode<Integer>> deque = new ArrayDeque<>();
+
             @Override
-            public Queue<TreeNode<Integer>> newQueue(Graph graph) {
-                return new ArrayDeque<>();
+            public Iterator<TreeNode<Integer>> iterator() {
+                return deque.descendingIterator();
+            }
+
+            @Override
+            public int size() {
+                return deque.size();
+            }
+
+            @Override
+            public boolean offer(TreeNode<Integer> node) {
+                return deque.offerLast(node);
+            }
+
+            @Override
+            public TreeNode<Integer> poll() {
+                return deque.pollLast();
+            }
+
+            @Override
+            public TreeNode<Integer> peek() {
+                return deque.peekLast();
             }
         };
 
-        GraphSearch.Type DEPTH_FIRST = new GraphSearch.Type() {
-            @Override
-            public Queue<TreeNode<Integer>> newQueue(Graph graph) {
-                return new AbstractQueue<TreeNode<Integer>>() {
-                    ArrayDeque<TreeNode<Integer>> deque = new ArrayDeque<TreeNode<Integer>>();
+        GraphSearch.Type DIJKSTRA = graph -> new PriorityQueue<>();
 
-                    @Override
-                    public Iterator<TreeNode<Integer>> iterator() {
-                        return deque.descendingIterator();
-                    }
-
-                    @Override
-                    public int size() {
-                        return deque.size();
-                    }
-
-                    @Override
-                    public boolean offer(TreeNode<Integer> node) {
-                        return deque.offerLast(node);
-                    }
-
-                    @Override
-                    public TreeNode<Integer> poll() {
-                        return deque.pollLast();
-                    }
-
-                    @Override
-                    public TreeNode<Integer> peek() {
-                        return deque.peekLast();
-                    }
-                };
-            }
-        };
-
-        GraphSearch.Type DIJKSTRA = new GraphSearch.Type() {
-            @Override
-            public Queue<TreeNode<Integer>> newQueue(Graph graph) {
-                return new PriorityQueue<>();
-            }
-        };
-
-        GraphSearch.Type PRIM = new GraphSearch.Type() {
-            @Override
-            public Queue<TreeNode<Integer>> newQueue(Graph graph) {
-                return new PriorityQueue<>(Comparator.comparingDouble(a -> a.getDistanceToParent()));
-            }
-        };
+        GraphSearch.Type PRIM = graph -> new PriorityQueue<>(Comparator.comparingDouble(a -> a.getDistanceToParent()));
     }
 
 
@@ -212,23 +193,31 @@ public abstract class GraphSearch extends Algorithm {
 
 
     public static double getDistance(UndirectedGraph graph, int v1, int v2) {
-        return getDistance(graph, v1, v2, false);
+        return getDistance(graph, v1, v2, false, false);
     }
 
     public static double getDistance(DirectedGraph graph, int start, int end) {
-        return getDistance(graph, start, end, false);
+        return getDistance(graph, start, end, false, false);
     }
 
-    private static double getDistance(Graph graph, int start, int end, boolean directed) {
+    public static int getEdgeDistance(UndirectedGraph graph, int v1, int v2) {
+        return (int) getDistance(graph, v1, v2, false, true);
+    }
+
+    public static int getEdgeDistance(DirectedGraph graph, int start, int end) {
+        return (int) getDistance(graph, start, end, false, true);
+    }
+
+    private static double getDistance(Graph graph, int start, int end, boolean directed, boolean edge) {
         GraphSearch search = new GraphSearch() {
             @Override
             protected Type getType() {
-                return Type.DIJKSTRA;
+                return edge ? Type.BREADTH_FIRST : Type.DIJKSTRA;
             }
 
             @Override
             protected void onInspectVertex(int vertex, TreeNode<Integer> node) {
-                if (vertex == end) this.end(node.getDistance());
+                if (vertex == end) this.end(edge ? node.getHeight() : node.getDistance());
             }
         };
         Object d = search.run(graph, start, directed);

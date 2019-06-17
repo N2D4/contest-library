@@ -53,7 +53,7 @@ public class GraphComponents extends Algorithm {
 
                 VectorElementIterator neighbours = graph.getNeighbours(v);
                 while (neighbours.hasNext()) {
-                    int n = neighbours.next();
+                    int n = neighbours.nextInt();
                     low[v] = Math.min(dfs[n], low[v]);
                 }
             }

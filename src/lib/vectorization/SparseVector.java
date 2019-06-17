@@ -55,7 +55,7 @@ public class SparseVector implements Serializable {
         bloom = 0;
         VectorElementIterator iterator = iterator();
         while (iterator.hasNext()) {
-            addToBloom(iterator.next());
+            addToBloom(iterator.nextInt());
         }
     }
 
@@ -214,7 +214,7 @@ public class SparseVector implements Serializable {
                 }
 
                 @Override
-                public int next() {
+                public int nextInt() {
                     if (!hasNext()) throw new NoSuchElementException();
                     return inds.get(cur++);
                 }
@@ -240,7 +240,7 @@ public class SparseVector implements Serializable {
                 }
 
                 @Override
-                public int next() {
+                public int nextInt() {
                     return (cur = iterator.next()).getKey();
                 }
             };

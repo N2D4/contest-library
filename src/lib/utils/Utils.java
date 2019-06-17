@@ -27,7 +27,6 @@ public final class Utils {
     }
 
 
-
     public static double timing(Runnable runnable) {
         long start = System.nanoTime();
         runnable.run();
@@ -38,14 +37,21 @@ public final class Utils {
     private static int timingId = 0;
     public static <T> T printTiming(Supplier<T> supplier) {
         int tid = timingId++;
-        System.out.println("Starting task " + tid);
+        System.err.println("Starting task " + tid);
         long start = System.nanoTime();
         try {
             return supplier.get();
         } finally {
             long end = System.nanoTime();
-            System.out.println("Time taken for task " + tid + ": " + (end - start) / 1_000_000_000.0 + "s");
+            System.err.println("Time taken for task " + tid + ": " + (end - start) / 1_000_000_000.0 + "s");
         }
+    }
+
+    public static void printTiming(Runnable runnable) {
+        printTiming(() -> {
+            runnable.run();
+            return null;
+        });
     }
     /* END-JAVA-8 */
 

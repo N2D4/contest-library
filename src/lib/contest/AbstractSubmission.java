@@ -165,6 +165,8 @@ public abstract class AbstractSubmission {
 
 
     protected static void buildAndRun(Class<? extends AbstractSubmission> clss, String path, String identifier) throws Exception {
+        if (System.getProperty("org.openjdk.java.util.stream.tripwire") == null) System.setProperty("org.openjdk.java.util.stream.tripwire", "true");
+
         ContestType contestType = getType(clss);
 
         if (!contestType.isOptimizer) FileTest.testFrom(path, clss, b64Hash(clss.getName() + " " + identifier.hashCode()));
