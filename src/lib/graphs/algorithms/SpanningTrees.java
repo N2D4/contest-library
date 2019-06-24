@@ -38,4 +38,28 @@ public class SpanningTrees extends Algorithm {
 
         return result;
     }
+
+    /**
+     * Uses the Kruskal algorithm for finding the cumulative weight of the MST. For the (equivalent) Prim algorithm, use
+     * GraphSearch.Type.PRIM (probably in conjunction with GraphSearch.getTrees(...)).
+     */
+    public static double mstWeight(UndirectedGraph graph) {
+        // We copy the entire code for O(m) space
+        int n = graph.getVertexCount();
+        double result = 0;
+        UnionFind uf = new UnionFind(n);
+
+        Graph.Edge[] edges = graph.getEdges().toArray(new Graph.Edge[0]);
+        Arrays.sort(edges, Comparator.comparing(e -> e.weight));
+        int i = 0;
+        for (Graph.Edge edge : edges) {
+            if (uf.find(edge.from) != uf.find(edge.to)) {
+                result += edge.weight;
+                uf.union(edge.from, edge.to);
+                if (i >= n - 1) return result;
+            }
+        }
+
+        return result;
+    }
 }

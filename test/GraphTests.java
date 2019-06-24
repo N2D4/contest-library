@@ -93,8 +93,10 @@ public class GraphTests {
             assertEquals(prim.size(), components);
 
 
+            double directSize = SpanningTrees.mstWeight(graph);
             double primSize = prim.stream().flatMapToDouble(a -> TreeTraversal.preOrder(a).stream().filter(b -> b.hasParent()).mapToDouble(b -> b.getDistanceToParent())).sum();
             double kruskalSize = kruskal.getEdges().stream().mapToDouble(a -> a.weight).sum();
+            assertEquals(directSize, kruskalSize, 0.00001);
             assertEquals(primSize, kruskalSize, 0.00001);
         }
     }
