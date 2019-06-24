@@ -19,7 +19,7 @@ public class TreeNode<T> implements Comparable<TreeNode<T>>, Serializable {
         this.value = value;
         this.parent = null;
         this.tree = tree;
-        this.children = new ArrayList<TreeNode<T>>();
+        this.children = new ArrayList<>();
         this.height = 0;
     }
 
@@ -27,7 +27,7 @@ public class TreeNode<T> implements Comparable<TreeNode<T>>, Serializable {
         this.value = value;
         this.parent = parent;
         this.tree = parent.tree;
-        this.children = new ArrayList<TreeNode<T>>();
+        this.children = new ArrayList<>();
         this.height = parent.getHeight() + 1;
         this.distance = parent.getDistance() + distanceToParent;
     }

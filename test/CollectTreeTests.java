@@ -1,14 +1,10 @@
-import lib.algorithms.ExtendedEuclid;
 import lib.collections.CollectTree;
-import lib.collections.HashMultiSet;
-import lib.collections.MultiSet;
-import lib.collections.TreeMultiSet;
+import lib.collections.Multiset;
+import lib.collections.TreeMultiset;
 import lib.utils.MathUtils;
-import lib.utils.tuples.Pair;
 import lib.utils.tuples.Triple;
 import org.junit.jupiter.api.Test;
 
-import java.math.BigInteger;
 import java.util.*;
 import java.util.function.BinaryOperator;
 import java.util.function.Supplier;
@@ -23,7 +19,7 @@ public class CollectTreeTests {
         Random random = new Random("collect tree test".hashCode());
 
         List<Triple<Supplier<?>, Supplier<?>, BinaryOperator<?>>> tests = new ArrayList<>();
-        tests.add(new Triple<>(() -> new TreeMultiSet<>(Arrays.asList(random.nextInt(4), random.nextInt(26))), (Supplier<?>) TreeMultiSet::new, (MultiSet a, MultiSet b) -> {
+        tests.add(new Triple<>(() -> new TreeMultiset<>(Arrays.asList(random.nextInt(4), random.nextInt(26))), (Supplier<?>) TreeMultiset::new, (Multiset a, Multiset b) -> {
             a.addAll(b);
             return a;
         }));

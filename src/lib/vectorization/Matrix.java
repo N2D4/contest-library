@@ -149,7 +149,9 @@ public interface Matrix extends Iterable<Triple<Integer, Integer, Double>> {
     }
 
 
-    /* BEGIN-JAVA-8 */
+    /**
+     * Returns an iterator iterating through all non-zero elements in this matrix.
+     */
     @Override
     default Iterator<Triple<Integer, Integer, Double>> iterator() {
         return new Iterator<Triple<Integer, Integer, Double>>() {
@@ -178,8 +180,6 @@ public interface Matrix extends Iterable<Triple<Integer, Integer, Double>> {
             }
         };
     }
-    /* END-JAVA-8 */
-
 
 
 

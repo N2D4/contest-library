@@ -14,11 +14,11 @@ public abstract class Algorithm {
     }
 
 
-
     protected void end() {
         end(null);
     }
     protected void end(Object result) {
+        if (shouldEnd()) return;
         this.result = result;
         this.end = true;
     }
@@ -26,10 +26,5 @@ public abstract class Algorithm {
     protected boolean shouldEnd() {
         return end;
     }
-
-
-
-
-
 
 }

@@ -1,7 +1,9 @@
 import lib.algorithms.BinarySearch;
+import lib.utils.tuples.Pair;
 import lib.utils.various.Range;
 import org.junit.jupiter.api.Test;
 
+import java.math.BigInteger;
 import java.util.Arrays;
 import java.util.Random;
 
@@ -12,8 +14,8 @@ public class BinarySearchTests {
     @Test
     public void intArrayBinarySearch() {
         Random random = new Random("int array binary search test".hashCode());
-        for (int it = 0; it < 100  * TestConstants.SCALE; it++) {
-            int size = random.nextInt(it <= 25 ? it + 1 : 1_000);
+        for (int it = 0; it < 1000 * TestConstants.SCALE; it++) {
+            int size = random.nextInt(it <= 25 ? it + 1 : 100);
             int bound = random.nextInt(random.nextBoolean() ? size + 1 : 2_000_000_000) + 1;
 
             int[] arr = new int[size];
@@ -31,6 +33,7 @@ public class BinarySearchTests {
                 assertEquals(goldenSearch(arr, a), BinarySearch.search(arr, a));
                 assertEquals(goldenSearch(arr, b), BinarySearch.search(arr, b));
                 assertEquals(goldenSearch(arr, range), BinarySearch.search(arr, range));
+                assertEquals(BigInteger.valueOf(goldenSearch(arr, a).a), BinarySearch.searchInRange(new Pair(BigInteger.ZERO, BigInteger.valueOf(size)), c -> arr[c.intValue()] >= a));
             }
         }
     }

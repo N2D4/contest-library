@@ -8,12 +8,17 @@ import lib.graphs.UndirectedGraph;
 import lib.trees.Tree;
 import lib.trees.TreeNode;
 import lib.trees.algorithms.TreeTraversal;
+import lib.utils.Utils;
 import lib.utils.tuples.Monad;
 import lib.utils.various.Structure;
 import lib.vectorization.VectorElementIterator;
 
 import java.util.*;
+import java.util.function.BiConsumer;
+import java.util.function.BiFunction;
 import java.util.function.Supplier;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 public abstract class GraphSearch extends Algorithm {
 
@@ -31,12 +36,15 @@ public abstract class GraphSearch extends Algorithm {
     }
 
     @O("n + m")
-    private Object run(final Graph graph, final int start, final boolean directed) {
+    Object run(final Graph graph, final int start, final boolean directed) {
         return this.runCustomAlgorithm(() -> {
-            boolean hasCycle = false;
+            boolean doCycleDetection = this.doCycleDetection();
+            if (doCycleDetection && !type.canDetectCycles()) {
+                throw new Error("Tried to do cycle detection with a graph search type that does not support it! (Try DFS)");
+            }
 
             TreeNode<Integer>[] nodes = getNodeArray(graph);
-            Map<Integer, TreeNode<Integer>> curProcessing = new HashMap<>();
+            Map<Integer, TreeNode<Integer>> curProcessing = doCycleDetection ? new HashMap<>() : null;
 
             Tree<Integer> traversal = new Tree<>(start);
 
@@ -45,7 +53,7 @@ public abstract class GraphSearch extends Algorithm {
 
             while (!queue.isEmpty()) {
                 if (shouldEnd()) return;
-                TreeNode<Integer> node = queue.peek();  // To support DFS, we only remove a node the *second* time we find it
+                TreeNode<Integer> node = queue.peek();  // To support cycle detection we only remove a node the *second* time we find it
                 int v = node.getValue();
 
 
@@ -54,24 +62,31 @@ public abstract class GraphSearch extends Algorithm {
                     continue;
                 }
 
-                TreeNode<Integer> cp = curProcessing.get(v);
+                if (doCycleDetection) {
+                    TreeNode<Integer> cp = curProcessing.get(v);
 
-                if (cp != null) {
-                    if (cp == node) {                    // Remove if it's the second time we find this node
-                        nodes[v] = cp;                   // With most types of queues, "processing" is just putting all
-                        queue.remove();                  // neighbours on the queue so this will instantly pop. However,
-                        continue;                        // when using a stack (DFS), a node is being processed as long
-                    } else {                             // as any of its child nodes are being processed. If a node is
-                        hasCycle = true;                 // being processed, but a new instance of that node was found,
-                        onFoundCycle(v, node, nodes[v]); // then we have found a cycle.
-                        queue.remove();
-                        continue;
+                    if (cp != null) {
+                        if (cp == node) {                    // Remove if it's the second time we find this node
+                            nodes[v] = cp;                   // With most types of queues, "processing" is just putting all
+                            queue.remove();                  // neighbours on the queue so this will instantly pop. However,
+                            continue;                        // when using a stack (DFS), a node is being processed as long
+                        } else {                             // as any of its child nodes are being processed. If a node is
+                            onFoundCycle(v, node, nodes[v]); // being processed, but a new instance of that node was found,
+                            queue.remove();                  // then we have found a cycle.
+                            continue;
+                        }
+                    } else {
+                        if (node instanceof TreeNode.Unattached && !node.isAttached()) {
+                            ((TreeNode.Unattached) node).attach();          //  All nodes but the root are unattached
+                        }
+                        curProcessing.put(v, node);
                     }
                 } else {
+                    nodes[v] = node;
                     if (node instanceof TreeNode.Unattached && !node.isAttached()) {
-                        ((TreeNode.Unattached) node).attach();          //  All nodes but the root are unattached
+                        ((TreeNode.Unattached) node).attach();
                     }
-                    curProcessing.put(v, node);
+                    queue.remove();
                 }
 
 
@@ -84,7 +99,7 @@ public abstract class GraphSearch extends Algorithm {
 
                     if (onInspectEdge(v, key, edgeWeight)) continue;
                     if (!directed && node.getParent() != null && key == node.getParent().getValue()) continue;
-                    if (nodes[key] != null) continue;
+                    if (nodes[key] != null) continue;       // TODO Check whether we shouldn't need this disabled if we're checking for cycles
 
                     TreeNode<Integer>.Unattached child = node.createUnattached(key, edgeWeight);
                     queue.add(child);
@@ -93,7 +108,7 @@ public abstract class GraphSearch extends Algorithm {
 
 
 
-            onFinish(new GraphSearchResult(traversal, nodes, hasCycle));
+            onFinish(new GraphSearchResult(traversal, nodes));
 
         });
     }
@@ -107,6 +122,9 @@ public abstract class GraphSearch extends Algorithm {
     protected void onInspectVertex(int vertex, TreeNode<Integer> node) {}
     protected boolean onInspectEdge(int fromVertex, int toVertex, double weight) { return false; }
     protected void onFinish(GraphSearchResult graphSearchResult) {}
+    protected boolean doCycleDetection() {
+        return false;
+    }
 
 
 
@@ -114,12 +132,10 @@ public abstract class GraphSearch extends Algorithm {
     public class GraphSearchResult extends Structure {
         public final Tree<Integer> traversalTree;
         public final TreeNode<Integer>[] nodes;
-        public final boolean hasCycle;
 
-        private GraphSearchResult(Tree<Integer> traversalTree, TreeNode<Integer>[] nodes, boolean hasCycle) {
+        private GraphSearchResult(Tree<Integer> traversalTree, TreeNode<Integer>[] nodes) {
             this.traversalTree = traversalTree;
             this.nodes = nodes;
-            this.hasCycle = hasCycle;
         }
 
     }
@@ -130,42 +146,27 @@ public abstract class GraphSearch extends Algorithm {
 
     public interface Type {
         Queue<TreeNode<Integer>> newQueue(Graph graph);
+        default boolean canDetectCycles() {
+            return false;
+        }
 
+        static GraphSearch.Type BREADTH_FIRST = graph -> new ArrayDeque<>();
 
-        GraphSearch.Type BREADTH_FIRST = graph -> new ArrayDeque<>();
-
-        GraphSearch.Type DEPTH_FIRST = graph -> new AbstractQueue<TreeNode<Integer>>() {
-            ArrayDeque<TreeNode<Integer>> deque = new ArrayDeque<>();
-
+        static GraphSearch.Type DEPTH_FIRST = new Type() {
             @Override
-            public Iterator<TreeNode<Integer>> iterator() {
-                return deque.descendingIterator();
+            public boolean canDetectCycles() {
+                return true;
             }
 
             @Override
-            public int size() {
-                return deque.size();
-            }
-
-            @Override
-            public boolean offer(TreeNode<Integer> node) {
-                return deque.offerLast(node);
-            }
-
-            @Override
-            public TreeNode<Integer> poll() {
-                return deque.pollLast();
-            }
-
-            @Override
-            public TreeNode<Integer> peek() {
-                return deque.peekLast();
+            public Queue<TreeNode<Integer>> newQueue(Graph graph) {
+                return Collections.asLifoQueue(new ArrayDeque<>());
             }
         };
 
-        GraphSearch.Type DIJKSTRA = graph -> new PriorityQueue<>();
+        static GraphSearch.Type DIJKSTRA = graph -> new PriorityQueue<>();
 
-        GraphSearch.Type PRIM = graph -> new PriorityQueue<>(Comparator.comparingDouble(a -> a.getDistanceToParent()));
+        static GraphSearch.Type PRIM = graph -> new PriorityQueue<>(Comparator.comparingDouble(a -> a.getDistanceToParent()));
     }
 
 
@@ -175,39 +176,62 @@ public abstract class GraphSearch extends Algorithm {
      *
      */
     @O("n + m")
-    public static List<List<Integer>> getComponents(UndirectedGraph graph) {      // TODO Clean-up
-        final List<List<Integer>> result = new ArrayList<>();
-        if (graph.getVertexCount() == 0) return result;
+    public static Set<Set<Integer>> getComponents(UndirectedGraph graph) {      // TODO Clean-up
+        if (graph.getVertexCount() == 0) return Collections.emptySet();
 
-
-        final boolean[] hasVisited = new boolean[graph.getVertexCount()];
-
+        final List<Set<Integer>> result = new ArrayList<>();
         for (GraphSearchResult res : getResults(graph, Type.BREADTH_FIRST)) {
-            result.add(TreeTraversal.preOrder(res.traversalTree));
+            result.add(TreeTraversal.preOrder(res.traversalTree).stream().map(a -> a.getValue()).collect(Utils.collectToSet()));
         }
-
-        return result;
+        return Utils.asSet(result);
     }
 
 
 
+    @O("n + m")
+    private static <T> Iterator<T> runSearchForAllComponents(BiFunction<Integer, TreeNode<Integer>[], T> search, Graph graph, boolean directed) {
+        return new Iterator<T>() {
+            TreeNode<Integer>[] nodeArr = new TreeNode[graph.getVertexCount()];
+            int nextOne = 0;
 
+            @Override
+            public boolean hasNext() {
+                while (true) {
+                    if (nextOne >= nodeArr.length) return false;
+                    if (nodeArr[nextOne] == null) return true;
+                    nextOne++;
+                }
+            }
+
+            @Override
+            public T next() {
+                if (!hasNext()) throw new NoSuchElementException();
+                return search.apply(nextOne, nodeArr);
+            }
+        };
+    }
+
+    @O("n + m")
     public static double getDistance(UndirectedGraph graph, int v1, int v2) {
         return getDistance(graph, v1, v2, false, false);
     }
 
+    @O("n + m")
     public static double getDistance(DirectedGraph graph, int start, int end) {
         return getDistance(graph, start, end, false, false);
     }
 
+    @O("n + m")
     public static int getEdgeDistance(UndirectedGraph graph, int v1, int v2) {
         return (int) getDistance(graph, v1, v2, false, true);
     }
 
+    @O("n + m")
     public static int getEdgeDistance(DirectedGraph graph, int start, int end) {
         return (int) getDistance(graph, start, end, false, true);
     }
 
+    @O("n + m")
     private static double getDistance(Graph graph, int start, int end, boolean directed, boolean edge) {
         GraphSearch search = new GraphSearch() {
             @Override
@@ -217,6 +241,7 @@ public abstract class GraphSearch extends Algorithm {
 
             @Override
             protected void onInspectVertex(int vertex, TreeNode<Integer> node) {
+                if (this.shouldEnd()) return;
                 if (vertex == end) this.end(edge ? node.getHeight() : node.getDistance());
             }
         };
@@ -266,32 +291,17 @@ public abstract class GraphSearch extends Algorithm {
     }
 
     @O("n + m")
-    private static List<GraphSearchResult> getResults(Graph graph, final GraphSearch.Type searchType, boolean directed) {
-        ArrayList<GraphSearchResult> result = new ArrayList<>();
-
-        boolean[] visited = new boolean[graph.getVertexCount()];
-        TreeNode<Integer>[] nodeArr = null;
-        for (int nextOne = 0; nextOne < graph.getVertexCount(); nextOne++) {
-            if (visited[nextOne]) continue;
-
-            GraphSearchResult res = getResult(graph, nextOne, searchType, nodeArr, directed);
-            nodeArr = res.nodes;
-            for (Integer node : TreeTraversal.preOrder(res.traversalTree)) {
-                visited[node] = true;
-            }
-            result.add(res);
-        }
-
-        return Collections.unmodifiableList(result);
+    private static Set<GraphSearchResult> getResults(Graph graph, final GraphSearch.Type searchType, boolean directed) {
+        return Utils.asSet(Utils.toArrayList(runSearchForAllComponents((n, nodeArr) -> getResult(graph, n, searchType, nodeArr, directed), graph, directed)));
     }
 
     @O("n + m")
-    public static List<GraphSearchResult> getResults(UndirectedGraph graph, final GraphSearch.Type searchType) {
+    public static Set<GraphSearchResult> getResults(UndirectedGraph graph, final GraphSearch.Type searchType) {
         return getResults(graph, searchType, false);
     }
 
     @O("n + m")
-    public static List<GraphSearchResult> getResults(DirectedGraph graph, final GraphSearch.Type searchType) {
+    public static Set<GraphSearchResult> getResults(DirectedGraph graph, final GraphSearch.Type searchType) {
         return getResults(graph, searchType, true);
     }
 
@@ -307,63 +317,73 @@ public abstract class GraphSearch extends Algorithm {
 
 
     @O("n + m")
-    private static List<Tree<Integer>> getTrees(Graph graph, GraphSearch.Type searchType, boolean directed) {
-        List<GraphSearchResult> rs = getResults(graph, searchType, directed);
+    private static Set<Tree<Integer>> getTrees(Graph graph, GraphSearch.Type searchType, boolean directed) {
+        Set<GraphSearchResult> rs = getResults(graph, searchType, directed);
         List<Tree<Integer>> result = new ArrayList<Tree<Integer>>(rs.size());
         for (GraphSearchResult res : rs) {
             result.add(res.traversalTree);
         }
-        return Collections.unmodifiableList(result);
+        return Utils.asSet(result);
     }
 
     @O("n + m")
-    public static List<Tree<Integer>> getTrees(UndirectedGraph graph, final GraphSearch.Type searchType) {
+    public static Set<Tree<Integer>> getTrees(UndirectedGraph graph, final GraphSearch.Type searchType) {
         return getTrees(graph, searchType, false);
     }
 
     @O("n + m")
-    public static List<Tree<Integer>> getTrees(DirectedGraph graph, final GraphSearch.Type searchType) {
+    public static Set<Tree<Integer>> getTrees(DirectedGraph graph, final GraphSearch.Type searchType) {
         return getTrees(graph, searchType, true);
     }
 
     @O("n + m")
     public static boolean hasCycle(DirectedGraph graph) {
-        return getResults(graph, Type.DEPTH_FIRST).stream().anyMatch(a -> a.hasCycle);
+        return hasCycle(graph, true);
     }
 
     @O("n + m")
-    public static boolean hasCycle(UndirectedGraph graph, int start, GraphSearch.Type searchType) {
-        return getResults(graph, Type.DEPTH_FIRST).stream().anyMatch(a -> a.hasCycle);
+    public static boolean hasCycle(UndirectedGraph graph) {
+        return hasCycle(graph, false);
+    }
+
+    @O("n + m")
+    private static boolean hasCycle(Graph graph, boolean directed) {
+        return Utils.toStream(runSearchForAllComponents((start, nodeArr) -> new GraphSearch() {
+            @Override
+            protected Type getType() {
+                return Type.DEPTH_FIRST;
+            }
+
+            @Override
+            protected boolean doCycleDetection() {
+                return true;
+            }
+
+            @Override
+            protected void onFoundCycle(int vertex, TreeNode<Integer> parent, TreeNode<Integer> meetsWith) {
+                this.end(true);
+            }
+
+            @Override
+            protected TreeNode<Integer>[] getNodeArray(Graph graph) {
+                return nodeArr == null ? super.getNodeArray(graph) : nodeArr;
+            }
+        }.run(graph, start, directed), graph, directed)).anyMatch(o -> o != null);
     }
 
 
 
-    // TODO update
     @O("n + m")
     public static List<Integer> getTopologicalOrder(DirectedGraph graph) {
-        List<Integer> starts = new ArrayList<>();
-        for (int i = 0; i < graph.getVertexCount(); i++) {
-            if (graph.getInDegree(i) == 0) {
-                starts.add(i);
+        if (hasCycle(graph)) return null;
+        List<Integer> res = new ArrayList<>();
+        for (Tree<Integer> tree : getTrees(graph, Type.DEPTH_FIRST)) {
+            for (TreeNode<Integer> node : TreeTraversal.postOrder(tree)) {
+                res.add(node.getValue());
             }
         }
-
-        boolean[] visited = new boolean[graph.getVertexCount()];
-        List<Integer> result = new ArrayList<>();
-        TreeNode<Integer>[] nodeArr = null;
-        for (int start : starts) {
-            GraphSearchResult res = getResult(graph, start, Type.DEPTH_FIRST, nodeArr, true);
-            nodeArr = res.nodes;
-            if (res.hasCycle) return null;
-            for (int i : TreeTraversal.postOrder(res.traversalTree)) {
-                if (visited[i]) continue;
-                result.add(i);
-                visited[i] = true;
-            }
-        }
-        if (result.size() < graph.getVertexCount()) return null;
-        Collections.reverse(result);
-        return result;
+        Collections.reverse(res);
+        return res;
     }
 
 

@@ -3,6 +3,7 @@ package lib.graphs.algorithms;
 import lib.algorithms.Algorithm;
 import lib.algorithms.O;
 import lib.graphs.UndirectedGraph;
+import lib.trees.TreeNode;
 import lib.utils.tuples.Pair;
 
 import java.util.*;
@@ -40,8 +41,8 @@ public class GraphColors extends Algorithm {
                 return false;
             }
         };
-        for (List<Integer> l : GraphSearch.getComponents(graph)) {
-            if (search.run(graph, l.get(0)) != null) {
+        for (Set<Integer> l : GraphSearch.getComponents(graph)) {
+            if (search.run(graph, l.iterator().next()) != null) {
                 return null;
             }
         }

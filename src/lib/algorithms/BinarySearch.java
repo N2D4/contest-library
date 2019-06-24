@@ -5,8 +5,11 @@ import lib.utils.tuples.Pair;
 import lib.utils.various.LongRange;
 import lib.utils.various.Range;
 
+import java.math.BigInteger;
 import java.util.Comparator;
 import java.util.List;
+import java.util.function.IntPredicate;
+import java.util.function.LongPredicate;
 import java.util.function.Predicate;
 
 public final class BinarySearch extends Algorithm {
@@ -27,16 +30,16 @@ public final class BinarySearch extends Algorithm {
 
 
     /**
-     * Returns the first i for which isBigger(i) is true, assuming it's false for all j < i and true for all j >= i
+     * Returns the first i for which isBigger(i) is true (usually it's false for all j < i and true for all j >= i)
      */
-    public static int searchInRange(Range range, Predicate<Integer> isBigger) {
+    public static int searchInRange(Range range, IntPredicate isBigger) {
         return (int) searchInRange(range.toLongRange(), l -> isBigger.test((int) (long) l));
     }
 
     /**
-     * Returns the first i for which isBigger(i) is true, assuming it's false for all j < i and true for all j >= i
+     * Returns the first i for which isBigger(i) is true (usually it's false for all j < i and true for all j >= i).
      */
-    public static long searchInRange(LongRange range, Predicate<Long> isBigger) {
+    public static long searchInRange(LongRange range, LongPredicate isBigger) {
         long a = range.a;
         long b = range.b;
         while (a < b) {
@@ -50,8 +53,27 @@ public final class BinarySearch extends Algorithm {
         return a;
     }
 
+    /**
+     * Returns the first i for which isBigger(i) is true (usually it's false for all j < i and true for all j >= i).
+     *
+     * Range is [range.a, range.b) (so inclusive begin, exclusive end).
+     */
+    public static BigInteger searchInRange(Pair<BigInteger, BigInteger> range, Predicate<BigInteger> isBigger) {
+        BigInteger a = range.a;
+        BigInteger b = range.b;
+        while (a.compareTo(b) < 0) {
+            BigInteger mid = a.add(b).divide(BigInteger.valueOf(2));
+            if (isBigger.test(mid)) {
+                b = mid;
+            } else {
+                a = mid.add(BigInteger.ONE);
+            }
+        }
+        return a;
+    }
+
     private static <T> int search(List<T> list, Predicate<T> isBigger) {
-        return (int) searchInRange(new Range(0, list.size()), (i) -> isBigger.test(list.get((int) (long) i)));
+        return searchInRange(new Range(0, list.size()), (i) -> isBigger.test(list.get((int) (long) i)));
     }
 
     private static <T> Range search(List<T> list, Predicate<T> isBiggerA, Predicate<T> isBiggerB) {

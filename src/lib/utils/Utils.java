@@ -6,8 +6,7 @@ import java.util.function.Consumer;
 /* END-JAVA-8 */
 
 import java.util.function.Supplier;
-import java.util.stream.Collectors;
-import java.util.stream.IntStream;
+import java.util.stream.*;
 
 public final class Utils {
     private Utils() {
@@ -27,7 +26,7 @@ public final class Utils {
     }
 
 
-    public static double timing(Runnable runnable) {
+    public static double timing(Runnable runnable, String name) {
         long start = System.nanoTime();
         runnable.run();
         long end = System.nanoTime();
@@ -35,23 +34,33 @@ public final class Utils {
     }
 
     private static int timingId = 0;
-    public static <T> T printTiming(Supplier<T> supplier) {
+    public static <T> T printTiming(Supplier<T> supplier, String name) {
         int tid = timingId++;
-        System.err.println("Starting task " + tid);
+        if (name == null) name = "" + tid;
+        else name = tid + " - " + name;
+        System.err.println("Starting task " + name);
         long start = System.nanoTime();
         try {
             return supplier.get();
         } finally {
             long end = System.nanoTime();
-            System.err.println("Time taken for task " + tid + ": " + (end - start) / 1_000_000_000.0 + "s");
+            System.err.println("Time taken for task " + name + ": " + (end - start) / 1_000_000_000.0 + "s");
         }
     }
 
-    public static void printTiming(Runnable runnable) {
+    public static void printTiming(Runnable runnable, String name) {
         printTiming(() -> {
             runnable.run();
             return null;
-        });
+        }, name);
+    }
+
+    public static <T> T printTiming(Supplier<T> supplier) {
+        return printTiming(supplier, null);
+    }
+
+    public static void printTiming(Runnable runnable) {
+        printTiming(runnable, null);
     }
     /* END-JAVA-8 */
 
@@ -72,7 +81,6 @@ public final class Utils {
         return toArrayList(iterator, -1);
     }
 
-    /* BEGIN-JAVA-8 */
     public static <T> ArrayList<T> toArrayList(Iterator<T> iterator, int estimatedSize) {
         return toArrayList(Spliterators.spliterator(iterator, estimatedSize, Spliterator.ORDERED));
     }
@@ -84,18 +92,19 @@ public final class Utils {
         spliterator.forEachRemaining(result::add);
         return result;
     }
-    /* END-JAVA-8 */
 
-    /* BEGIN-POLYFILL-6 *../
-    public static <T> ArrayList<T> toArrayList(Iterator<T> iterator, int estimatedSize) {
-        if (estimatedSize == Long.MAX_VALUE || estimatedSize <= 10) estimatedSize = 10;
-        ArrayList<T> result = new ArrayList<T>(estimatedSize);
-        while (iterator.hasNext()) {
-            result.add(iterator.next());
-        }
-        return result;
+
+    public static <T> Stream<T> toStream(Iterator<T> iterator) {
+        return toStream(iterator, -1);
     }
-    /..* END-POLYFILL-6 */
+
+    public static <T> Stream<T> toStream(Iterator<T> iterator, int estimatedSize) {
+        return toStream(Spliterators.spliterator(iterator, estimatedSize, Spliterator.ORDERED));
+    }
+
+    public static <T> Stream<T> toStream(Spliterator<T> spliterator) {
+        return StreamSupport.stream(spliterator, false);
+    }
 
 
     /**
@@ -147,6 +156,106 @@ public final class Utils {
         }
         return hash;
     }
+
+
+    /**
+     * Returns a Set given a collection of **unique** elements. If the collection contains duplicates, the Set will too
+     * (which is, per the definition of a Set, not allowed).
+     *
+     * The returned set is unmodifiable.
+     */
+    public static <T> Set<T> asSet(Collection<T> uniqueElements) {
+        return asModifiableSet(Collections.unmodifiableCollection(uniqueElements));
+    }
+
+    /**
+     * Returns a Set given a collection of **unique** elements. If the collection contains duplicates, the Set will too
+     * (which is, per the definition of a Set, not allowed). The underlying collection must make sure newly added
+     * elements are not duplicates.
+     *
+     * The returned set is modifiable if and only if the underlying collection is modifiable.
+     */
+    public static <T> Set<T> asModifiableSet(Collection<T> uniqueElements) {
+        return new AbstractSet<T>() {
+            @Override
+            public int size() {
+                return uniqueElements.size();
+            }
+
+            @Override
+            public boolean isEmpty() {
+                return uniqueElements.isEmpty();
+            }
+
+            @Override
+            public boolean contains(Object o) {
+                return uniqueElements.contains(o);
+            }
+
+            @Override
+            public Iterator<T> iterator() {
+                return uniqueElements.iterator();
+            }
+
+            @Override
+            public Object[] toArray() {
+                return uniqueElements.toArray();
+            }
+
+            @Override
+            public <T1> T1[] toArray(T1[] a) {
+                return uniqueElements.toArray(a);
+            }
+
+            @Override
+            public boolean add(T t) {
+                return uniqueElements.add(t);
+            }
+
+            @Override
+            public boolean remove(Object o) {
+                return uniqueElements.remove(o);
+            }
+
+            @Override
+            public boolean containsAll(Collection<?> c) {
+                return uniqueElements.containsAll(c);
+            }
+
+            @Override
+            public boolean addAll(Collection<? extends T> c) {
+                return uniqueElements.addAll(c);
+            }
+
+            @Override
+            public boolean retainAll(Collection<?> c) {
+                return uniqueElements.retainAll(c);
+            }
+
+            @Override
+            public boolean removeAll(Collection<?> c) {
+                return uniqueElements.removeAll(c);
+            }
+
+            @Override
+            public void clear() {
+                uniqueElements.clear();
+            }
+        };
+    }
+
+    /**
+     * Returns a Collector which collects **unique** elements to a set. If the elements passed to it contains
+     * duplicates, the Set will too (which is, per the definition of a Set, not allowed).
+     *
+     * This is functionally equivalent to
+     * `Collectors.collectingAndThen(Collectors.toSet(), Collections::unmodifiableSet)`, but likely more performant.
+     */
+    public static <T> Collector<T, ?, Set<T>> collectToSet() {
+        return Collectors.collectingAndThen(Collectors.toList(), Utils::asSet);
+    }
+
+
 
 
     private static final Map<Class, Class> primitiveClassWrappers = new HashMap<Class, Class>() {{

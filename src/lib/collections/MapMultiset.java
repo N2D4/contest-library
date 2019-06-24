@@ -6,16 +6,16 @@ import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-public class MapMultiSet<T> extends AbstractMultiSet<T> {
+public class MapMultiset<T> extends AbstractMultiset<T> {
     private final Map<T, Integer> map;
     private int sizeL = 0;
 
-    public MapMultiSet(Map<T, Integer> map) {
+    public MapMultiset(Map<T, Integer> map) {
         this.map = map;
         this.iterator().forEachRemaining(a -> this.sizeL++);
     }
 
-    public MapMultiSet(Map<T, Integer> map, Collection<T> c) {
+    public MapMultiset(Map<T, Integer> map, Collection<T> c) {
         this(map);
         this.addAll(c);
     }
@@ -97,9 +97,9 @@ public class MapMultiSet<T> extends AbstractMultiSet<T> {
 
     @Override
     public boolean addAll(Collection<? extends T> c) {
-        if (c instanceof MultiSet) {
+        if (c instanceof Multiset) {
             boolean modified = false;
-            for (Iterator<Pair<Object, Integer>> it = ((MultiSet) c).entryIterator(); it.hasNext();) {
+            for (Iterator<Pair<Object, Integer>> it = ((Multiset) c).entryIterator(); it.hasNext();) {
                 Pair<Object, Integer> t = it.next();
                 if (this.addN(t.b, (T) t.a)) modified = true;
             }
@@ -111,9 +111,9 @@ public class MapMultiSet<T> extends AbstractMultiSet<T> {
 
     @Override
     public boolean removeAll(Collection<?> c) {
-        if (c instanceof MultiSet) {
+        if (c instanceof Multiset) {
             boolean modified = false;
-            for (Iterator<Pair<Object, Integer>> it = ((MultiSet) c).entryIterator(); it.hasNext();) {
+            for (Iterator<Pair<Object, Integer>> it = ((Multiset) c).entryIterator(); it.hasNext();) {
                 Pair<Object, Integer> t = it.next();
                 if (this.removeN(t.b, t.a)) modified = true;
             }

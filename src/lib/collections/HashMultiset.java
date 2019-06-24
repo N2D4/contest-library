@@ -3,16 +3,16 @@ package lib.collections;
 import java.util.Collection;
 import java.util.HashMap;
 
-public class HashMultiSet<T> extends MapMultiSet<T> {
-    public HashMultiSet() {
+public class HashMultiset<T> extends MapMultiset<T> {
+    public HashMultiset() {
         super(new HashMap<>());
     }
 
-    public HashMultiSet(Collection<T> c) {
+    public HashMultiset(Collection<T> c) {
         super(new HashMap<>(), c);
     }
 
-    public HashMultiSet(int initialCapacity) {
+    public HashMultiset(int initialCapacity) {
         super(new HashMap<>(initialCapacity));
     }
 

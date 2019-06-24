@@ -7,7 +7,7 @@ import java.util.Iterator;
 import java.util.Set;
 import java.util.stream.Stream;
 
-public interface MultiSet<E> extends Collection<E> {
+public interface Multiset<E> extends Collection<E> {
     int count(Object o);
     boolean addN(int n, E e);
     boolean removeN(int n, Object o);

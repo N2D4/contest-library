@@ -21,7 +21,7 @@ public interface Graph {
         Set<Graph.Edge> result = new HashSet<Graph.Edge>();
         Iterator<Graph.Edge> iterator = edgeIterator();
         while (iterator.hasNext()) result.add(iterator.next());
-        return result;
+        return Collections.unmodifiableSet(result);
     }
     /* END-JAVA-8 */
     /* BEGIN-POLYFILL-6 *../

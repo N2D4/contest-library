@@ -1,6 +1,11 @@
 import lib.graphs.*;
 import lib.graphs.algorithms.FloydWarshall;
+import lib.graphs.algorithms.GraphComponents;
 import lib.graphs.algorithms.GraphSearch;
+import lib.graphs.algorithms.SpanningTrees;
+import lib.trees.Tree;
+import lib.trees.TreeNode;
+import lib.trees.algorithms.TreeTraversal;
 import lib.utils.MathUtils;
 import org.junit.jupiter.api.Test;
 
@@ -58,6 +63,44 @@ public class GraphTests {
     }
 
 
+    @Test
+    public void primKruskalMSTConsistency() {
+        Random random = new Random("prim and kruskal MST consistency".hashCode());
+        Iterator<UndirectedGraph> iterator = genUndirectedGraph(150, random).iterator();
+        outer: for (int it = 0; it < 100 * TestConstants.SCALE; it++) {
+            UndirectedGraph graph = iterator.next();
+            int n = graph.getVertexCount();
+            int components = GraphComponents.getComponents(graph).size();
+
+            /*System.err.println();
+            System.err.println();
+            System.err.println();
+            System.err.println();
+            System.err.println();
+            System.err.println();
+            System.err.println(graph.getClass());
+            System.err.println(graph);
+            System.err.println();*/
+
+            UndirectedGraph kruskal = SpanningTrees.minimumSpanningTree(graph);
+            //System.err.println(kruskal);
+            //System.err.println();
+            assertEquals(kruskal.getEdgeCount(), n - components);
+
+            Set<Tree<Integer>> prim = GraphSearch.getTrees(graph, GraphSearch.Type.PRIM);
+            //System.err.println(prim);
+            //System.err.println();
+            assertEquals(prim.size(), components);
+
+
+            double primSize = prim.stream().flatMapToDouble(a -> TreeTraversal.preOrder(a).stream().filter(b -> b.hasParent()).mapToDouble(b -> b.getDistanceToParent())).sum();
+            double kruskalSize = kruskal.getEdges().stream().mapToDouble(a -> a.weight).sum();
+            assertEquals(primSize, kruskalSize, 0.00001);
+        }
+    }
+
+
+
 
     @Test
     public void floydWarshallDijkstraConsistency() {
@@ -72,14 +115,18 @@ public class GraphTests {
                 }
             }
 
-            //System.out.println(graph.getClass().getName());
-            //System.out.println(graph);
-            //System.out.println();
+            /*System.out.println();
+            System.out.println();
+            System.out.println();
+            System.out.println(graph.getClass().getName());
+            System.out.println(graph);
+            System.out.println();*/
             
             double[][] pathLength = new double[graph.getVertexCount()][graph.getVertexCount()];
             for (int i = 0; i < graph.getVertexCount(); i++) {
                 for (int j = 0; j < graph.getVertexCount(); j++) {
                     if (graph instanceof UndirectedGraph) {
+                        //if (i == 0 && j == 1) System.out.println(GraphSearch.getTree((UndirectedAdjacencyListGraph) graph, i, GraphSearch.Type.DIJKSTRA));
                         pathLength[i][j] = GraphSearch.getDistance((UndirectedGraph) graph, i, j);
                     } else if (graph instanceof DirectedGraph) {
                         pathLength[i][j] = GraphSearch.getDistance((DirectedGraph) graph, i, j);
@@ -91,7 +138,17 @@ public class GraphTests {
             FloydWarshall.createShortestPaths(graph);
 
 
-            //System.out.println(graph);
+            /*System.out.println("dijkstra:");
+            for (int i = 0; i < pathLength.length; i++) {
+                for (int j = 0; j < pathLength[i].length; j++) {
+                    System.out.print(pathLength[i][j] + ", ");
+                }
+                System.out.println();
+            }
+            System.out.println();
+            System.out.println("fw:");
+            System.out.println(graph);
+            System.out.println();*/
 
 
             for (int i = 0; i < graph.getVertexCount(); i++) {

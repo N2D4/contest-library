@@ -20,7 +20,7 @@ public class GraphComponents extends Algorithm {
     }
 
     @O("n + m")
-    public static List<List<Integer>> getComponents(UndirectedGraph graph) {
+    public static Set<Set<Integer>> getComponents(UndirectedGraph graph) {
         return GraphSearch.getComponents(graph);
     }
 
@@ -33,16 +33,16 @@ public class GraphComponents extends Algorithm {
         Set<Integer> result = new HashSet<>();
         int totI = 0;
         for (GraphSearch.GraphSearchResult res : GraphSearch.getResults(graph, GraphSearch.Type.DEPTH_FIRST)) {
-            List<Integer> order = TreeTraversal.preOrder(res.traversalTree);
+            List<TreeNode<Integer>> order = TreeTraversal.preOrder(res.traversalTree);
             for (int i = 0; i < order.size(); i++) {
-                dfs[order.get(i)] = totI + i;
+                dfs[order.get(i).getValue()] = totI + i;
             }
 
 
 
 
             for (int i = order.size() - 1; i >= 1; i--) {
-                int v = order.get(i);
+                int v = order.get(i).getValue();
                 TreeNode<Integer> node = res.nodes[v];
                 low[v] = totI + i;
                 for (TreeNode<Integer> child : node.getChildren()) {

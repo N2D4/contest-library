@@ -48,7 +48,35 @@ public abstract class MatrixGraph extends AbstractGraph implements Graph {
 
     @Override
     public Iterator<Graph.Edge> edgeIterator() {
-        return FunctionalIterators.filterAndMap(matrix.iterator(), a -> !Double.isNaN(a.c), a -> new Graph.Edge(a.a, a.b, a.c));
+        return new Iterator<Edge>() {
+            private int vertex = -1;
+            private VectorElementIterator iterator = null;
+            private Edge nxt = null;
+
+            @Override
+            public boolean hasNext() {
+                int n = getVertexCount();
+                if (nxt == null) {
+                    do {
+                        while (iterator == null || !iterator.hasNext()) {
+                            if (vertex >= n-1) return false;
+                            vertex++;
+                            iterator = getNeighbours(vertex);
+                        }
+                        nxt = new Edge(vertex, iterator.nextInt(), iterator.getValue());
+                    } while (directed || nxt.to >= nxt.from);
+                }
+                return true;
+            }
+
+            @Override
+            public Edge next() {
+                if (!hasNext()) throw new NoSuchElementException();
+                Edge res = nxt;
+                nxt = null;
+                return res;
+            }
+        };
     }
 
     @Override
