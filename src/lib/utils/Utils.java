@@ -26,7 +26,7 @@ public final class Utils {
     }
 
 
-    public static double timing(Runnable runnable, String name) {
+    public static double timing(Runnable runnable) {
         long start = System.nanoTime();
         runnable.run();
         long end = System.nanoTime();

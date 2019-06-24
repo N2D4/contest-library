@@ -66,7 +66,7 @@ public class GraphTests {
     @Test
     public void primKruskalMSTConsistency() {
         Random random = new Random("prim and kruskal MST consistency".hashCode());
-        Iterator<UndirectedGraph> iterator = genUndirectedGraph(150, random).iterator();
+        Iterator<UndirectedGraph> iterator = genUndirectedGraph(100, random).iterator();
         outer: for (int it = 0; it < 100 * TestConstants.SCALE; it++) {
             UndirectedGraph graph = iterator.next();
             int n = graph.getVertexCount();

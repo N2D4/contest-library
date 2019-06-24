@@ -16,8 +16,12 @@ public interface Matrix extends Iterable<Triple<Integer, Integer, Double>> {
     }
 
     default void apply(Function<Double, Double> func) {
-        for (Triple<Integer, Integer, Double> triple : this) {
-            this.set(triple.a, triple.b, func.apply(triple.c));
+        int n = this.getRowCount();
+        int m = this.getColumnCount();
+        for (int a = 0; a < n; a++) {
+            for (int b = 0; b < m; b++) {
+                this.set(a, b, func.apply(this.get(a, b)));
+            }
         }
     }
 
