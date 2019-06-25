@@ -126,27 +126,25 @@ public class BuildOutput {
             Path outfol = root.resolve("out");
             if (!Files.exists(outfol)) Files.createDirectory(outfol);
 
-            result = "// Hash: " + Base64.getEncoder().encodeToString(hash(result)) + "\n\n" + result;
+            result = "// Hash: " + Base64.getEncoder().encodeToString(hash(result.getBytes())) + "\n\n" + result;
 
-            Path hashp = outfol.resolve(className + ".hash.meta");
-            byte[] hash = hash(result);
-            if (Files.exists(hashp)) {
-                byte[] rhash = Files.readAllBytes(hashp);
+            Path out = outfol.resolve(className + ".java");
+            byte[] hash = hash(result.getBytes());
+            if (Files.exists(out)) {
+                byte[] rhash = hash(Files.readAllBytes(out));
                 if (Arrays.equals(hash, rhash)) {
                     System.out.println("Hashes match; file not modified");
                     return 2;
                 }
             }
-            Files.write(hashp, hash, StandardOpenOption.CREATE);
 
-            Path out = outfol.resolve(className + ".java");
             if (Files.exists(out)) Files.delete(out);
             Files.write(out, result.getBytes(), StandardOpenOption.CREATE);
             if (copyPath != null) {
                 Files.copy(out, Paths.get(copyPath + "/" + root.getFileName() + " " + className + ".java"), StandardCopyOption.REPLACE_EXISTING);
             }
 
-            System.out.println("Created merged file at " + out.toString());
+            System.out.println("Created combined file at " + out.toString());
             System.out.println("Total size: " + out.toFile().length() + " bytes");
 
             return 0;
@@ -159,9 +157,9 @@ public class BuildOutput {
         }
     }
 
-    public static byte[] hash(String s) throws NoSuchAlgorithmException {
+    public static byte[] hash(byte[] s) throws NoSuchAlgorithmException {
         MessageDigest md = MessageDigest.getInstance("SHA-256");
-        return md.digest(s.getBytes());
+        return md.digest(s);
     }
 
     public static Map<String, String> getGlobalSources() {

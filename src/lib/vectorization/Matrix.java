@@ -7,6 +7,7 @@ import java.util.*;
 import java.util.function.BiFunction;
 import java.util.function.DoublePredicate;
 import java.util.function.Function;
+import java.util.function.Supplier;
 
 public interface Matrix extends Iterable<Triple<Integer, Integer, Double>> {
     double get(int row, int column);
@@ -191,8 +192,29 @@ public interface Matrix extends Iterable<Triple<Integer, Integer, Double>> {
 
 
 
-    static Matrix combine(Matrix a, Matrix b, BiFunction<Double, Double, Double> combiner) {
-        return ResizableMatrix.combine(a, b, combiner);
+    static <T extends Matrix> T combine(Matrix a, Matrix b, Supplier<T> matrixSupplier, BiFunction<Double, Double, Double> combiner) {
+        if (a.getRowCount() != b.getRowCount() || a.getColumnCount() != b.getColumnCount())
+            throw new IllegalArgumentException("Matrices must have the same dimensions!");
+
+        T result = matrixSupplier.get();
+        boolean isDense = !(a instanceof SparseMatrix && b instanceof SparseMatrix);
+
+        if (isDense) {
+            for (int i = 0; i < result.getRowCount(); i++) {
+                for (int j = 0; j < result.getColumnCount(); j++) {
+                    result.set(i, j, combiner.apply(a.get(i, j), b.get(i, j)));
+                }
+            }
+        } else {
+            // TODO Right now it's just the dense code copy-pasted; use the fact we're using a sparse matrix to optimize instead
+            for (int i = 0; i < result.getRowCount(); i++) {
+                for (int j = 0; j < result.getColumnCount(); j++) {
+                    result.set(i, j, combiner.apply(a.get(i, j), b.get(i, j)));
+                }
+            }
+        }
+
+        return result;
     }
 
 }
