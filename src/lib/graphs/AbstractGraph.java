@@ -7,65 +7,6 @@ import java.util.*;
 
 public abstract class AbstractGraph implements Graph, Serializable {
 
-    /*
-    private Map<Class<? extends Graph>, Graph> graphCache;
-    private boolean isSyncCall = false;
-
-    public AbstractGraph(int vertices) {
-        invalidateCaches();
-    }
-
-    @Override
-    public AdjacencyMatrixGraph asAdjacencyMatrixGraph() {
-        return as(AdjacencyMatrixGraph.class, AdjacencyMatrixGraph::new);
-    }
-
-    @Override
-    public AdjacencyListGraph asAdjacencyListGraph() {
-        return as(AdjacencyListGraph.class, AdjacencyListGraph::new);
-    }
-
-    private <T extends Graph> T as(Class<? extends T> cl, Supplier<T> constructor) {
-        if (!graphCache.containsKey(cl)) {
-            T graph = constructor.get();
-            graphCache.put(cl, graph);
-            if (graph instanceof AbstractGraph) {
-                AbstractGraph ag = (AbstractGraph) graph;
-                ag.graphCache = this.graphCache;
-            }
-        }
-        return (T) graphCache.get(cl);
-    }
-
-    private <T extends Graph> T as(Class<? extends T> cl, Function<Graph, T> constructor) {
-        return as(cl, () -> constructor.apply(this));
-    }
-
-    protected void invalidateCaches() {
-        if (graphCache != null) graphCache.remove(this.getClass());
-        graphCache = new HashMap<>();
-        graphCache.put(this.getClass(), this);
-    }
-
-    protected void forEachCached(Consumer<Graph> consumer) {
-        forEachCached(consumer, this.getClass());
-    }
-
-    private void forEachCached(Consumer<Graph> consumer, Class<? extends Graph> except) {
-        if (isSyncCall) {
-            return;
-        }
-        for (Map.Entry<Class<? extends Graph>, Graph> e : graphCache.entrySet()) {
-            if (e.getKey().isAssignableFrom(except)) continue;
-            Graph graph = e.getValue();
-            if (graph instanceof AbstractGraph) ((AbstractGraph) graph).isSyncCall = true;
-            consumer.accept(graph);
-            if (graph instanceof AbstractGraph) ((AbstractGraph) graph).isSyncCall = false;
-        }
-    }
-    */
-
-
     @Override
     public boolean equals(Object other) {
         if (other == null) return false;
@@ -92,26 +33,21 @@ public abstract class AbstractGraph implements Graph, Serializable {
         );
     }
 
+    @Override
+    public String toString() {
+        StringBuilder result = new StringBuilder();
+        for (int i = 0; i < getVertexCount(); i++) {
+            if (i != 0) result.append("\n");
+            for (int j = 0; j < getVertexCount(); j++) {
+                if (j != 0) result.append(", ");
+                result.append(this.getEdgeWeight(i, j));
+            }
+        }
+
+        return result.toString();
+    }
+
     protected void rangeChecks(int v1, int v2) throws IllegalArgumentException {
         if (v1 < 0 || v2 < 0 || v1 >= getVertexCount() || v2 >= getVertexCount()) throw new IllegalArgumentException();
     }
-
-
-
-    /* BEGIN-POLYFILL-6 *../
-    @Override
-    public NavigableSet<Integer> getNeighbours(int vertex) {
-        return getNeighbourWeights(vertex).navigableKeySet();
-    }
-
-
-
-    @Override
-    public Set<Graph.Edge> getEdges() {
-        Set<Graph.Edge> result = new HashSet<Graph.Edge>();
-        Iterator<Graph.Edge> iterator = edgeIterator();
-        while (iterator.hasNext()) result.add(iterator.next());
-        return result;
-    }
-    /..* END-POLYFILL-6 */
 }

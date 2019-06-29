@@ -8,6 +8,7 @@ import lib.graphs.UndirectedGraph;
 import lib.trees.Tree;
 import lib.trees.TreeNode;
 import lib.trees.algorithms.TreeTraversal;
+import lib.utils.QueueUtils;
 import lib.utils.Utils;
 import lib.utils.tuples.Monad;
 import lib.utils.various.Structure;
@@ -150,7 +151,7 @@ public abstract class GraphSearch extends Algorithm {
             return false;
         }
 
-        static GraphSearch.Type BREADTH_FIRST = graph -> new ArrayDeque<>();
+        static GraphSearch.Type BREADTH_FIRST = graph -> QueueUtils.createFIFO();
 
         static GraphSearch.Type DEPTH_FIRST = new Type() {
             @Override
@@ -160,13 +161,13 @@ public abstract class GraphSearch extends Algorithm {
 
             @Override
             public Queue<TreeNode<Integer>> newQueue(Graph graph) {
-                return Collections.asLifoQueue(new ArrayDeque<>());
+                return QueueUtils.createLIFO();
             }
         };
 
-        static GraphSearch.Type DIJKSTRA = graph -> new PriorityQueue<>();
+        static GraphSearch.Type DIJKSTRA = graph -> QueueUtils.createPriority(a -> a.getDistance());
 
-        static GraphSearch.Type PRIM = graph -> new PriorityQueue<>(Comparator.comparingDouble(a -> a.getDistanceToParent()));
+        static GraphSearch.Type PRIM = graph -> QueueUtils.createPriority(a -> a.getDistanceToParent());
     }
 
 
@@ -348,7 +349,7 @@ public abstract class GraphSearch extends Algorithm {
 
     @O("n + m")
     private static boolean hasCycle(Graph graph, boolean directed) {
-        return Utils.toStream(runSearchForAllComponents((start, nodeArr) -> new GraphSearch() {
+        return Utils.stream(runSearchForAllComponents((start, nodeArr) -> new GraphSearch() {
             @Override
             protected Type getType() {
                 return Type.DEPTH_FIRST;

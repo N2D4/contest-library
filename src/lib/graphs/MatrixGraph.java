@@ -121,10 +121,4 @@ public abstract class MatrixGraph extends AbstractGraph implements Graph {
     int getOutDegree(int vertex) {
         return outDegrees.get(vertex);
     }
-
-
-    @Override
-    public String toString() {
-        return matrix.toString();
-    }
 }

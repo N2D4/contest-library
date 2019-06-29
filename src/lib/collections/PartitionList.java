@@ -1,5 +1,6 @@
 package lib.collections;
 
+import lib.algorithms.O;
 import lib.utils.Utils;
 import lib.utils.tuples.Pair;
 import lib.utils.various.Range;
@@ -10,7 +11,7 @@ import java.util.function.Function;
 
 public class PartitionList<T> extends AbstractList<T> implements RandomAccess, Serializable {
     private int size;
-    private TreeMap<Integer, T> map = new TreeMap<Integer, T>();
+    private NavigableMap<Integer, T> map = new TreeMap<Integer, T>();
 
 
     public PartitionList() {
@@ -185,17 +186,35 @@ public class PartitionList<T> extends AbstractList<T> implements RandomAccess, S
 
 
 
-    public void map(Function<T, T> mapper) {
-        map(new Range(0, size()), mapper);
+    /**
+     * Same as #applyAll(...)
+     */
+    public void mapAll(Function<T, T> mapper) {
+        mapRange(new Range(0, size()), mapper);
     }
 
-    public void map(Range range, Function <T, T> mapper) {
-        for (Iterator<Pair<Range, T>> iterator = partitionsIterator(); iterator.hasNext();) {
+    /**
+     * Same as #applyRange(...)
+     */
+    public void mapRange(Range range, Function <T, T> mapper) {
+        for (PartitionIterator<T> iterator = partitionsIterator(range); iterator.hasNext();) {
             Pair<Range, T> partition = iterator.next();
-            if (range.a >= partition.a.b) continue;
-            if (range.b <= partition.a.a) break;
-            setRange(Range.getIntersection(range, partition.a), mapper.apply(partition.b));
+            iterator.set(mapper.apply(partition.b));
         }
+    }
+
+    /**
+     * Same as #mapAll(...)
+     */
+    public void applyAll(Function<T, T> mapper) {
+        mapAll(mapper);
+    }
+
+    /**
+     * Same as #mapRange(...)
+     */
+    public void applyRange(Range range, Function <T, T> mapper) {
+        mapRange(range, mapper);
     }
 
 
@@ -217,9 +236,6 @@ public class PartitionList<T> extends AbstractList<T> implements RandomAccess, S
         // TODO This works, but is slow (loops over every element)
         return super.hashCode();
     }
-
-
-
 
 
 
@@ -254,11 +270,10 @@ public class PartitionList<T> extends AbstractList<T> implements RandomAccess, S
     }
 
 
-
-
+    @O("n")
     public int getPartitionIndexOf(int elementIndex) {
         rangeCheck(elementIndex);
-        return map.headMap(elementIndex, true).size() - 1;
+        return map.headMap(elementIndex, false).size();
     }
 
     public List<Pair<Range, T>> partitions() {
@@ -273,12 +288,20 @@ public class PartitionList<T> extends AbstractList<T> implements RandomAccess, S
         return map.size();
     }
 
-    public Iterator<Pair<Range, T>> partitionsIterator() {
+    public PartitionIterator<T> partitionsIterator() {
         return partitionsIterator(false);
     }
 
-    protected Iterator<Pair<Range, T>> partitionsIterator(boolean descending) {
-        return new PartitionItr(descending);
+    protected PartitionIterator<T> partitionsIterator(boolean descending) {
+        return partitionsIterator(new Range(0, size()), descending);
+    }
+
+    public PartitionIterator<T> partitionsIterator(Range range) {
+        return partitionsIterator(range, false);
+    }
+
+    protected PartitionIterator<T> partitionsIterator(Range range, boolean descending) {
+        return new PartitionItr(range, descending);
     }
 
     @Override
@@ -407,18 +430,46 @@ public class PartitionList<T> extends AbstractList<T> implements RandomAccess, S
         }
     }
 
-    private class PartitionItr extends Itr<Pair<Range, T>> {
-        private Range prevRange = null;
+    public interface PartitionIterator<T> extends Iterator<Pair<Range, T>> {
+        void set(T element);
+    }
+
+    private class PartitionItr extends Itr<Pair<Range, T>> implements PartitionIterator<T> {
+        private final Range fullRange;
+        private final boolean reverse;
+        private Range prevRange;
+        private Map.Entry<Integer, T> prevEntry;
         private Map.Entry<Integer, T> nextEntry;
         private Iterator<Map.Entry<Integer, T>> mapIterator;
 
 
-        public PartitionItr(boolean reverse) {
-            if (reverse) {
-                mapIterator = map.descendingMap().entrySet().iterator();
-            } else {
-                mapIterator = map.entrySet().iterator();
+        public PartitionItr(Range range, boolean reverse) {
+            rangeCheck(range);
+            this.fullRange = new Range(range);
+            this.reverse = reverse;
+            reitr();
+        }
+
+        private void reitr() {
+            if (prevRange != null) fullRange.a = prevRange.b;
+
+            if (fullRange.size() <= 0) {
+                nextEntry = null;
+                mapIterator = Collections.emptyIterator();
+                return;
             }
+
+            Integer floorKey = map.floorKey(fullRange.a);
+            Integer ceilingKey = map.ceilingKey(fullRange.b);
+            if (ceilingKey == null) ceilingKey = size();
+
+            NavigableMap<Integer, T> nmap = map.subMap(floorKey, true, ceilingKey, false);
+            if (reverse) {
+                mapIterator = nmap.descendingMap().entrySet().iterator();
+            } else {
+                mapIterator = nmap.entrySet().iterator();
+            }
+
             if (mapIterator.hasNext()) nextEntry = mapIterator.next();
         }
 
@@ -432,15 +483,20 @@ public class PartitionList<T> extends AbstractList<T> implements RandomAccess, S
             checkModCount();
             if (!hasNext()) throw new NoSuchElementException();
 
-            int lastPos = nextEntry.getKey();
-            T lastVal = nextEntry.getValue();
-            if (mapIterator.hasNext()) {
-                nextEntry = mapIterator.next();
-                prevRange = new Range(lastPos, nextEntry.getKey());
-            } else {
-                nextEntry = null;
-                prevRange = new Range(lastPos, PartitionList.this.size());
-            }
+            T lastVal;
+            do {
+                int lastPos = nextEntry.getKey();
+                lastVal = nextEntry.getValue();
+                prevEntry = nextEntry;
+                if (mapIterator.hasNext()) {
+                    nextEntry = mapIterator.next();
+                    prevRange = new Range(lastPos, nextEntry.getKey());
+                } else {
+                    nextEntry = null;
+                    prevRange = new Range(lastPos, PartitionList.this.size());
+                }
+                prevRange.intersectWith(fullRange);
+            } while (prevRange.size() <= 0);
 
             return new Pair(prevRange, lastVal);
         }
@@ -449,7 +505,17 @@ public class PartitionList<T> extends AbstractList<T> implements RandomAccess, S
         public void remove() {
             checkModCount();
             if (prevRange == null) throw new NoSuchElementException();
-            PartitionList.this.removeRange(prevRange);
+            removeRange(prevRange);
+            reitr();
+            updateModCount();
+        }
+
+        @Override
+        public void set(T element) {
+            checkModCount();
+            if (prevEntry == null) throw new NoSuchElementException();
+            setRange(prevRange, element);
+            reitr();
             updateModCount();
         }
     }

@@ -3,7 +3,7 @@ package lib.trees;
 import java.io.Serializable;
 import java.util.*;
 
-public class TreeNode<T> implements Comparable<TreeNode<T>>, Serializable {
+public class TreeNode<T> implements Serializable {
     private T value;
     private int height;
     private double distance;
@@ -106,11 +106,6 @@ public class TreeNode<T> implements Comparable<TreeNode<T>>, Serializable {
 
     public boolean isAttached() {
         return true;
-    }
-
-    @Override
-    public int compareTo(TreeNode<T> o) {
-        return Double.compare(this.getDistance(), o.getDistance());
     }
 
     @Override

@@ -46,7 +46,7 @@ public class PermutationIterable<T> implements Iterable<List<T>> {
                     } else {
                         swap(i % 2 == 0 ? 0 : c[i], i);
                         c[i]++;
-                        return cur;
+                        return Collections.unmodifiableList(cur);
                     }
                 }
                 throw new NoSuchElementException();

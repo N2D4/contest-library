@@ -4,6 +4,7 @@ import lib.utils.various.Structure;
 import lib.vectorization.VectorElementIterator;
 
 import java.util.*;
+import java.util.function.IntConsumer;
 import java.util.stream.IntStream;
 
 public interface Graph {
@@ -16,27 +17,22 @@ public interface Graph {
 
     int getEdgeCount();
     Iterator<Graph.Edge> edgeIterator();
-    /* BEGIN-JAVA-8 */
     default Set<Graph.Edge> getEdges() {
         Set<Graph.Edge> result = new HashSet<Graph.Edge>();
         Iterator<Graph.Edge> iterator = edgeIterator();
         while (iterator.hasNext()) result.add(iterator.next());
         return Collections.unmodifiableSet(result);
     }
-    /* END-JAVA-8 */
-    /* BEGIN-POLYFILL-6 *../
-    Set<Graph.Edge> getEdges();
-    /..* END-POLYFILL-6 */
 
+    /**
+     * Returns the edge weight, or NaN if there is no edge between these two nodes
+     */
     double getEdgeWeight(int v1, int v2);
-    /* BEGIN-JAVA-8 */
     default boolean isEdge(int v1, int v2) {
          return !Double.isNaN(getEdgeWeight(v1, v2));
     }
-    /* END-JAVA-8 */
 
     void setEdgeWeight(int v1, int v2, double weight);
-    /* BEGIN-JAVA-8 */
     default void setEdge(int v1, int v2, boolean edge) {
         if (edge) {
             if (!isEdge(v1, v2)) setEdgeWeight(v1, v2, 1.0);
@@ -50,10 +46,23 @@ public interface Graph {
     default void removeEdge(int v1, int v2) {
         setEdge(v1, v2, false);
     }
-    /* END-JAVA-8 */
 
     VectorElementIterator getNeighbours(int vertex);
+    default void forEachNeighbour(int vertex, EdgeConsumer action) {
+        VectorElementIterator it = getNeighbours(vertex);
+        while (it.hasNext()) {
+            action.accept(it.next(), it.getValue());
+        }
+    }
 
+
+    @FunctionalInterface
+    interface EdgeConsumer {
+        default void accept(int neighbour) {
+            accept(neighbour, 1.0);
+        }
+        void accept(int neighbour, double weight);
+    }
 
 
     class Edge extends Structure {

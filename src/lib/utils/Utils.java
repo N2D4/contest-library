@@ -94,15 +94,15 @@ public final class Utils {
     }
 
 
-    public static <T> Stream<T> toStream(Iterator<T> iterator) {
-        return toStream(iterator, -1);
+    public static <T> Stream<T> stream(Iterator<T> iterator) {
+        return stream(iterator, -1);
     }
 
-    public static <T> Stream<T> toStream(Iterator<T> iterator, int estimatedSize) {
-        return toStream(Spliterators.spliterator(iterator, estimatedSize, Spliterator.ORDERED));
+    public static <T> Stream<T> stream(Iterator<T> iterator, int estimatedSize) {
+        return stream(Spliterators.spliterator(iterator, estimatedSize, Spliterator.ORDERED));
     }
 
-    public static <T> Stream<T> toStream(Spliterator<T> spliterator) {
+    public static <T> Stream<T> stream(Spliterator<T> spliterator) {
         return StreamSupport.stream(spliterator, false);
     }
 

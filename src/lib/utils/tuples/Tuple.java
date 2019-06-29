@@ -3,6 +3,7 @@ package lib.utils.tuples;
 import lib.utils.various.Structure;
 
 import java.util.Arrays;
+import java.util.stream.Stream;
 
 public abstract class Tuple extends Structure {
 

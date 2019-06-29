@@ -14,6 +14,8 @@ public class PartitionListTests {
     @Test
     public void simpleTests() {
         PartitionList<Integer> list = new PartitionList<>(5000);
+        assertEquals(list.get(1337), null);
+
         list.setRange(new Range(0, 5000), 123);
         list.set(449, 69);
         list.resize(450);
@@ -22,17 +24,28 @@ public class PartitionListTests {
         list.removeRange(new Range(125, 135));
         list.addRange(new Range(130, 140), 7);
         list.addAll(0, 20, -10);
+        list.applyRange(new Range(18, 22), a -> a * 5);
+
+        PartitionList.PartitionIterator<Integer> itr = list.partitionsIterator(new Range(147, 163));
+        itr.next();
+        itr.next();
+        itr.set(17);
 
 
         assertEquals((int) list.get(0), -10);
-        assertEquals((int) list.get(19), -10);
+        assertEquals((int) list.get(17), -10);
+        assertEquals((int) list.get(18), -50);
+        assertEquals((int) list.get(19), -50);
+        assertEquals((int) list.get(20), 615);
+        assertEquals((int) list.get(21), 615);
+        assertEquals((int) list.get(22), 123);
         assertEquals((int) list.get(99), 123);
         assertEquals((int) list.get(120), 80);
         assertEquals((int) list.get(144), 80);
         assertEquals((int) list.get(145), 5);
         assertEquals((int) list.get(149), 5);
-        assertEquals((int) list.get(150), 7);
-        assertEquals((int) list.get(159), 7);
+        assertEquals((int) list.get(150), 17);
+        assertEquals((int) list.get(159), 17);
         assertEquals((int) list.get(160), 123);
         assertEquals((int) list.get(499), 69);
 

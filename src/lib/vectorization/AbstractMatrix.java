@@ -12,8 +12,6 @@ public abstract class AbstractMatrix implements Matrix, Serializable {
 
     @Override
     public String toString() {
-        final int cellLength = 3;
-
         StringBuilder result = new StringBuilder();
         for (int i = 0; i < getRowCount(); i++) {
             if (i != 0) result.append("\n");
@@ -71,24 +69,6 @@ public abstract class AbstractMatrix implements Matrix, Serializable {
     @Override
     public int hashCode() {
         return Objects.hash(Utils.hashAll(this.iterator()), this.getRowCount(), this.getColumnCount());
-
-        /*
-        final int hashCountMax = 10000;
-
-        if (this.getElementCount() <= hashCountMax)
-            return Objects.hash(Utils.hashAll(this.iterator()), this.getRowCount(), this.getColumnCount());
-
-
-        int hash = Objects.hash(this.getRowCount(), this.getColumnCount());
-        for (int i = 0; i < hashCountMax; i++) {
-            int pos = (hash + i) % this.getElementCount();
-            hash = Objects.hash(
-                    hash,
-                    this.getElementCount(),
-                    this.get(pos % this.getRowCount(), pos / this.getRowCount())
-            );
-        }
-        return hash;*/
     }
 
 
@@ -120,94 +100,5 @@ public abstract class AbstractMatrix implements Matrix, Serializable {
     protected void rangeChecks(int row, int column) {
         if (row < 0 || column < 0 || row >= getRowCount() || column >= getColumnCount()) throw new IllegalArgumentException();
     }
-
-
-
-
-
-
-
-
-    /* BEGIN-POLYFILL-6 *../
-    @Override public int getElementCount() {
-        return getRowCount() * getColumnCount();
-    }
-
-    @Override
-    public boolean isSquare() {
-        return this.getColumnCount() == this.getRowCount();
-    }
-
-
-    @Override
-    public NavigableMap<Integer, Double> getRowNonZeroes(int row) {
-        return getRowNonValued(row, 0);
-    }
-    @Override
-    public NavigableMap<Integer, Double> getRowNonValued(int row, double value) {
-        if (row < 0 || row >= getRowCount()) throw new IllegalArgumentException();
-
-        TreeMap<Integer, Double> map = new TreeMap<Integer, Double>();
-        for (int i = 0; i < getColumnCount(); i++) {
-            double d = get(row, i);
-            if (!MathUtils.doubleEquals(value, d)) map.put(i, d);
-        }
-        return map;
-    }
-    @Override
-    public NavigableMap<Integer, Double> getColumnNonZeroes(int column) {
-        return getColumnNonValued(column, 0);
-    }
-    @Override
-    public NavigableMap<Integer, Double> getColumnNonValued(int column, double value) {
-        if (column < 0 || column >= getColumnCount()) throw new IllegalArgumentException();
-
-        TreeMap<Integer, Double> map = new TreeMap<Integer, Double>();
-        for (int i = 0; i < getRowCount(); i++) {
-            double d = get(i, column);
-            if (!MathUtils.doubleEquals(value, d)) map.put(i, d);
-        }
-        return map;
-    }
-
-
-    @Override
-    public Iterator<Triple<Integer, Integer, Double>> iterator() {
-        return new PolyfillIterator<Triple<Integer, Integer, Double>>() {
-            private int i = 0;
-            private double result;
-
-            @Override
-            public boolean hasNext() {
-                while (i < getElementCount()) {
-                    double r = get(i % getRowCount(), i / getRowCount());
-                    if (r != 0) {
-                        result = r;
-                        return true;
-                    }
-                    i++;
-                }
-                return false;
-            }
-
-            @Override
-            public Triple<Integer, Integer, Double> next() {
-                if (!hasNext()) throw new NoSuchElementException();
-                Triple<Integer, Integer, Double> t = new Triple(i % getRowCount(), i / getRowCount(), result);
-                i++;
-                return t;
-            }
-        };
-    }
-
-    @Override
-    public void setAll(double value) {
-        for (int i = 0; i < getRowCount(); i++) {
-            for (int j = 0; j < getColumnCount(); j++) {
-                set(i, j, value);
-            }
-        }
-    }
-    /..* END-POLYFILL-6 */
 
 }
