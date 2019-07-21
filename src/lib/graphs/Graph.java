@@ -4,6 +4,8 @@ import lib.utils.various.Structure;
 import lib.vectorization.VectorElementIterator;
 
 import java.util.*;
+import java.util.function.DoubleBinaryOperator;
+import java.util.function.DoubleUnaryOperator;
 import java.util.function.IntConsumer;
 import java.util.stream.IntStream;
 
@@ -40,11 +42,20 @@ public interface Graph {
             setEdgeWeight(v1, v2, Double.NaN);
         }
     }
+    default void mapEdgeWeight(int v1, int v2, DoubleUnaryOperator mapper) {
+        setEdgeWeight(v1, v2, mapper.applyAsDouble(getEdgeWeight(v1, v2)));
+    }
+    default void mergeEdgeWeight(int v1, int v2, double weight, DoubleBinaryOperator mapper) {
+        mapEdgeWeight(v1, v2, w -> Double.isNaN(w) ? weight : mapper.applyAsDouble(w, weight));
+    }
     default void addEdge(int v1, int v2) {
         setEdge(v1, v2, true);
     }
     default void removeEdge(int v1, int v2) {
         setEdge(v1, v2, false);
+    }
+    default void toggleEdge(int v1, int v2) {
+        setEdge(v1, v2, !isEdge(v1, v2));
     }
 
     VectorElementIterator getNeighbours(int vertex);

@@ -71,6 +71,25 @@ public final class MathUtils {
         return a == b || (Double.isNaN(a) && Double.isNaN(b));
     }
 
+    public static int pow(int a, int exponent) {
+        if (exponent < 0) return 0;
+        if (exponent == 0) return 1;
+        if ((a & (a - 1)) == 0) return a << (exponent - 1);
+        if (exponent % 2 == 0) return sq(pow(a, exponent / 2));
+        return pow(a, exponent - 1) * a;
+    }
+
+    public static long pow(long a, long exponent) {
+        if (a == 2) return 1l << exponent;
+        if (exponent < 0) return 0;
+        if (exponent == 0) return 1;
+        if (exponent % 2 == 0) return sq(pow(a, exponent / 2));
+        return pow(a, exponent - 1) * a;
+    }
+
+    public static double pow(double a, double exponent) {
+        return Math.pow(a, exponent);
+    }
 
     public static int sq(int a) {
         return a*a;
@@ -86,10 +105,49 @@ public final class MathUtils {
 
 
     /**
-     * Real modulo (never returns a negative number)
+     * Real modulo (never returns a negative number). Same as floorMod
+     */
+    public static int realMod(int i, int mod) {
+        return MathUtils.floorMod(i, mod);
+    }
+
+    /**
+     * Real modulo (never returns a negative number). Same as floorMod
      */
     public static long realMod(long i, long mod) {
-        return i < 0 ? (i % mod + mod) % mod : i % mod;
+        return MathUtils.floorMod(i, mod);
+    }
+
+    public static int floorDiv(int a, int b) {
+        return Math.floorDiv(a, b);
+    }
+
+    public static long floorDiv(long a, long b) {
+        return Math.floorDiv(a, b);
+    }
+
+    public static int floorMod(int a, int b) {
+        return Math.floorMod(a, b);
+    }
+
+    public static long floorMod(long a, long b) {
+        return Math.floorMod(a, b);
+    }
+
+    public static int ceilDiv(int a, int b) {
+        return Math.floorDiv(a + b - 1, b);
+    }
+
+    public static long ceilDiv(long a, long b) {
+        return Math.floorDiv(a + b - 1, b);
+    }
+
+    public static int ceilMod(int a, int b) {
+        return a - ceilDiv(a, b) * b;
+    }
+
+    public static long ceilMod(long a, long b) {
+        return a - ceilDiv(a, b) * b;
     }
 
     /**

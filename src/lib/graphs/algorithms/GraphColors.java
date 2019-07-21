@@ -18,6 +18,9 @@ public class GraphColors extends Algorithm {
         return getBiPartitions(graph) != null;
     }
 
+    /**
+     * Returns null if the graph is not bipartite.
+     */
     @O("n + m")
     public static Pair<Set<Integer>, Set<Integer>> getBiPartitions(UndirectedGraph graph) {
         final int[] partition = new int[graph.getVertexCount()];
@@ -51,7 +54,7 @@ public class GraphColors extends Algorithm {
         for (int i = 0; i < partition.length; i++) {
             (partition[i] == 2 ? b : a).add(i);
         }
-        return new Pair<Set<Integer>, Set<Integer>>(Collections.unmodifiableSet(a), Collections.unmodifiableSet(b));
+        return new Pair<>(Collections.unmodifiableSet(a), Collections.unmodifiableSet(b));
     }
 
 

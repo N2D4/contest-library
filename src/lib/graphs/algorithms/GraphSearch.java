@@ -11,12 +11,14 @@ import lib.trees.algorithms.TreeTraversal;
 import lib.utils.QueueUtils;
 import lib.utils.Utils;
 import lib.utils.tuples.Monad;
+import lib.utils.tuples.Pair;
 import lib.utils.various.Structure;
 import lib.vectorization.VectorElementIterator;
 
 import java.util.*;
 import java.util.function.BiConsumer;
 import java.util.function.BiFunction;
+import java.util.function.DoubleBinaryOperator;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -47,7 +49,7 @@ public abstract class GraphSearch extends Algorithm {
             TreeNode<Integer>[] nodes = getNodeArray(graph);
             Map<Integer, TreeNode<Integer>> curProcessing = doCycleDetection ? new HashMap<>() : null;
 
-            Tree<Integer> traversal = new Tree<>(start);
+            Tree<Integer> traversal = new Tree<>(start, customDistanceFolder());
 
             Queue<TreeNode<Integer>> queue = type.newQueue(graph);
             queue.add(traversal.getRoot());
@@ -58,7 +60,7 @@ public abstract class GraphSearch extends Algorithm {
                 int v = node.getValue();
 
 
-                if (nodes[v] != null) {
+                if (nodes[v] != null && nodes[v].getTree() == traversal) {
                     queue.remove();
                     continue;
                 }
@@ -116,6 +118,10 @@ public abstract class GraphSearch extends Algorithm {
 
 
     protected abstract GraphSearch.Type getType();
+    /**
+     * Has to be an array of the right size (number of vertices). It doesn't need to be empty (so arrays from previous
+     * graph searches can be re-used). Entries of nodes that were never visited will not be modified
+     */
     protected TreeNode<Integer>[] getNodeArray(Graph graph) {
         return new TreeNode[graph.getVertexCount()];
     }
@@ -125,6 +131,9 @@ public abstract class GraphSearch extends Algorithm {
     protected void onFinish(GraphSearchResult graphSearchResult) {}
     protected boolean doCycleDetection() {
         return false;
+    }
+    protected Pair<Double, DoubleBinaryOperator> customDistanceFolder() {
+        return new Pair<>(0.0, Double::sum);
     }
 
 
@@ -248,6 +257,36 @@ public abstract class GraphSearch extends Algorithm {
         };
         Object d = search.run(graph, start, directed);
         return d == null ? Double.POSITIVE_INFINITY : (double) d;
+    }
+
+    @O("n + m")
+    public static double[] getDistances(UndirectedGraph graph, int v1) {
+        return getDistances(graph, v1, false);
+    }
+
+    @O("n + m")
+    public static double[] getDistances(DirectedGraph graph, int start) {
+        return getDistances(graph, start, true);
+    }
+
+    @O("n + m")
+    public static int[] getEdgeDistances(UndirectedGraph graph, int v1) {
+        return getEdgeDistances(graph, v1, false);
+    }
+
+    @O("n + m")
+    public static int[] getEdgeDistances(DirectedGraph graph, int start) {
+        return getEdgeDistances(graph, start, true);
+    }
+
+    @O("n + m")
+    private static int[] getEdgeDistances(Graph graph, int start, boolean directed) {
+        return Arrays.stream(getResult(graph, start, Type.BREADTH_FIRST, directed).nodes).mapToInt(a -> a == null ? Integer.MAX_VALUE : a.getHeight()).toArray();
+    }
+
+    @O("n + m")
+    private static double[] getDistances(Graph graph, int start, boolean directed) {
+        return Arrays.stream(getResult(graph, start, Type.DIJKSTRA, directed).nodes).mapToDouble(a -> a == null ? Double.POSITIVE_INFINITY : a.getDistance()).toArray();
     }
 
 

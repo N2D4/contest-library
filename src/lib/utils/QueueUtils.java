@@ -22,6 +22,6 @@ public final class QueueUtils {
     }
 
     public static <T, U extends Comparable<? super U>> Queue<T> createPriority(Function<? super T, ? extends U> keyExtractor) {
-        return new PriorityQueue<>(Comparator.comparing(keyExtractor));
+        return createPriority(Comparator.comparing(keyExtractor));
     }
 }

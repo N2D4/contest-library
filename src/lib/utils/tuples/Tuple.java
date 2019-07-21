@@ -7,7 +7,6 @@ import java.util.stream.Stream;
 
 public abstract class Tuple extends Structure {
 
-    @Override
     public abstract Object[] toArray();
 
 
@@ -26,16 +25,11 @@ public abstract class Tuple extends Structure {
 
     @Override
     public String toString() {
-        /* BEGIN-JAVA-8 */
         Object[] els = toArray();
         String[] elements = new String[els.length];
         for (int i = 0; i < els.length; i++) {
-            elements[i] = els[i].toString();
+            elements[i] = "" + els[i];
         }
         return "(" + String.join(", ", elements) + ")";
-        /* END-JAVA-8 */
-        /* BEGIN-POLYFILL-6 *../
-        return "Not supported in Java 6 mode!";
-        /..* END-POLYFILL-6 */
     }
 }

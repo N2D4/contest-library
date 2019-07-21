@@ -108,7 +108,7 @@ public class GraphTests {
     public void floydWarshallDijkstraConsistency() {
         Random random = new Random("floyd warshall and dijkstra consistency".hashCode());
         Iterator<Graph> iterator = genGraph(35, random).iterator();
-        outer: for (int it = 0; it < 50 * TestConstants.SCALE; it++) {
+        outer: for (int it = 0; it < 200 * TestConstants.SCALE; it++) {
             Graph graph = iterator.next();
             for (int i = 0; i < graph.getVertexCount(); i++) {
                 for (int j = 0; j < graph.getVertexCount(); j++) {
@@ -124,15 +124,12 @@ public class GraphTests {
             System.out.println(graph);
             System.out.println();*/
             
-            double[][] pathLength = new double[graph.getVertexCount()][graph.getVertexCount()];
+            double[][] pathLength = new double[graph.getVertexCount()][];
             for (int i = 0; i < graph.getVertexCount(); i++) {
-                for (int j = 0; j < graph.getVertexCount(); j++) {
-                    if (graph instanceof UndirectedGraph) {
-                        //if (i == 0 && j == 1) System.out.println(GraphSearch.getTree((UndirectedAdjacencyListGraph) graph, i, GraphSearch.Type.DIJKSTRA));
-                        pathLength[i][j] = GraphSearch.getDistance((UndirectedGraph) graph, i, j);
-                    } else if (graph instanceof DirectedGraph) {
-                        pathLength[i][j] = GraphSearch.getDistance((DirectedGraph) graph, i, j);
-                    } else continue outer;
+                if (graph instanceof UndirectedGraph) {
+                    pathLength[i] = GraphSearch.getDistances((UndirectedGraph) graph, i);
+                } else if (graph instanceof DirectedGraph) {
+                    pathLength[i] = GraphSearch.getDistances((DirectedGraph) graph, i);
                 }
             }
 

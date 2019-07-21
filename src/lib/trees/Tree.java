@@ -1,16 +1,29 @@
 package lib.trees;
 
+import lib.utils.tuples.Pair;
+
 import java.io.Serializable;
+import java.util.function.DoubleBinaryOperator;
 
 public class Tree<T> implements Serializable {
     private TreeNode<T> root;
+    final Pair<Double, DoubleBinaryOperator> distanceFolder;
 
     public Tree(T rootValue) {
+        this(rootValue, null);
+    }
+
+    public Tree(T rootValue, Pair<Double, DoubleBinaryOperator> distanceFolder) {
+        this(distanceFolder);
         initRoot(new TreeNode(rootValue, this));
     }
 
     protected Tree() {
-        // Quite dusty here...
+        this((Pair<Double, DoubleBinaryOperator>) null);
+    }
+
+    protected Tree(Pair<Double, DoubleBinaryOperator> distanceFolder) {
+        this.distanceFolder = distanceFolder == null ? new Pair<>(0.0, Double::sum) : distanceFolder;
     }
 
     protected void initRoot(TreeNode<T> node) {

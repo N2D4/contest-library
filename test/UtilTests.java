@@ -1,7 +1,4 @@
-import lib.utils.ArrayUtils;
-import lib.utils.PrimeUtils;
-import lib.utils.StringUtils;
-import lib.utils.Utils;
+import lib.utils.*;
 import lib.utils.tuples.*;
 import lib.utils.various.BruteForceIterable;
 import org.junit.jupiter.api.Test;
@@ -107,6 +104,28 @@ public class UtilTests {
                 p *= f;
             }
             assertEquals(l, p);
+        }
+    }
+
+
+
+    @Test
+    public void powTests() {
+        Random random = new Random("random power tests".hashCode());
+        for (long i = 0; i < 1000 * TestConstants.SCALE; i++) {
+            int a = random.nextInt();
+            assertEquals(MathUtils.sq(a), MathUtils.pow(a, 2));
+            for (int j = -10; j < 0; j++) {
+                assertEquals(MathUtils.pow(a, j), 0);
+            }
+            int golden = 1;
+            for (int j = 0; j < 1000; j++) {
+                if (a != 0 || j != 0) {
+                    assertEquals(golden, MathUtils.pow(a, j));
+                    assertEquals((int) MathUtils.pow((long) a, j), MathUtils.pow(a, j));
+                }
+                golden *= a;
+            }
         }
     }
 
