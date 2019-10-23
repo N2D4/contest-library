@@ -39,6 +39,14 @@ public class BinarySearchTests {
     }
 
 
+    @Test
+    public void variousBinarySearchTests() {
+        assertEquals(BinarySearch.searchInRange(new Range(0, 1000), a -> false), 1000);
+        assertEquals(BinarySearch.searchInRange(new Range(0, 1000), a -> true), 0);
+        assertEquals(BinarySearch.searchInRange(new Range(0, 1000), a -> a >= 5), 5);
+    }
+
+
 
     public Range goldenSearch(int[] array, Range searchForRange) {
         Range range = new Range(array.length, array.length);

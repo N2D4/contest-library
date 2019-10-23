@@ -255,6 +255,75 @@ public final class Utils {
         return Collectors.collectingAndThen(Collectors.toList(), Utils::asSet);
     }
 
+    /**
+     * Returns a reverse list iterator given a list. The iterator will start at the last element and end at the first.
+     */
+    public static <T> ListIterator<T> reverseIterator(List<T> list) {
+        return reverseIterator(list.listIterator(list.size()));
+    }
+
+    /**
+     * Returns a new iterator being the reverted list iterator. Modifying this iterator will modify the original
+     * iterator.
+     */
+    public static <T> ListIterator<T> reverseIterator(ListIterator<T> it) {
+        return new ListIterator<T>() {
+            @Override
+            public boolean hasNext() {
+                return it.hasPrevious();
+            }
+
+            @Override
+            public T next() {
+                return it.previous();
+            }
+
+            @Override
+            public boolean hasPrevious() {
+                return it.hasNext();
+            }
+
+            @Override
+            public T previous() {
+                return it.next();
+            }
+
+            @Override
+            public int nextIndex() {
+                return it.previousIndex();
+            }
+
+            @Override
+            public int previousIndex() {
+                return it.nextIndex();
+            }
+
+            @Override
+            public void remove() {
+                it.remove();
+            }
+
+            @Override
+            public void set(T t) {
+                it.set(t);
+            }
+
+            @Override
+            public void add(T t) {
+                it.add(t);
+            }
+        };
+    }
+
+
+
+    /**
+     * Returns an iterable with a reverse iterator of this list, backed by the original list.
+     */
+    public static <T> Iterable<T> reverseIterable(List<T> list) {
+        return () -> reverseIterator(list);
+    }
+
 
 
 

@@ -13,7 +13,9 @@ public final class ExtendedEuclid extends Algorithm {
         // Quite dusty here...
     }
 
-
+    /**
+     * Returns a triple (g, u, v) such that `u*a + v*b == g`.
+     */
     public static Triple<Long, Long, Long> extendedEuclid(long a, long b) {
         if (b == 0) {
             return new Triple<>(a, 1l, 0l);

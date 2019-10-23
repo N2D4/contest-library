@@ -16,7 +16,7 @@ public class IterativeRecursionIterable<T, R> implements Iterable<R> {
     public <E> IterativeRecursionIterable(List<T> startingValues, BiFunction<T, Consumer<T>, E> preProcess, Function<E, R> postProcess) {
         this.pre = preProcess;
         this.post = (Function<Object, R>) postProcess;
-        this.startingVals = new ArrayList<Either<T, Object>>(startingValues.size());
+        this.startingVals = new ArrayList<>(startingValues.size());
         for (T t : startingValues) {
             this.startingVals.add(Either.left(t));
         }
@@ -38,7 +38,7 @@ public class IterativeRecursionIterable<T, R> implements Iterable<R> {
                         T t = next.getLeft();
                         Deque<T> st = new ArrayDeque<T>();
                         Object obj = pre.apply(t, stackConsumer(st));
-                        stack.add((Either<T, Object>) Either.right(obj));
+                        stack.add(Either.right(obj));
                         while (!st.isEmpty()) {
                             stack.add(Either.left(st.removeLast()));
                         }

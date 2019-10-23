@@ -1,6 +1,8 @@
 import lib.utils.*;
 import lib.utils.tuples.*;
 import lib.utils.various.BruteForceIterable;
+import lib.utils.various.LongRange;
+import lib.utils.various.Range;
 import org.junit.jupiter.api.Test;
 
 import java.math.BigInteger;
@@ -89,6 +91,22 @@ public class UtilTests {
             assertEquals(expectedCount, count);
         }
 
+    }
+
+
+
+    @Test
+    public void primeTableTests() {
+        Random random = new Random("random prime table tests".hashCode());
+        int msqrt = (int) (42 * Math.sqrt(Math.sqrt(TestConstants.SCALE)));
+        for (long i = 0; i < msqrt * msqrt; i++) {
+            long L = i % msqrt;
+            long R = i / msqrt + L;
+            boolean[] primeFactors = PrimeUtils.getPrimeTable(new LongRange(L, R));
+            for (long j = L; j < R; j++) {
+                assertEquals(primeFactors[(int) (j - L)], PrimeUtils.isPrime(j));
+            }
+        }
     }
 
 

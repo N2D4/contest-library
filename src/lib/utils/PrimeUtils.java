@@ -1,11 +1,50 @@
 package lib.utils;
 
 import lib.algorithms.Algorithm;
+import lib.utils.various.LongRange;
+import lib.utils.various.Range;
 
 import java.math.*;
 import java.util.*;
+import java.util.stream.IntStream;
 
 public final class PrimeUtils {
+
+    /**
+     * Returns a boolean array, where arr[i] means that range.a + i is a prime number.
+     */
+    public static boolean[] getPrimeTable(Range range) {
+        return getPrimeTable(range.toLongRange());
+    }
+
+    /**
+     * Returns a boolean array where arr[i] is true iff `range.a + i` is a prime number. `range.b - range.a` should be
+     * small (fit in an integer).
+     */
+    public static boolean[] getPrimeTable(LongRange range) {
+        if (range.size() >= Integer.MAX_VALUE) throw new IllegalArgumentException("Distance between L and R may not exceed Integer.MAX_VALUE!");
+
+        long L = range.a;
+        long R = range.b - 1;
+
+        boolean[] primeFacts = new boolean[(int) (R - L + 1)];
+        for (int i = 0; i < primeFacts.length; i++) {
+            primeFacts[i] = true;
+        }
+        if (L == 0 && R >= 0) primeFacts[0] = false;
+        if (L <= 1 && R >= 1) primeFacts[(int) (1 - L)] = false;
+
+        boolean[] primeTable = L == 0 ? primeFacts : getPrimeTable(new LongRange(0, (long) Math.sqrt(range.b) + 1));
+
+        for (long i = 2; i * i <= R; i++) {
+            if (!primeTable[(int) i]) continue;
+            for (long j = Math.max(i, MathUtils.ceilDiv(L, i)); j * i <= R; j++) {
+                primeFacts[(int) (j * i - L)] = false;
+            }
+        }
+
+        return primeFacts;
+    }
 
     public static boolean isProbablePrime(long l, int certainty) {
         return BigInteger.valueOf(l).isProbablePrime(certainty);

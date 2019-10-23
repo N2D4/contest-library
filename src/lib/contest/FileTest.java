@@ -172,8 +172,8 @@ public class FileTest {
                 Path cachePath = path.getParent().resolve(nameCache);
 
                 try (
-                        InputStream in = Files.newInputStream(path);
-                        OutputStream out = Files.newOutputStream(outPath);
+                        InputStream in = new BufferedInputStream(Files.newInputStream(path));
+                        OutputStream out = new BufferedOutputStream(Files.newOutputStream(outPath));
                 ) {
                     SubmissionCache cache = readCache(clss, cachePath);
                     submission = AbstractSubmission.create(clss, cache);

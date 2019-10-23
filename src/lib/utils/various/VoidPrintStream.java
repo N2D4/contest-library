@@ -3,7 +3,7 @@ package lib.utils.various;
 import java.io.PrintStream;
 import java.util.Locale;
 
-public class VoidPrintStream extends PrintStream {
+public final class VoidPrintStream extends PrintStream {
     public VoidPrintStream() {
         super(new VoidOutputStream());
     }

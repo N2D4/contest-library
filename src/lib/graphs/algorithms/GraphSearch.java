@@ -43,7 +43,7 @@ public abstract class GraphSearch extends Algorithm {
         return this.runCustomAlgorithm(() -> {
             boolean doCycleDetection = this.doCycleDetection();
             if (doCycleDetection && !type.canDetectCycles()) {
-                throw new Error("Tried to do cycle detection with a graph search type that does not support it! (Try DFS)");
+                throw new IllegalArgumentException("Attempted to do cycle detection with a graph search type that does not support it! (Try DFS)");
             }
 
             TreeNode<Integer>[] nodes = getNodeArray(graph);
@@ -56,6 +56,7 @@ public abstract class GraphSearch extends Algorithm {
 
             while (!queue.isEmpty()) {
                 if (shouldEnd()) return;
+
                 TreeNode<Integer> node = queue.peek();  // To support cycle detection we only remove a node the *second* time we find it
                 int v = node.getValue();
 
@@ -102,7 +103,7 @@ public abstract class GraphSearch extends Algorithm {
 
                     if (onInspectEdge(v, key, edgeWeight)) continue;
                     if (!directed && node.getParent() != null && key == node.getParent().getValue()) continue;
-                    if (nodes[key] != null) continue;       // TODO Check whether we shouldn't need this disabled if we're checking for cycles
+                    if (nodes[key] != null) continue;
 
                     TreeNode<Integer>.Unattached child = node.createUnattached(key, edgeWeight);
                     queue.add(child);

@@ -3,6 +3,8 @@ package lib.contest;
 import lib.utils.Utils;
 import lib.utils.tuples.Pair;
 import lib.utils.tuples.Triple;
+import lib.utils.various.FastScanner;
+import lib.utils.various.VoidOutputStream;
 import lib.utils.various.VoidPrintStream;
 
 import java.io.*;
@@ -12,7 +14,7 @@ import java.security.*;
 import java.util.*;
 
 public abstract class AbstractSubmission {
-    public Scanner sc;
+    public FastScanner sc;
     public InputStream in;
     public PrintStream out;
     public PrintStream debug;
@@ -40,9 +42,11 @@ public abstract class AbstractSubmission {
 
     public void runSubmission(InputStream in, OutputStream out, OutputStream debug) {
         this.in = in;
-        this.sc = new Scanner(this.in);
+        this.sc = new FastScanner(this.in);
         this.out = new PrintStream(out);
-        this.debug = new PrintStream(debug);
+        // If we have a void output stream, shortcut a void print stream - this is faster as it doesn't convert objects
+        // passed to it to strings first
+        this.debug = debug instanceof VoidOutputStream ? new VoidPrintStream() : new PrintStream(debug);
 
         ContestType type = getType();
 
@@ -163,8 +167,11 @@ public abstract class AbstractSubmission {
         return new Triple<>(field.getDeclaringClass(), field.getName(), annot.value());
     }
 
-
     protected static void buildAndRun(Class<? extends AbstractSubmission> clss, String path, String identifier) throws Exception {
+        buildAndRun(clss, path, identifier, false);
+    }
+
+    protected static void buildAndRun(Class<? extends AbstractSubmission> clss, String path, String identifier, boolean skipRun) throws Exception {
         if (System.getProperty("org.openjdk.java.util.stream.tripwire") == null) System.setProperty("org.openjdk.java.util.stream.tripwire", "true");
 
         ContestType contestType = getType(clss);
@@ -172,11 +179,15 @@ public abstract class AbstractSubmission {
         if (!contestType.isOptimizer) FileTest.testFrom(path, clss, b64Hash(clss.getName() + " " + identifier.hashCode()));
         BuildOutput.buildFromProblem(contestType, path, clss.getSimpleName(), identifier);
 
-        if (contestType.isOptimizer) {
-            System.out.println("Created Main.java. Compile and run it to start the optimizer");
+        if (skipRun) {
+            System.out.println("Run skipped!");
         } else {
-            System.out.println("\n\n\n\n\n\n\nWaiting on stdin for a testcase");
-            AbstractSubmission.create(clss).runSubmission(true);
+            if (contestType.isOptimizer) {
+                System.out.println("Created Main.java. Compile and run it to start the optimizer");
+            } else {
+                System.out.println("\n\n\n\n\n\n\nWaiting on stdin for a testcase");
+                AbstractSubmission.create(clss).runSubmission(true);
+            }
         }
     }
     /* END-NO-BUNDLE */

@@ -6,6 +6,7 @@ import lib.utils.tuples.Pair;
 
 import java.awt.*;
 import java.io.*;
+import java.nio.Buffer;
 import java.nio.file.*;
 import java.security.*;
 import java.util.*;
@@ -23,7 +24,7 @@ public class BuildOutput {
     public static final String[] defaultImports8 = {"java.util.function.*", "java.util.stream.*"};
     public static final String[] ignoredPackages = {"lib.*"};
     public static final String[] entryFiles = {"Solution", "Main"};
-    public static final String libDir = System.getProperty("user.home") + "/Library/Mobile Documents/com~apple~CloudDocs/Projects/Contests/Contest Libraries/Contest Library";      // yes, my workspace IS on iCloud Drive
+    public static final String libDir = System.getProperty("user.home") + "/Library/Mobile Documents/com~apple~CloudDocs/Projects/Contests/Contest Libraries/Contest Library";      // yes, my workspace is on iCloud Drive
     public static final String launchersDir = libDir + "/launchers";
     public static final String[] globalDirs = new String[] {libDir + "/src"};
     public static final Map<String, String> globalSources = getGlobalSources();
@@ -118,10 +119,6 @@ public class BuildOutput {
 
             String result = concatCode(sources, className);
 
-            if (launcher != null) {
-                result += "\n\n\n\n" + new String(Files.readAllBytes(Paths.get(launchersDir + "/" + launcher)));
-            }
-
 
             Path outfol = root.resolve("out");
             if (!Files.exists(outfol)) Files.createDirectory(outfol);
@@ -202,7 +199,7 @@ public class BuildOutput {
         }
     }
 
-    public static String concatCode(Map<String, String> code, String className) {
+    public static String concatCode(Map<String, String> code, String className) throws IOException {
         StringBuilder res = new StringBuilder();
         HashSet<String> imports = new HashSet<>();
 
@@ -234,7 +231,10 @@ public class BuildOutput {
             rBuilder.append(s + "\n");
         }
         rBuilder.append("\n\n\n// Solution can be found in Submission.testCase(). psvm method can be found in Main.main(String[] args)\n// Please note that the code isn't obfuscated; only compressed");
-        rBuilder.append(res);
+        if (launcher != null) {
+            rBuilder.append("\n\n\n" + new String(Files.readAllBytes(Paths.get(launchersDir + "/" + launcher))));
+        }
+        rBuilder.append("\n" + res);
         return compress(rBuilder.toString());
     }
 

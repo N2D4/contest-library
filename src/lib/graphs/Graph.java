@@ -37,9 +37,9 @@ public interface Graph {
     void setEdgeWeight(int v1, int v2, double weight);
     default void setEdge(int v1, int v2, boolean edge) {
         if (edge) {
-            if (!isEdge(v1, v2)) setEdgeWeight(v1, v2, 1.0);
+            addEdge(v1, v2);
         } else {
-            setEdgeWeight(v1, v2, Double.NaN);
+            removeEdge(v1, v2);
         }
     }
     default void mapEdgeWeight(int v1, int v2, DoubleUnaryOperator mapper) {
@@ -49,10 +49,10 @@ public interface Graph {
         mapEdgeWeight(v1, v2, w -> Double.isNaN(w) ? weight : mapper.applyAsDouble(w, weight));
     }
     default void addEdge(int v1, int v2) {
-        setEdge(v1, v2, true);
+        if (!isEdge(v1, v2)) setEdgeWeight(v1, v2, 1.0);
     }
     default void removeEdge(int v1, int v2) {
-        setEdge(v1, v2, false);
+        setEdgeWeight(v1, v2, Double.NaN);
     }
     default void toggleEdge(int v1, int v2) {
         setEdge(v1, v2, !isEdge(v1, v2));

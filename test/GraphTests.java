@@ -47,12 +47,16 @@ public class GraphTests {
         outer: for (int it = 0; it < 1000 * TestConstants.SCALE; it++) {
             DirectedGraph graph = iterator.next();
             List<Integer> top = GraphSearch.getTopologicalOrder(graph);
+
             if (top == null) {
                 assertTrue(GraphSearch.hasCycle(graph));
                 continue;
             }
+            assertTrue(!GraphSearch.hasCycle(graph));
+
+            assertEquals(top.size(), graph.getVertexCount());
+            assertEquals(top.stream().distinct().count(), graph.getVertexCount());
             for (int i : top) {
-                assertTrue(!GraphSearch.hasCycle(graph));
                 assertTrue(graph.getInDegree(i) == 0);
 
                 for (int j = 0; j < graph.getVertexCount(); j++) {

@@ -17,6 +17,21 @@ public final class BinarySearch extends Algorithm {
         // Quite dusty here...
     }
 
+    public static int searchFirst(int[] array, int a) {
+        return searchInRange(new Range(0, array.length), i -> array[i] >= a);
+    }
+
+    public static int searchLast(int[] array, int a) {
+        return searchInRange(new Range(0, array.length), i -> array[i] >= a);
+    }
+
+    public static int searchFirst(long[] array, int a) {
+        return searchInRange(new Range(0, array.length), i -> array[i] >= a);
+    }
+
+    public static int searchLast(long[] array, int a) {
+        return searchInRange(new Range(0, array.length), i -> array[i] >= a);
+    }
 
     public static Range search(int[] array, Range searchForRange) {
         return search(ArrayUtils.asList(array), searchForRange);
@@ -30,14 +45,16 @@ public final class BinarySearch extends Algorithm {
 
 
     /**
-     * Returns the first i for which isBigger(i) is true (usually it's false for all j < i and true for all j >= i)
+     * Returns the first i for which isBigger(i) is true (usually it's false for all j < i and true for all j >= i), or
+     * range.b if it's false for all elements.
      */
     public static int searchInRange(Range range, IntPredicate isBigger) {
         return (int) searchInRange(range.toLongRange(), l -> isBigger.test((int) (long) l));
     }
 
     /**
-     * Returns the first i for which isBigger(i) is true (usually it's false for all j < i and true for all j >= i).
+     * Returns the first i for which isBigger(i) is true (usually it's false for all j < i and true for all j >= i), or
+     * range.b if it's false for all elements.
      */
     public static long searchInRange(LongRange range, LongPredicate isBigger) {
         long a = range.a;
@@ -54,7 +71,8 @@ public final class BinarySearch extends Algorithm {
     }
 
     /**
-     * Returns the first i for which isBigger(i) is true (usually it's false for all j < i and true for all j >= i).
+     * Returns the first i for which isBigger(i) is true (usually it's false for all j < i and true for all j >= i), or
+     * range.b if it's false for all elements.
      *
      * Range is [range.a, range.b) (so inclusive begin, exclusive end).
      */

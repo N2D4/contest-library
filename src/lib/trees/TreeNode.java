@@ -23,7 +23,7 @@ public class TreeNode<T> implements Serializable {
         this.value = value;
         this.parent = null;
         this.tree = tree;
-        this.children = new ArrayList<>();
+        this.children = new ArrayList<>(5);
         this.height = 0;
         this.distance = tree.distanceFolder.a;
     }
@@ -60,7 +60,7 @@ public class TreeNode<T> implements Serializable {
     }
 
     public List<TreeNode<T>> getChildren() {
-        return Collections.unmodifiableList(children);
+        return this.children.size() == 0 ? Collections.emptyList() : Collections.unmodifiableList(children);
     }
 
     public int getChildCount() {
