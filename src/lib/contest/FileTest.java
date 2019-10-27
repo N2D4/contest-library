@@ -167,7 +167,7 @@ public class FileTest {
                 String inName = path.getFileName().toString();
                 String name = inName.replaceFirst("[.][^.]+$", "");
                 String nameOut = name + ".out";
-                String nameCache = name + "." + taskName + ".cache.zip";
+                String nameCache = name + ".cache";
                 Path outPath = path.getParent().resolve(nameOut);
                 Path cachePath = path.getParent().resolve(nameCache);
 
@@ -175,7 +175,7 @@ public class FileTest {
                         InputStream in = new BufferedInputStream(Files.newInputStream(path));
                         OutputStream out = new BufferedOutputStream(Files.newOutputStream(outPath));
                 ) {
-                    SubmissionCache cache = readCache(clss, cachePath);
+                    SubmissionCache cache = SubmissionCache.readCache(clss, cachePath);
                     submission = AbstractSubmission.create(clss, cache);
 
                     PrintStream prout = new PrintStream(out);
@@ -191,52 +191,13 @@ public class FileTest {
                         isDone = true;
                     }
 
-                    writeCache(submission, cachePath);
+                    SubmissionCache.writeCache(submission, cachePath);
                 }
             } catch (Throwable e) {
                 failed = e;
             }
         }
 
-
-        private static SubmissionCache readCache(Class<? extends AbstractSubmission> clss, Path path) throws IOException {
-            if (!Files.exists(path)) return null;
-
-            try (
-                    ZipInputStream zip = new ZipInputStream(Files.newInputStream(path))
-            ) {
-                zip.getNextEntry();
-                try (ObjectInputStream in = new ObjectInputStream(zip)) {
-                    Object s = in.readObject();
-                    if (!AbstractSubmission.getCacheVersion(clss).equals(s)) return null;
-                    Object obj = in.readObject();
-                    if (obj instanceof Map) {
-                        return (SubmissionCache) obj;
-                    } else {
-                        return null;
-                    }
-                }
-            } catch (ClassNotFoundException e) {
-                return null;
-            }
-        }
-
-        private static void writeCache(AbstractSubmission submission, Path path) throws IOException, IllegalAccessException {
-            SubmissionCache cache = submission.getCache();
-            if (cache == null || cache.isEmpty()) {
-                if (Files.exists(path)) Files.delete(path);
-                return;
-            }
-
-            try (ZipOutputStream zip = new ZipOutputStream(Files.newOutputStream(path))) {
-                zip.putNextEntry(new ZipEntry("data.cache"));
-                try (ObjectOutputStream out = new ObjectOutputStream(zip)) {
-                    out.writeObject(AbstractSubmission.getCacheVersion(submission.getClass()));
-                    out.writeObject(cache);
-                    zip.closeEntry();
-                }
-            }
-        }
     }
 }
 

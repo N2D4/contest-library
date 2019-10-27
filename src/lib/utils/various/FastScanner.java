@@ -22,6 +22,7 @@ public class FastScanner {
     }
 
     public String nextLine() {
+        if (this.buffer == null) this.buffer = new BufferedReader(new InputStreamReader(stream));
         while (tokenizer == null) {
             try {
                 tokenizer = new StringTokenizer(buffer.readLine() + "\n");

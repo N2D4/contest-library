@@ -3,15 +3,18 @@ package lib.utils.various;
 import lib.utils.ArrayUtils;
 import lib.utils.Utils;
 
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 public class UnionFind {
+    private final Random rnd;
     private final int[] arr;
 
     public UnionFind(int size) {
+        this(size, new Random("some (consistent) seed for this random object".hashCode()));
+    }
+
+    public UnionFind(int size, Random rnd) {
+        this.rnd = rnd;
         this.arr = new int[size];
         for (int i = 0; i < size; i++) {
             arr[i] = i;
@@ -38,7 +41,7 @@ public class UnionFind {
     public void union(int a, int b) {
         a = find(a);
         b = find(b);
-        if (Math.random() < 0.5) {
+        if (rnd.nextBoolean()) {
             int tmp = a;
             a = b;
             b = tmp;

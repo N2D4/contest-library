@@ -10,7 +10,6 @@ import java.util.*;
 public class SparseVector implements Serializable {
     private static final int useHashMapAt = 64;
 
-    private long bloom = 0;
     private IntArrayList inds;
     private DoubleArrayList values;
     private Map<Integer, Double> map;
@@ -27,7 +26,6 @@ public class SparseVector implements Serializable {
         inds = new IntArrayList(4);
         values = new DoubleArrayList(4);
         map = null;
-        regenBloom();
     }
 
     private void switchToMap() {
@@ -43,26 +41,10 @@ public class SparseVector implements Serializable {
         return length;
     }
 
-    private boolean couldBeStored(int index) {
-        return (bloom >>> (index & 0b11111) & 1) == 1;
-    }
-
-    private void addToBloom(int index) {
-        bloom |= 1l << (index & 0b11111l);
-    }
-
-    private void regenBloom() {
-        bloom = 0;
-        VectorElementIterator iterator = iterator();
-        while (iterator.hasNext()) {
-            addToBloom(iterator.nextInt());
-        }
-    }
-
     public double get(int index) {
         rangeCheck(index);
 
-        if (!couldBeStored(index)) return getSparseValue();
+        //if (!couldBeStored(index)) return getSparseValue();
 
 
         if (map == null) {
@@ -84,19 +66,16 @@ public class SparseVector implements Serializable {
         if (map == null) {
             int size = inds.size();
 
-            if (couldBeStored(index)) {
-                for (int i = 0; i < size; i++) {
-                    if (inds.get(i) == index) {
-                        if (!isSparse) {
-                            addToBloom(index);
-                            return values.set(i, value);
-                        } else {
-                            inds.set(i, inds.get(size - 1));
-                            double res = values.set(i, values.get(size - 1));
-                            values.remove(size - 1);
-                            inds.remove(size - 1);
-                            return res;
-                        }
+            for (int i = 0; i < size; i++) {
+                if (inds.get(i) == index) {
+                    if (!isSparse) {
+                        return values.set(i, value);
+                    } else {
+                        inds.set(i, inds.get(size - 1));
+                        double res = values.set(i, values.get(size - 1));
+                        values.remove(size - 1);
+                        inds.remove(size - 1);
+                        return res;
                     }
                 }
             }
@@ -105,7 +84,6 @@ public class SparseVector implements Serializable {
 
             if (size + 1 >= useHashMapAt) switchToMap();
             if (map == null) {
-                addToBloom(index);
                 inds.add(index);
                 values.add(value);
                 return getSparseValue();
@@ -113,7 +91,6 @@ public class SparseVector implements Serializable {
         }
 
         Double d = isSparse ? map.remove(index) : map.put(index, value);
-        if (!isSparse) addToBloom(index);
         if (d == null) {
             return getSparseValue();
         } else {
@@ -138,14 +115,14 @@ public class SparseVector implements Serializable {
     }
 
 
-    private void shift(int index, double by) {
+    private void shift(int index, int by) {
         if (map == null) {
             int size = inds.size();
 
             for (int i = 0; i < size; i++) {
                 int g = inds.get(i);
                 if (g >= index) {
-                    g += by;
+                    inds.set(i, g + by);
                 }
             }
         } else {
@@ -155,13 +132,11 @@ public class SparseVector implements Serializable {
                 Map.Entry<Integer, Double> entry = iterator.next();
                 if (entry.getKey() >= index) {
                     iterator.remove();
-                    n.put(entry.getKey() + 1, entry.getValue());
+                    n.put(entry.getKey() + by, entry.getValue());
                 }
             }
             map.putAll(n);
         }
-
-        if (index < length) regenBloom();
 
         length += by;
     }

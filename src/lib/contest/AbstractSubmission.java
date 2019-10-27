@@ -1,5 +1,6 @@
 package lib.contest;
 
+import lib.ml.GeneticOptimizer;
 import lib.utils.Utils;
 import lib.utils.tuples.Pair;
 import lib.utils.tuples.Triple;
@@ -10,8 +11,15 @@ import lib.utils.various.VoidPrintStream;
 import java.io.*;
 import java.lang.reflect.*;
 import java.nio.charset.*;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.nio.file.StandardOpenOption;
 import java.security.*;
+import java.text.DecimalFormat;
+import java.text.SimpleDateFormat;
 import java.util.*;
+import java.util.concurrent.atomic.AtomicReference;
 
 public abstract class AbstractSubmission {
     public FastScanner sc;
@@ -37,7 +45,7 @@ public abstract class AbstractSubmission {
     }
 
     public void runSubmission(InputStream in, PrintStream out, boolean debug) {
-        runSubmission(in, out,  debug ? out : new VoidPrintStream());
+        runSubmission(in, out,  debug ? System.err : new VoidPrintStream());
     }
 
     public void runSubmission(InputStream in, OutputStream out, OutputStream debug) {
@@ -46,7 +54,7 @@ public abstract class AbstractSubmission {
         this.out = new PrintStream(out);
         // If we have a void output stream, shortcut a void print stream - this is faster as it doesn't convert objects
         // passed to it to strings first
-        this.debug = debug instanceof VoidOutputStream ? new VoidPrintStream() : new PrintStream(debug);
+        this.debug = debug instanceof VoidOutputStream || debug instanceof VoidPrintStream ? new VoidPrintStream() : new PrintStream(debug);
 
         ContestType type = getType();
 
@@ -86,7 +94,7 @@ public abstract class AbstractSubmission {
         return clss.getAnnotation(ContestSubmission.class);
     }
 
-    /* BEGIN-NO-BUNDLE */
+    /* BEGIN-OPTIMIZER */ // we only want to include this with optimizers as only optimizers use these methods during runtime
     public static <T extends AbstractSubmission> T create(Class<T> clss) throws NoSuchMethodException, IllegalAccessException, InvocationTargetException, InstantiationException {
         return create(clss, null);
     }
@@ -108,9 +116,11 @@ public abstract class AbstractSubmission {
 
                 field.setAccessible(true);
 
-                Object val = cache.get(name);
-                if (val == null || p2w(field.getType()).isAssignableFrom(p2w(val.getClass()))) {
-                    field.set(submission, val);
+                if (cache.containsKey(name)) {
+                    Object val = cache.get(name);
+                    if (val == null || p2w(field.getType()).isAssignableFrom(p2w(val.getClass()))) {
+                        field.set(submission, val);
+                    }
                 }
             }
         } while ((c = c.getSuperclass()) != null);
@@ -166,7 +176,9 @@ public abstract class AbstractSubmission {
         if (annot == null) return null;
         return new Triple<>(field.getDeclaringClass(), field.getName(), annot.value());
     }
+    /* END-OPTIMIZER */
 
+    /* BEGIN-NO-BUNDLE */
     protected static void buildAndRun(Class<? extends AbstractSubmission> clss, String path, String identifier) throws Exception {
         buildAndRun(clss, path, identifier, false);
     }
@@ -176,27 +188,62 @@ public abstract class AbstractSubmission {
 
         ContestType contestType = getType(clss);
 
-        if (!contestType.isOptimizer) FileTest.testFrom(path, clss, b64Hash(clss.getName() + " " + identifier.hashCode()));
+        if (!contestType.isOptimizer) FileTest.testFrom(path, clss, b64Hash(clss.getName() + " " + identifier));
         BuildOutput.buildFromProblem(contestType, path, clss.getSimpleName(), identifier);
 
         if (skipRun) {
-            System.out.println("Run skipped!");
+            System.out.println("Run skipped! The code has been saved to disk");
         } else {
             if (contestType.isOptimizer) {
-                System.out.println("Created Main.java. Compile and run it to start the optimizer");
+                optimizeFromPath(clss, "/Users/konstantinwohlwend/Downloads", true);
             } else {
                 System.out.println("\n\n\n\n\n\n\nWaiting on stdin for a testcase");
                 AbstractSubmission.create(clss).runSubmission(true);
             }
         }
     }
-    /* END-NO-BUNDLE */
 
     private static String b64Hash(String s) throws NoSuchAlgorithmException {
         MessageDigest digest = MessageDigest.getInstance("SHA-256");
         byte[] encodedhash = Arrays.copyOf(digest.digest(s.getBytes(StandardCharsets.UTF_8)), 3);
         return Base64.getEncoder().encodeToString(encodedhash);
     }
+    /* END-NO-BUNDLE */
+
+
+    /* BEGIN-OPTIMIZER */
+    public static <T extends AbstractSubmission> void optimizeFromPath(Class<T> clss, String inDir, boolean debug) throws IOException {
+        Files.list(Paths.get(inDir)).filter(inPath -> inPath.toString().endsWith(".in.txt") || inPath.toString().endsWith(".in")).forEachOrdered(inPath -> {
+            try {
+                System.out.println();
+                System.out.println();
+                System.out.println("===== Processing input file: " + inPath.getFileName() + " ======");
+                String inStr = new String(Files.readAllBytes(inPath));
+
+                Path cacheDir = Paths.get(inPath + ".cache");
+                AtomicReference<SubmissionCache> cache = new AtomicReference<>(SubmissionCache.readCache(clss, cacheDir));
+                Pair<Double, ByteArrayOutputStream> res = GeneticOptimizer.runLoudly(clss, Utils.nonThrowing(() -> AbstractSubmission.create(clss, cache.get())), Utils.nonThrowing(a -> {
+                    InputStream in = new ByteArrayInputStream(inStr.getBytes(StandardCharsets.UTF_8));
+                    ByteArrayOutputStream out = new ByteArrayOutputStream();
+                    a.runSubmission(in, new PrintStream(out), debug);
+                    cache.set(a.getCache());
+                    return new Pair<>(a.score, out);
+                }));
+                SubmissionCache.writeCache(clss, cache.get(), cacheDir);
+
+                if (res != null) {
+                    String scorestr = new DecimalFormat("#.###").format(res.a);
+                    System.out.println();
+                    System.out.println("Best score for " + inPath.getFileName() + ": " + scorestr);
+                    Path outPath = Paths.get(inPath.toString() + " sc" + scorestr + "         " + new SimpleDateFormat("HH:mm:ss").format(new Date()) + ";" + Math.floor(Math.random() * 1000) + ".out.txt");
+                    System.out.println("Saving best output in: " + outPath);
+                    Files.write(outPath, res.b.toByteArray(), StandardOpenOption.CREATE);
+                }
+            } catch (IOException | IllegalAccessException e) { throw new RuntimeException(e); }
+        });
+        System.out.println("Went through all input files!");
+    }
+    /* END-OPTIMIZER */
 
 
 

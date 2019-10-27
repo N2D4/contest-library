@@ -5,6 +5,7 @@ import lib.algorithms.O;
 import lib.graphs.DirectedGraph;
 import lib.graphs.Graph;
 import lib.trees.TreeNode;
+import lib.utils.MathUtils;
 
 public final class GraphFlow extends Algorithm {
 
@@ -14,11 +15,15 @@ public final class GraphFlow extends Algorithm {
 
 
     /**
-     * Beware of rounding errors. Might return eg. 5.9999999, which, when cast to an int, becomes 5
+     * Applies the maximum flow from source to sink where through every edge, at most its weight can flow through.
+     * Modifies the graph by writing the new capacities (note that this may create new edges, but w[i][j] + w[j][i]
+     * will remain constant before and after the algorithm) to the given graph and returning a double, denoting the
+     * max flow (=min cut).
      *
-     * Not exclusive to this algorithm but it's more common here
+     * Beware of rounding errors. Might return eg. 5.9999999, which, when cast to an int, becomes 5. (Not exclusive to
+     * this algorithm but it's more common here)
      */
-    @O("E * min(V^2, max|f|)")
+    @O("V * E^2")
     public static double applyMaxFlow(final DirectedGraph graph, final int source, final int sink) {
         for (Graph.Edge edge : graph.getEdges()) {
             if (!graph.isEdge(edge.to, edge.from)) {
@@ -31,8 +36,6 @@ public final class GraphFlow extends Algorithm {
         }
 
 
-        TreeNode<Integer>[] treeNodeArr = new TreeNode[graph.getVertexCount()];
-
         GraphSearch search = new GraphSearch() {
             @Override
             protected Type getType() {
@@ -41,7 +44,7 @@ public final class GraphFlow extends Algorithm {
 
             @Override
             protected TreeNode<Integer>[] getNodeArray(Graph graph) {
-                return treeNodeArr;
+                return new TreeNode[graph.getVertexCount()];
             }
 
             @Override
@@ -49,6 +52,14 @@ public final class GraphFlow extends Algorithm {
                 if (vertex == sink) {
                     end(node);
                 }
+            }
+
+            @Override
+            protected boolean onInspectEdge(int v1, int v2, double weight) {
+                if (weight == 0.0) {
+                    return true;
+                }
+                return false;
             }
         };
 

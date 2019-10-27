@@ -60,12 +60,12 @@ public class DoubleArrayList implements Serializable {
     }
 
     public double get(int index) {
-        rangeCheck(index);
+        //rangeCheck(index);
         return arr[index];
     }
 
     public double set(int index, double val) {
-        rangeCheck(index);
+        //rangeCheck(index);
         double prev = arr[index];
         arr[index] = val;
         return prev;

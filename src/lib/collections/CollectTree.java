@@ -12,6 +12,8 @@ import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
 public class CollectTree<T> extends AbstractList<T> {
+    private final static int DEFAULT_ARITY = 8;
+
     private final T[] arr;
     private final int arity;
     private final Supplier<T> supplier;
@@ -23,7 +25,7 @@ public class CollectTree<T> extends AbstractList<T> {
      * changed. For immutable reduction, use the constructor taking a BinaryOperator instead
      */
     public CollectTree(Supplier<T> supplier, BiConsumer<T, T> combiner, Collection<T> from) {
-        this(supplier, combiner, from, 8);
+        this(supplier, combiner, from, DEFAULT_ARITY);
     }
 
     /**
@@ -42,7 +44,7 @@ public class CollectTree<T> extends AbstractList<T> {
      * combiner must be stateful and pure. It may not modify either of the two arguments. For mutable reduction, use
      * the constructor taking a BiConsumer instead
      *
-     * @implNote Note that in our implementation, the other constructors might call this constructor with an stateful
+     * @implNote Note that in our implementation, the other constructors might call this constructor with a stateful
      * combiner. However, this is not generally supported; it only works for certain stateful combiners
      */
     public CollectTree(T identity, BinaryOperator<T> combiner, Collection<T> from) {
@@ -53,7 +55,7 @@ public class CollectTree<T> extends AbstractList<T> {
      * combiner must be stateful and pure. It may not modify either of the two arguments. For mutable reduction, use
      * the constructor taking a BiConsumer instead
      *
-     * @implNote Note that in our implementation, the other constructors might call this constructor with an stateful
+     * @implNote Note that in our implementation, the other constructors might call this constructor with a stateful
      * combiner. However, this is not generally supported; it only works for certain stateful combiners
      */
     public CollectTree(T identity, BinaryOperator<T> combiner, Collection<T> from, int arity) {
@@ -64,18 +66,18 @@ public class CollectTree<T> extends AbstractList<T> {
      * combiner must be stateful and pure. It may not modify either of the two arguments. For mutable reduction, use
      * the constructor taking a BiConsumer instead
      *
-     * @implNote Note that in our implementation, the other constructors might call this constructor with an stateful
+     * @implNote Note that in our implementation, the other constructors might call this constructor with a stateful
      * combiner. However, this is not generally supported; it only works for certain stateful combiners
      */
     public CollectTree(Supplier<T> supplier, BinaryOperator<T> combiner, Collection<T> from) {
-        this(supplier, combiner, from, 2);
+        this(supplier, combiner, from, DEFAULT_ARITY);
     }
 
     /**
      * combiner must be stateful and pure. It may not modify either of the two arguments. For mutable reduction, use
      * the constructor taking a BiConsumer instead
      *
-     * @implNote Note that in our implementation, the other constructors might call this constructor with an stateful
+     * @implNote Note that in our implementation, the other constructors might call this constructor with a stateful
      * combiner. However, this is not generally supported; it only works for certain stateful combiners
      */
     public CollectTree(Supplier<T> supplier, BinaryOperator<T> combiner, Collection<T> from, int arity) {

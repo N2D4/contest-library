@@ -6,8 +6,10 @@ import lib.graphs.Graph;
 import lib.graphs.UndirectedAdjacencyListGraph;
 import lib.graphs.UndirectedGraph;
 import lib.trees.Tree;
+import lib.utils.Utils;
 import lib.utils.tuples.Pair;
 import lib.utils.various.UnionFind;
+import sun.jvm.hotspot.utilities.Assert;
 
 import java.util.*;
 
@@ -26,7 +28,7 @@ public class SpanningTrees extends Algorithm {
         UnionFind uf = new UnionFind(n);
 
         Graph.Edge[] edges = graph.getEdges().toArray(new Graph.Edge[0]);
-        Arrays.sort(edges, Comparator.comparing(e -> e.weight));
+        Arrays.sort(edges, Comparator.comparingDouble(e -> e.weight));
         int i = 0;
         for (Graph.Edge edge : edges) {
             if (uf.find(edge.from) != uf.find(edge.to)) {
@@ -50,7 +52,7 @@ public class SpanningTrees extends Algorithm {
         UnionFind uf = new UnionFind(n);
 
         Graph.Edge[] edges = graph.getEdges().toArray(new Graph.Edge[0]);
-        Arrays.sort(edges, Comparator.comparing(e -> e.weight));
+        Arrays.sort(edges, Comparator.comparingDouble(e -> e.weight));
         int i = 0;
         for (Graph.Edge edge : edges) {
             if (uf.find(edge.from) != uf.find(edge.to)) {
@@ -61,5 +63,27 @@ public class SpanningTrees extends Algorithm {
         }
 
         return result;
+    }
+
+    /**
+     * Contains the Boruvska MST algorithm and variations. Usually not preferable to Kruskal due to its higher hidden
+     * constant, mainly here for reference purposes
+     */
+    public static final class Boruvska {
+        private Boruvska() {
+            throw new AssertionError();
+        }
+
+        // TODO unfinished
+        /*public static double mstWeight(UndirectedGraph graph) {
+            int n = graph.getVertexCount();
+            UnionFind uf = new UnionFind(n);
+            for (int i = 0; i < n; i++) {
+                int a = i;
+                int minNeighbour = Utils.stream(graph.getNeighbours(a)).boxed().min(Comparator.comparingDouble(b -> graph.getEdgeWeight(a, b))).get();
+                uf.union(a, minNeighbour);
+            }
+
+        }*/
     }
 }

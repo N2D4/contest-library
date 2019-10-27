@@ -59,12 +59,11 @@ public abstract class MatrixGraph extends AbstractGraph implements Graph {
                 if (nxt == null) {
                     do {
                         while (iterator == null || !iterator.hasNext()) {
-                            if (vertex >= n-1) return false;
-                            vertex++;
+                            if (++vertex >= n) return false;
                             iterator = getNeighbours(vertex);
                         }
                         nxt = new Edge(vertex, iterator.nextInt(), iterator.getValue());
-                    } while (directed || nxt.to >= nxt.from);
+                    } while (!directed && nxt.to >= nxt.from);
                 }
                 return true;
             }

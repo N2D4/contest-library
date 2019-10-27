@@ -5,6 +5,12 @@ import lib.utils.various.VoidPrintStream;
 
 import java.io.*;
 import java.lang.reflect.Field;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.nio.file.StandardOpenOption;
+import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.function.*;
 import java.util.stream.*;
@@ -16,8 +22,9 @@ public class GeneticOptimizer<T, U> {
     private final Function<T, Pair<Double, U>> runFunc;
     private List<Subject> lastGeneration;
     private SortedSet<Subject> allSubjects = new TreeSet<>(Comparator.comparingDouble(a -> -a.score));
-    private Subject best = null;
+    private Pair<Double, U> best = null;
     private Random random = new Random();
+    private int totalGenerations = 0;
 
     public GeneticOptimizer(Class<T> clss, Supplier<T> constructor, Function<T, Pair<Double, U>> runFunc) {
         this.clss = clss;
@@ -26,21 +33,18 @@ public class GeneticOptimizer<T, U> {
     }
 
 
-
-
-
-
     public static <T, U> Pair<Double, U> runLoudly(Class<T> clss, Supplier<T> constructor, Function<T, Pair<Double, U>> runFunc) {
         if (GeneticOptimizer.canOptimize(clss)) {
             Scanner sc = new Scanner(System.in);
             GeneticOptimizer<T, U> optimizer = new GeneticOptimizer<>(clss, constructor, runFunc);
             while (true) {
-                System.out.println("For how many iterations do you want me to optimize the result?");
+                System.out.println("How many generations? (0 to exit)");
                 String in = sc.nextLine();
                 int i;
                 try {
-                    i = in.isEmpty() ? 5 : Integer.parseInt(in);
+                    i = Integer.parseInt(in);
                 } catch (NumberFormatException e) {
+                    System.out.println("Not a valid number, I'm gonna do 5");
                     i = 5;
                 }
                 if (i <= 0) {
@@ -49,6 +53,7 @@ public class GeneticOptimizer<T, U> {
                 }
                 System.out.println("Doing " + i + " iterations!");
                 optimizer.run(i, System.out);
+                System.out.println("Current best: " + optimizer.getBest().a);
             }
         } else {
             System.out.println("Optimizer flag enabled but submission can't be optimized. Running it as normal submission instead");
@@ -58,12 +63,7 @@ public class GeneticOptimizer<T, U> {
 
 
     public Pair<Double, U> getBest() {
-        if (best == null) return null;
-        return new Pair<>(best.score, best.meta);
-    }
-
-    public void cleanMemory() {
-        allSubjects = allSubjects.stream().limit(10).collect(Collectors.toCollection(TreeSet::new));
+        return best;
     }
 
 
@@ -73,7 +73,9 @@ public class GeneticOptimizer<T, U> {
     }
 
     public static List<Field> getOptimizableProperties(Class<?> clss) {
-        return Arrays.stream(clss.getDeclaredFields()).filter(f -> { f.setAccessible(true); return f.getAnnotation(Optimize.class) != null; }).collect(Collectors.toList());
+        return Arrays.stream(clss.getDeclaredFields())
+                .filter(f -> { f.setAccessible(true); return f.getAnnotation(Optimize.class) != null; })
+                .collect(Collectors.toList());
     }
 
 
@@ -95,7 +97,8 @@ public class GeneticOptimizer<T, U> {
 
 
         for (int it = 1; it <= iterations; it++) {
-            log.print("Iteration " + it + ": ");
+            totalGenerations++;
+            log.print("Generation " + totalGenerations + "/" + (totalGenerations - it + iterations) + ": ");
 
             List<Subject> newGeneration = new ArrayList<>(generationSize);
 
@@ -117,7 +120,15 @@ public class GeneticOptimizer<T, U> {
             }
 
             // Evaluate
-            newGeneration.parallelStream().forEach(s -> s.evaluate());
+            newGeneration.parallelStream().forEach(Subject::evaluate);
+
+            // Update best score
+            newGeneration.stream().forEach(a -> {
+                if (best == null || a.score > best.a) best = new Pair<>(a.score, a.meta);
+            });
+
+            // Remove metadata to be more memory-efficient
+            newGeneration.stream().forEach(Subject::nukeMeta);
 
             // Print the scores
             log.println(newGeneration);
@@ -126,7 +137,12 @@ public class GeneticOptimizer<T, U> {
             newGeneration.sort(Comparator.comparingDouble(a -> -a.score));
             lastGeneration = newGeneration;
 
-            allSubjects.addAll(newGeneration);
+            for (Subject sub : newGeneration) {
+                allSubjects.add(sub);
+                while (allSubjects.size() >= 20) {
+                    allSubjects.remove(allSubjects.last());
+                }
+            }
         }
     }
 
@@ -166,6 +182,13 @@ public class GeneticOptimizer<T, U> {
             Pair<Double, U> pair = runFunc.apply(value);
             this.score = pair.a;
             this.meta = pair.b;
+        }
+
+        /**
+         * Nukes metadata after it's no longer needed so the garbage collector can collect it.
+         */
+        public void nukeMeta() {
+            this.meta = null;
         }
 
         public String toString() {
@@ -249,6 +272,7 @@ public class GeneticOptimizer<T, U> {
     }
 
     private Object getBredFVal(Field field, Object val1, Object val2) {
+        // TODO add actual breeding of individual values (eg. average)
         Object val = random.nextBoolean() ? val1 : val2;
         return random.nextBoolean() ? val : getMutatedFVal(field, val);
     }

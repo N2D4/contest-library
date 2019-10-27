@@ -1,10 +1,16 @@
 package lib.utils;
 
 /* BEGIN-JAVA-8 */
+import lib.generated.IntIterator;
+import lib.utils.various.ThrowingFunction;
+import lib.utils.various.ThrowingRunnable;
+import lib.utils.various.ThrowingSupplier;
+
 import java.util.*;
 import java.util.function.Consumer;
 /* END-JAVA-8 */
 
+import java.util.function.Function;
 import java.util.function.Supplier;
 import java.util.stream.*;
 
@@ -26,7 +32,7 @@ public final class Utils {
     }
 
 
-    public static double timing(Runnable runnable) {
+    public static <E extends Throwable> double timing(ThrowingRunnable<E> runnable) throws E {
         long start = System.nanoTime();
         runnable.run();
         long end = System.nanoTime();
@@ -34,7 +40,7 @@ public final class Utils {
     }
 
     private static int timingId = 0;
-    public static <T> T printTiming(Supplier<T> supplier, String name) {
+    public static <T, E extends Throwable> T printTiming(ThrowingSupplier<T, E> supplier, String name) throws E {
         int tid = timingId++;
         if (name == null) name = "" + tid;
         else name = tid + " - " + name;
@@ -48,19 +54,19 @@ public final class Utils {
         }
     }
 
-    public static void printTiming(Runnable runnable, String name) {
+    public static <E extends Throwable> void printTiming(ThrowingRunnable<E> runnable, String name) throws E {
         printTiming(() -> {
             runnable.run();
             return null;
         }, name);
     }
 
-    public static <T> T printTiming(Supplier<T> supplier) {
-        return printTiming(supplier, null);
+    public static <E extends Throwable> void printTiming(ThrowingRunnable<E> runnable) throws E {
+        printTiming(runnable, null);
     }
 
-    public static void printTiming(Runnable runnable) {
-        printTiming(runnable, null);
+    public static <T, E extends Throwable> T printTiming(ThrowingSupplier<T, E> supplier) throws E {
+        return printTiming(supplier, null);
     }
     /* END-JAVA-8 */
 
@@ -93,6 +99,31 @@ public final class Utils {
         return result;
     }
 
+
+    public static IntStream stream(PrimitiveIterator.OfInt iterator) {
+        return stream(iterator, -1);
+    }
+
+    public static IntStream stream(PrimitiveIterator.OfInt iterator, int estimatedSize) {
+        return stream(Spliterators.spliterator(iterator, estimatedSize, Spliterator.ORDERED));
+    }
+
+    public static IntStream stream(Spliterator.OfInt spliterator) {
+        return StreamSupport.intStream(spliterator, false);
+    }
+
+
+    public static LongStream stream(PrimitiveIterator.OfLong iterator) {
+        return stream(iterator, -1);
+    }
+
+    public static LongStream stream(PrimitiveIterator.OfLong iterator, int estimatedSize) {
+        return stream(Spliterators.spliterator(iterator, estimatedSize, Spliterator.ORDERED));
+    }
+
+    public static LongStream stream(Spliterator.OfLong spliterator) {
+        return StreamSupport.longStream(spliterator, false);
+    }
 
     public static <T> Stream<T> stream(Iterator<T> iterator) {
         return stream(iterator, -1);
@@ -311,6 +342,45 @@ public final class Utils {
             @Override
             public void add(T t) {
                 it.add(t);
+            }
+        };
+    }
+
+    /**
+     * Returns an equivalent lambda that wraps all thrown exceptions and errors into a runtime exception.
+     */
+    public static Runnable nonThrowing(ThrowingRunnable<?> r) {
+        return () -> {
+            try {
+                r.run();
+            } catch (Throwable e) {
+                throw new RuntimeException(e);
+            }
+        };
+    }
+
+    /**
+     * Returns an equivalent lambda that wraps all thrown exceptions and errors into a runtime exception.
+     */
+    public static <T> Supplier<T> nonThrowing(ThrowingSupplier<T, ?> r) {
+        return () -> {
+            try {
+                return r.get();
+            } catch (Throwable e) {
+                throw new RuntimeException(e);
+            }
+        };
+    }
+
+    /**
+     * Returns an equivalent lambda that wraps all thrown exceptions and errors into a runtime exception.
+     */
+    public static <T, R> Function<T, R> nonThrowing(ThrowingFunction<T, R, ?> r) {
+        return (a) -> {
+            try {
+                return r.apply(a);
+            } catch (Throwable e) {
+                throw new RuntimeException(e);
             }
         };
     }

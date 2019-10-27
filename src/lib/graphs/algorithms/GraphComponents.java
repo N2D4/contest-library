@@ -2,9 +2,12 @@ package lib.graphs.algorithms;
 
 import lib.algorithms.Algorithm;
 import lib.algorithms.O;
+import lib.graphs.Graph;
 import lib.graphs.UndirectedGraph;
 import lib.trees.TreeNode;
 import lib.trees.algorithms.TreeTraversal;
+import lib.utils.Utils;
+import lib.utils.various.UnionFind;
 import lib.vectorization.VectorElementIterator;
 
 import java.util.*;
@@ -20,8 +23,18 @@ public class GraphComponents extends Algorithm {
     }
 
     @O("n + m")
-    public static Set<Set<Integer>> getComponents(UndirectedGraph graph) {
+    public static Collection<Set<Integer>> getComponents(UndirectedGraph graph) {
         return GraphSearch.getComponents(graph);
+    }
+
+    /**
+     * Returns the components using union find. Should not be preferred over getComponents as that is usually faster
+     */
+    public static Collection<Set<Integer>> getComponentsUnionFind(UndirectedGraph graph) {
+        int n = graph.getVertexCount();
+        UnionFind uf = new UnionFind(n);
+        graph.edgeIterator().forEachRemaining((e) -> uf.union(e.from, e.to));
+        return uf.getComponents();
     }
 
 

@@ -13,7 +13,6 @@ public class TreeNode<T> implements Serializable {
     private List<TreeNode<T>> children;
     private TreeNode<T> parent;
     private Tree<T> tree;
-    private Map<String, Object> attributeMap = null;
 
     public TreeNode(T value) {
         this(value, null);
@@ -125,30 +124,6 @@ public class TreeNode<T> implements Serializable {
         return true;
     }
 
-    /**
-     * Returns a modifiable map of attributes that can be used to store additional information in this tree node.
-     */
-    public Map<String, Object> getAttributeMap() {
-        if (attributeMap == null) attributeMap = new HashMap<>(3);
-        return attributeMap;
-    }
-
-    /**
-     * Either returns the value of the attribute if it is available in the attribute map, or uses the folding function
-     * to collect it from the inheritance chain.
-     */
-    public <U> U inheritAttribute(String attrName, U firstValue, BiFunction<U, TreeNode<T>, U> fold) {
-        return (U) getAttributeMap().computeIfAbsent(attrName, k -> {
-            // No recursion due to possible stack overflows
-            U val = firstValue;
-            for (TreeNode<T> node : getParentChain()) {
-                Map<String, Object> map = node.getAttributeMap();
-                if (map.containsKey(attrName)) return map.get(attrName);
-                val = fold.apply(val, node);
-            }
-            return firstValue;
-        });
-    }
 
     @Override
     public String toString() {

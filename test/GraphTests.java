@@ -19,13 +19,21 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 public class GraphTests {
 
     List<Function<Integer, DirectedGraph>> directedGraphs = Arrays.asList(
-        DirectedAdjacencyListGraph::new,
-        DirectedAdjacencyMatrixGraph::new
+            DirectedAdjacencyListGraph::new,
+            DirectedAdjacencyMatrixGraph::new
     );
 
     List<Function<Integer, UndirectedGraph>> undirectedGraphs = Arrays.asList(
             UndirectedAdjacencyListGraph::new,
             UndirectedAdjacencyMatrixGraph::new
+    );
+
+    List<Function<Integer, DirectedGraph>> lwDirectedGraphs = Arrays.asList(
+            DirectedAdjacencyListGraph::new
+    );
+
+    List<Function<Integer, UndirectedGraph>> lwUndirectedGraphs = Arrays.asList(
+            UndirectedAdjacencyListGraph::new
     );
 
     List<Function<Integer, Graph>> graphs = Arrays.asList(
@@ -68,6 +76,20 @@ public class GraphTests {
 
 
     @Test
+    public void graphComponentsTest() {
+        Random random = new Random("graph components".hashCode());
+        Iterator<UndirectedGraph> fewEdges = genUndirectedGraph(100, random).iterator();
+        Iterator<UndirectedGraph> manyEdges = genGraph(10_000, 20_000, random, lwUndirectedGraphs).iterator();
+        outer: for (int it = 0; it < 100 * TestConstants.SCALE; it++) {
+            UndirectedGraph graph = (random.nextBoolean() ? manyEdges : fewEdges).next();
+            Collection<Set<Integer>> components = GraphComponents.getComponents(graph);
+            Collection<Set<Integer>> componentsUF = GraphComponents.getComponentsUnionFind(graph);
+            assertEquals(new HashSet<>(components), new HashSet<>(componentsUF));
+        }
+    }
+
+
+    @Test
     public void primKruskalMSTConsistency() {
         Random random = new Random("prim and kruskal MST consistency".hashCode());
         Iterator<UndirectedGraph> iterator = genUndirectedGraph(100, random).iterator();
@@ -75,16 +97,6 @@ public class GraphTests {
             UndirectedGraph graph = iterator.next();
             int n = graph.getVertexCount();
             int components = GraphComponents.getComponents(graph).size();
-
-            /*System.err.println();
-            System.err.println();
-            System.err.println();
-            System.err.println();
-            System.err.println();
-            System.err.println();
-            System.err.println(graph.getClass());
-            System.err.println(graph);
-            System.err.println();*/
 
             UndirectedGraph kruskal = SpanningTrees.minimumSpanningTree(graph);
             //System.err.println(kruskal);
@@ -121,12 +133,6 @@ public class GraphTests {
                 }
             }
 
-            /*System.out.println();
-            System.out.println();
-            System.out.println();
-            System.out.println(graph.getClass().getName());
-            System.out.println(graph);
-            System.out.println();*/
             
             double[][] pathLength = new double[graph.getVertexCount()][];
             for (int i = 0; i < graph.getVertexCount(); i++) {

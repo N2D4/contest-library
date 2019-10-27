@@ -4,9 +4,10 @@ import lib.trees.Tree;
 
 import java.util.AbstractMap;
 import java.util.Iterator;
+import java.util.function.DoubleBinaryOperator;
 
 public class Trie<T> extends AbstractSortedMap<String, T> {
-    private Tree tree = new Tree<TrieData<T>>(null);
+    private Tree tree = new Tree<>((TrieData<T>) null);
 
     public Trie() {
 

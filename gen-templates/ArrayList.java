@@ -64,12 +64,12 @@ public class $CAP_TYPE$ArrayList implements Serializable {
     }
 
     public $TYPE$ get(int index) {
-        rangeCheck(index);
+        //rangeCheck(index);
         return arr[index];
     }
 
     public $TYPE$ set(int index, $TYPE$ val) {
-        rangeCheck(index);
+        //rangeCheck(index);
         $TYPE$ prev = arr[index];
         arr[index] = val;
         return prev;

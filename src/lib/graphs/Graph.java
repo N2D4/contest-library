@@ -19,6 +19,10 @@ public interface Graph {
 
     int getEdgeCount();
     Iterator<Graph.Edge> edgeIterator();
+    /**
+     * Returns all edges in a set. If the graph is undirected, only one of (a, b) and (b, a) will be returned (undefined
+     * which)
+     */
     default Set<Graph.Edge> getEdges() {
         Set<Graph.Edge> result = new HashSet<Graph.Edge>();
         Iterator<Graph.Edge> iterator = edgeIterator();
