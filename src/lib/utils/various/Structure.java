@@ -5,6 +5,10 @@ import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
 import java.util.*;
 
+/**
+ * A class whose sub-classes automatically support serialization, cloning, hashing and equality. These methods are
+ * defined field-wise, whereas transient fields are ignored (but private non-transient fields will also be serialized.)
+ */
 public abstract class Structure implements Serializable, Cloneable {
 
     @Override

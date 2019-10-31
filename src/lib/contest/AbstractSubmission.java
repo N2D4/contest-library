@@ -1,6 +1,6 @@
 package lib.contest;
 
-import lib.ml.GeneticOptimizer;
+import lib.ml.optimize.GeneticOptimizer;
 import lib.utils.Utils;
 import lib.utils.tuples.Pair;
 import lib.utils.tuples.Triple;
@@ -22,13 +22,27 @@ import java.util.*;
 import java.util.concurrent.atomic.AtomicReference;
 
 public abstract class AbstractSubmission {
+    /**
+     * A FastScanner instance, similar to normal scanners but faster.
+     */
     public FastScanner sc;
+    /**
+     * The input stream, that the scanner uses. Generally, the scanner should be preferred
+     */
     public InputStream in;
     public PrintStream out;
+    /**
+     * The debug print stream. May have different behaviour from normal print streams and out streams; in particular,
+     * it may decide not to call .toString on objects (eg. if there is no stderr output), or print arrays using
+     * Arrays.deepToString(...). This behaviour is not guaranteed.
+     */
     public PrintStream debug;
     public volatile double score = 0;
     public volatile int testCaseCount = -1;
     public volatile int testCaseIndex;
+    /**
+     * A double from 0 to 1 indicating the current progress of this test case (0 = 0%, 1 = 100%).
+     */
     public volatile double progress = 0;
 
 
@@ -54,7 +68,7 @@ public abstract class AbstractSubmission {
         this.out = new PrintStream(out);
         // If we have a void output stream, shortcut a void print stream - this is faster as it doesn't convert objects
         // passed to it to strings first
-        this.debug = debug instanceof VoidOutputStream || debug instanceof VoidPrintStream ? new VoidPrintStream() : new PrintStream(debug);
+        this.debug = debug instanceof VoidOutputStream || debug instanceof VoidPrintStream ? new VoidPrintStream() : new DebugPrintStream(debug);
 
         ContestType type = getType();
 
@@ -75,6 +89,35 @@ public abstract class AbstractSubmission {
             progress = 0;
             this.out.printf(type.caseString, testCaseIndex, testCaseCount);
             testCase();
+        }
+    }
+
+    private class DebugPrintStream extends PrintStream {
+        public DebugPrintStream(OutputStream debug) {
+            super(debug);
+        }
+
+        private Object conv(Object obj) {
+            if (obj instanceof byte[]) return Arrays.toString((byte[]) obj);
+            else if (obj instanceof char[]) return Arrays.toString((char[]) obj);
+            else if (obj instanceof short[]) return Arrays.toString((short[]) obj);
+            else if (obj instanceof int[]) return Arrays.toString((int[]) obj);
+            else if (obj instanceof long[]) return Arrays.toString((long[]) obj);
+            else if (obj instanceof float[]) return Arrays.toString((float[]) obj);
+            else if (obj instanceof double[]) return Arrays.toString((double[]) obj);
+            else if (obj instanceof boolean[]) return Arrays.toString((int[]) obj);
+            else if (obj instanceof Object[]) return Arrays.deepToString((Object[]) obj);
+            else return obj;
+        }
+
+        @Override
+        public void print(Object obj) {
+            super.print(conv(obj));
+        }
+
+        @Override
+        public void println(Object obj) {
+            super.println(conv(obj));
         }
     }
 

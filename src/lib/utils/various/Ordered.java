@@ -4,6 +4,10 @@ import java.io.Serializable;
 import java.util.Comparator;
 import java.util.Objects;
 
+/**
+ * A wrapper class allowing you to provide a custom comparison object. Two objects are considered equal if the
+ * custom comparison object is.
+ */
 public class Ordered<T, C extends Comparable<? super C>> implements Comparable<Ordered<T, C>>, Serializable {
 
     private final T t;

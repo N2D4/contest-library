@@ -1,42 +1,48 @@
-package lib.ml;
+package lib.ml.optimize;
 
+import lib.utils.Utils;
 import lib.utils.tuples.Pair;
+import lib.utils.tuples.Triple;
 import lib.utils.various.VoidPrintStream;
 
 import java.io.*;
 import java.lang.reflect.Field;
-import java.nio.charset.StandardCharsets;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.nio.file.StandardOpenOption;
-import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.function.*;
 import java.util.stream.*;
 
 public class GeneticOptimizer<T, U> {
 
+    private static long subjectUidCounter = 0;
     private final Class<T> clss;
     private final Supplier<T> constructor;
     private final Function<T, Pair<Double, U>> runFunc;
+    private final int keepBest;
+    private final boolean parallel;
     private List<Subject> lastGeneration;
-    private SortedSet<Subject> allSubjects = new TreeSet<>(Comparator.comparingDouble(a -> -a.score));
-    private Pair<Double, U> best = null;
+    private final NavigableSet<Subject> allSubjects = new TreeSet<>(Comparator.comparingDouble((Subject a) -> -a.score).thenComparingDouble(a -> a.uid));
+    private final NavigableSet<Triple<Double, U, Long>> best = new TreeSet<>(Comparator.comparingDouble((Triple<Double, U, Long> a) -> -a.a).thenComparingDouble(a -> a.c)); // best contains also the metadata, while it gets nuked for the elements of allSubjects
     private Random random = new Random();
     private int totalGenerations = 0;
 
-    public GeneticOptimizer(Class<T> clss, Supplier<T> constructor, Function<T, Pair<Double, U>> runFunc) {
+
+    public GeneticOptimizer(Class<T> clss, Supplier<T> constructor, Function<T, Pair<Double, U>> evaluateFunc) {
+        this(clss, constructor, evaluateFunc, 1, false);
+    }
+
+    public GeneticOptimizer(Class<T> clss, Supplier<T> constructor, Function<T, Pair<Double, U>> evaluateFunc, int keepBest, boolean parallel) {
         this.clss = clss;
         this.constructor = constructor;
-        this.runFunc = runFunc;
+        this.runFunc = evaluateFunc;
+        this.keepBest = keepBest;
+        this.parallel = parallel;
     }
 
 
     public static <T, U> Pair<Double, U> runLoudly(Class<T> clss, Supplier<T> constructor, Function<T, Pair<Double, U>> runFunc) {
         if (GeneticOptimizer.canOptimize(clss)) {
             Scanner sc = new Scanner(System.in);
-            GeneticOptimizer<T, U> optimizer = new GeneticOptimizer<>(clss, constructor, runFunc);
+            GeneticOptimizer<T, U> optimizer = new GeneticOptimizer<>(clss, constructor, runFunc, 1, true);
             while (true) {
                 System.out.println("How many generations? (0 to exit)");
                 String in = sc.nextLine();
@@ -63,7 +69,12 @@ public class GeneticOptimizer<T, U> {
 
 
     public Pair<Double, U> getBest() {
-        return best;
+        Iterator<Pair<Double, U>> iter = getAllBest();
+        return !iter.hasNext() ? null : iter.next();
+    }
+
+    public Iterator<Pair<Double, U>> getAllBest() {
+        return best.stream().map(a -> new Pair<>(a.a, a.b)).iterator();
     }
 
 
@@ -81,24 +92,33 @@ public class GeneticOptimizer<T, U> {
 
 
 
-
     public void run(int iterations) {
         run(iterations, new VoidPrintStream());
     }
 
-
     public void run(int iterations, PrintStream log) {
+        run(iterations, -1, log);
+    }
 
-        final int generationSize = Math.max(9, Runtime.getRuntime().availableProcessors() + 2);
-        final int randomsPerGen = generationSize / 3;
-        final int breededPerGen = (generationSize - randomsPerGen) / 2;
-        final int mutatedPerGen = generationSize - randomsPerGen - breededPerGen;
+    public void run(int iterations, int generationSize) {
+        run(iterations, generationSize, new VoidPrintStream());
+    }
 
 
-
+    public void run(int iterations, int generationSize, PrintStream log) {
+        if (generationSize < 0) {
+            generationSize = Runtime.getRuntime().availableProcessors();
+            while (generationSize < 3) generationSize *= 2;
+        }
         for (int it = 1; it <= iterations; it++) {
+            final int randomsPerGen = lastGeneration == null ? generationSize : generationSize / 3;
+            final int breededPerGen = lastGeneration == null ? 0 : (generationSize - randomsPerGen) / 2;
+            final int mutatedPerGen = lastGeneration == null ? 0 : generationSize - randomsPerGen - breededPerGen;
+
+
             totalGenerations++;
-            log.print("Generation " + totalGenerations + "/" + (totalGenerations - it + iterations) + ": ");
+            String genstr = "Generation " + totalGenerations + "/" + (totalGenerations - it + iterations) + ": ";
+            log.print(genstr);
 
             List<Subject> newGeneration = new ArrayList<>(generationSize);
 
@@ -120,29 +140,31 @@ public class GeneticOptimizer<T, U> {
             }
 
             // Evaluate
-            newGeneration.parallelStream().forEach(Subject::evaluate);
+            double time = Utils.timing(() -> newGeneration.parallelStream().forEach(Subject::evaluate));
 
-            // Update best score
-            newGeneration.stream().forEach(a -> {
-                if (best == null || a.score > best.a) best = new Pair<>(a.score, a.meta);
-            });
+            // Update best scores and subject list
+            for (Subject sub : newGeneration) {
+                best.add(new Triple<>(sub.score, sub.meta, sub.uid));
+                while (best.size() > keepBest) {
+                    best.remove(best.last());
+                }
+                allSubjects.add(sub);
+                while (allSubjects.size() > 50) {
+                    allSubjects.remove(allSubjects.last());
+                }
+            }
 
             // Remove metadata to be more memory-efficient
             newGeneration.stream().forEach(Subject::nukeMeta);
 
             // Print the scores
-            log.println(newGeneration);
+            log.println(newGeneration + " (" + time + "s)");
 
             // Sort the new generation
             newGeneration.sort(Comparator.comparingDouble(a -> -a.score));
-            lastGeneration = newGeneration;
 
-            for (Subject sub : newGeneration) {
-                allSubjects.add(sub);
-                while (allSubjects.size() >= 20) {
-                    allSubjects.remove(allSubjects.last());
-                }
-            }
+            // Set the last generation to the new generation
+            lastGeneration = newGeneration;
         }
     }
 
@@ -150,6 +172,8 @@ public class GeneticOptimizer<T, U> {
 
 
     private class Subject {
+        public final long uid = ++subjectUidCounter;
+
         public double score = Double.NaN;
         public U meta = null;
         public T value;

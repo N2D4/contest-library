@@ -32,6 +32,9 @@ public final class Utils {
     }
 
 
+    /**
+     * Returns the execution time of the lambda in seconds.
+     */
     public static <E extends Throwable> double timing(ThrowingRunnable<E> runnable) throws E {
         long start = System.nanoTime();
         runnable.run();
@@ -40,6 +43,9 @@ public final class Utils {
     }
 
     private static int timingId = 0;
+    /**
+     * Prints the execution time of the lambda in stderr. Returns the value returned by the lambda.
+     */
     public static <T, E extends Throwable> T printTiming(ThrowingSupplier<T, E> supplier, String name) throws E {
         int tid = timingId++;
         if (name == null) name = "" + tid;
@@ -54,6 +60,9 @@ public final class Utils {
         }
     }
 
+    /**
+     * Prints the execution time of the lambda in stderr.
+     */
     public static <E extends Throwable> void printTiming(ThrowingRunnable<E> runnable, String name) throws E {
         printTiming(() -> {
             runnable.run();
@@ -61,10 +70,16 @@ public final class Utils {
         }, name);
     }
 
+    /**
+     * Prints the execution time of the lambda in stderr.
+     */
     public static <E extends Throwable> void printTiming(ThrowingRunnable<E> runnable) throws E {
         printTiming(runnable, null);
     }
 
+    /**
+     * Prints the execution time of the lambda in stderr. Returns the value returned by the lambda.
+     */
     public static <T, E extends Throwable> T printTiming(ThrowingSupplier<T, E> supplier) throws E {
         return printTiming(supplier, null);
     }

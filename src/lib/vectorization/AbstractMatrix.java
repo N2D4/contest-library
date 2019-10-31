@@ -72,12 +72,9 @@ public abstract class AbstractMatrix implements Matrix, Serializable {
     }
 
 
-
-
-
-
-
-
+    /**
+     * Copies all elements that are not double-equal to value.
+     */
     protected static void copyAllNon(Matrix from, Matrix to, double value) {
         if (from.getRowCount() > to.getRowCount() || from.getColumnCount() > to.getColumnCount()) throw new IllegalArgumentException("from matrix too large");
         if (from instanceof SparseMatrix && MathUtils.doubleEquals(((SparseMatrix) from).getSparseValue(), value)) {

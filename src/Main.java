@@ -1,11 +1,5 @@
 import lib.contest.AbstractSubmission;
-import lib.ml.GeneticOptimizer;
-import lib.utils.tuples.Pair;
 
-import java.io.*;
-import java.nio.charset.*;
-import java.nio.file.*;
-import java.text.*;
 import java.util.*;
 
 class Main {
