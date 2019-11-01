@@ -20,7 +20,7 @@ class Main {
             // should not trigger anymore
             System.out.println("Optimizing disabled. Running as a normal submission");
 /* END-OPTIMIZER */
-            AbstractSubmission.create(clss).runSubmission();
+            new /* MAIN-CLASS-NAME */().runSubmission();
 /* BEGIN-OPTIMIZER */
         }
 /* END-OPTIMIZER */
