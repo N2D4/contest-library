@@ -66,7 +66,7 @@ public interface Graph {
     default void forEachNeighbour(int vertex, EdgeConsumer action) {
         VectorElementIterator it = getNeighbours(vertex);
         while (it.hasNext()) {
-            action.accept(it.next(), it.getValue());
+            action.accept(it.nextInt(), it.getValue());
         }
     }
 

@@ -26,6 +26,7 @@ public class FileTest {
         if (Files.exists(testingToolPath)) {
             System.out.println();
             System.out.println("Found testing tool at " + testingToolPath);
+            System.out.println("Invoking it at its current directory with no arguments and stdin/out connected to the submission");
             System.out.println("Note that the testing tool does not support @Cached caching");
             Process tester = new ProcessBuilder("./" + testingToolPath.getFileName().toString())
                     .directory(testingToolPath.getParent().toFile())
@@ -73,7 +74,7 @@ public class FileTest {
             System.out.println();
         } else {
             System.out.println();
-            System.out.println("No testing tool found at " + testingToolPath);
+            System.out.println("No testing tool found at " + testingToolPath + " (would be invoked in its own directory with no arguments, stdin/out piped from/to the submission)");
             System.out.println();
         }
 

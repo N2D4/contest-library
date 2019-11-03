@@ -18,7 +18,7 @@ public final class Histograms extends Algorithm {
      * have a width of 1.
      */
     public static Pair<Range, Integer> maxArea(int[] arr) {
-        return maxArea(ArrayUtils.asLongArray(arr)).map(a -> a, b -> (int) (long) b);
+        return maxArea(ArrayUtils.toLongArray(arr)).map(a -> a, b -> (int) (long) b);
     }
 
     /**

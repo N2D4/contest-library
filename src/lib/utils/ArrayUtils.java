@@ -5,19 +5,19 @@ import java.util.Arrays;
 import java.util.List;
 
 public class ArrayUtils {
-    public static long[] asLongArray(byte[] arr) {
+    public static long[] toLongArray(byte[] arr) {
         return asList(arr).stream().mapToLong(a -> a).toArray();
     }
 
-    public static long[] asLongArray(short[] arr) {
+    public static long[] toLongArray(short[] arr) {
         return asList(arr).stream().mapToLong(a -> a).toArray();
     }
 
-    public static long[] asLongArray(char[] arr) {
+    public static long[] toLongArray(char[] arr) {
         return asList(arr).stream().mapToLong(a -> a).toArray();
     }
 
-    public static long[] asLongArray(int[] arr) {
+    public static long[] toLongArray(int[] arr) {
         return Arrays.stream(arr).mapToLong(a -> a).toArray();
     }
 
@@ -84,6 +84,45 @@ public class ArrayUtils {
         }
     }
 
+
+
+
+
+    public static List<Byte> asSortedSet(byte[] arr) {
+        return new BackedList<>(arr);
+    }
+
+    public static List<Character> asSortedSet(char[] arr) {
+        return new BackedList<>(arr);
+    }
+
+    public static List<Short> asSortedSet(short[] arr) {
+        return new BackedList<>(arr);
+    }
+
+    public static List<Integer> asSortedSet(int[] arr) {
+        return new BackedList<>(arr);
+    }
+
+    public static List<Boolean> asSortedSet(boolean[] arr) {
+        return new BackedList<>(arr);
+    }
+
+    public static List<Float> asSortedSet(float[] arr) {
+        return new BackedList<>(arr);
+    }
+
+    public static List<Double> asSortedSet(double[] arr) {
+        return new BackedList<>(arr);
+    }
+
+    public static List<Long> asSortedSet(long[] arr) {
+        return new BackedList<>(arr);
+    }
+
+    public static <T> List<T> asSortedSet(T[] arr) {
+        return Arrays.asList(arr);
+    }
 
 
 
