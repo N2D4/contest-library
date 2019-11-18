@@ -1,10 +1,15 @@
 package lib.trees;
 
+import lib.algorithms.O;
+import lib.utils.QueueUtils;
+import lib.utils.Utils;
+
 import java.io.Serializable;
 import java.util.*;
 import java.util.function.BiFunction;
 import java.util.function.BinaryOperator;
 
+/* GENERIFY-THIS */
 public class TreeNode<T> implements Serializable {
     private T value;
     private int height;
@@ -22,7 +27,7 @@ public class TreeNode<T> implements Serializable {
         this.value = value;
         this.parent = null;
         this.tree = tree;
-        this.children = new ArrayList<>(5);
+        this.children = new ArrayList<TreeNode<T>>(5);
         this.height = 0;
         this.distance = tree.distanceFolder.a;
     }
@@ -31,7 +36,7 @@ public class TreeNode<T> implements Serializable {
         this.value = value;
         this.parent = parent;
         this.tree = parent.tree;
-        this.children = new ArrayList<>();
+        this.children = new ArrayList<TreeNode<T>>();
         this.height = parent.getHeight() + 1;
         this.distanceToParent = distanceToParent;
         this.distance = tree.distanceFolder.b.applyAsDouble(parent.getDistance(), distanceToParent);
@@ -82,12 +87,12 @@ public class TreeNode<T> implements Serializable {
         private boolean isAttached = false;
 
         private Unattached(T value, double distance) {
-            super(value, TreeNode.this, distance);
+            super(value, /*PREFIX T*/TreeNode.this, distance);
         }
 
         public TreeNode<T> attach() {
             if (isAttached()) throw new NoSuchElementException("Node has already been attached!");
-            TreeNode.this.children.add(this);
+            /*PREFIX T*/TreeNode.this.children.add(this);
             isAttached = true;
             return this;
         }
@@ -103,7 +108,7 @@ public class TreeNode<T> implements Serializable {
     }
 
     public List<TreeNode<T>> getParentChain() {
-        List<TreeNode<T>> res = new ArrayList<>();
+        List<TreeNode<T>> res = new ArrayList<TreeNode<T>>();
         TreeNode<T> node = this;
         while ((node = node.getParent()) != null) {
             res.add(node);
@@ -125,8 +130,59 @@ public class TreeNode<T> implements Serializable {
     }
 
 
+
+
+
+    @O("n")
+    public List<TreeNode<T>> leafNodes() {
+        return traverse(2);
+    }
+
+    @O("n")
+    public List<TreeNode<T>> preOrder() {
+        return traverse(0);
+    }
+
+    @O("n")
+    public List<TreeNode<T>> postOrder() {
+        return traverse(1);
+    }
+
+
+    /**
+     * Mode 0 = pre-order, mode 1 = post-order, mode 2 = leaf nodes
+     */
+    @O("n")
+    private List<TreeNode<T>> traverse(int mode) {
+        List<TreeNode<T>> list = new ArrayList<TreeNode<T>>();
+        traverse(list, mode);
+        return list;
+    }
+
+    /**
+     * Mode 0 = pre-order, mode 1 = post-order, mode 2 = leaf nodes
+     */
+    @O("n")
+    private void traverse(List<TreeNode<T>> list, int mode) {
+        Queue<TreeNode<T>> queue = QueueUtils.createLIFO();
+        queue.add(this);
+
+        while (!queue.isEmpty()) {
+            TreeNode<T> n = queue.remove();
+            if (mode != 2 || n.getChildCount() == 0) list.add(n);
+
+            Iterable<TreeNode<T>> children = mode == 1 ? n.getChildren() : Utils.reverseIterable(n.getChildren());
+            for (TreeNode<T> child : children) {
+                queue.add(child);
+            }
+        }
+
+        if (mode == 1) Collections.reverse(list);
+    }
+
+
     @Override
     public String toString() {
-        return value.toString() + (children.isEmpty() ? "" : children.toString());
+        return ("" + value) + (children.isEmpty() ? "" : children.toString());
     }
 }

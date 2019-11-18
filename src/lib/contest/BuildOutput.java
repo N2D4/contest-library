@@ -21,7 +21,7 @@ public class BuildOutput {
     public static String launcher;
     public static ContestType type;
     public static final String[] defaultImports6 = {"java.io.*", "java.util.*", "java.util.concurrent.*", "java.lang.annotation.*", "java.util.concurrent.*", "java.lang.reflect.*", "java.math.*"};
-    public static final String[] defaultImports8 = {"java.util.function.*", "java.util.stream.*"};
+    public static final String[] defaultImports8 = {"java.util.function.*", "java.util.stream.*", "java.nio.*", "java.nio.file.*", "java.text.*", "java.util.concurrent.atomic.*", "java.util.concurrent.*"};
     public static final String[] ignoredPackages = {"lib.*"};
     public static final String[] entryFiles = {"Solution", "Main"};
     public static final String libDir = System.getProperty("user.home") + "/Library/Mobile Documents/com~apple~CloudDocs/Projects/Contests/Contest Libraries/Contest Library";      // yes, my workspace is on iCloud Drive
@@ -282,7 +282,7 @@ public class BuildOutput {
             s = s.replaceAll( "(final)([^l])|(\"(?:\\\\[^\"]|\\\\\"|.)*?\")", "$2$3");
 
         // Multiple whitespaces
-        s = s.replaceAll("\\s+", " ");
+        s = s.replaceAll("(\\s)\\s*|(\"(?:\\\\[^\"]|\\\\\"|.)*?\")", " $2");
 
         // Unnecessary whitespaces between operators
         s = s.replaceAll( "\\s?(;|\\{|\\}|\\(|\\)|\\[|\\]|\\,|\\=|\\+|\\-|\\*|\\/|\\%|\\<|\\>|\\.\\.\\.|\\&|\\||\\:|\\^|\\!|\\?)\\s?|(\"(?:\\\\[^\"]|\\\\\"|.)*?\")", "$1$2");

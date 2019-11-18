@@ -2,6 +2,7 @@ package lib.utils.tuples;
 
 import java.util.function.Function;
 
+/* GENERIFY-THIS */
 public class Monad<A> extends Tuple {
 
     public A value;
@@ -19,7 +20,7 @@ public class Monad<A> extends Tuple {
     }
 
     public <T> Monad<T> map(Function<A, T> mappingFunction) {
-        return new Monad<>(mappingFunction.apply(this.value));
+        return new Monad<T>(mappingFunction.apply(this.value));
     }
 
     @Override

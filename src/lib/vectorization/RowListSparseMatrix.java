@@ -145,7 +145,7 @@ public class RowListSparseMatrix extends AbstractMatrix implements ResizableMatr
             @Override
             public Triple<Integer, Integer, Double> next() {
                 if (!hasNext()) throw new NoSuchElementException();
-                int c = colit.nextInt();
+                int c = colit.next();
                 return new Triple<>(rowi, c, colit.getValue());
             }
         };

@@ -49,6 +49,7 @@ public abstract class AbstractGraph implements Graph, Serializable {
 
     protected void rangeChecks(int v1, int v2) throws IllegalArgumentException {
         int V = getVertexCount();
-        if (v1 < 0 || v2 < 0 || v1 >= V || v2 >= V) throw new IllegalArgumentException();
+        if (v1 < 0 || v1 >= V) throw new IllegalArgumentException("First argument " + v1 + " out of range [0, " + V + "]!");
+        if (v2 < 0 || v2 >= V) throw new IllegalArgumentException("Second argument " + v2 + " out of range [0, " + V + "]!");
     }
 }

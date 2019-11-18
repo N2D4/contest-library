@@ -1,10 +1,13 @@
 package lib.utils.tuples;
 
+import lib.utils.Utils;
+
 import java.util.Map;
 import java.util.Objects;
 import java.util.function.Function;
 import java.util.stream.Stream;
 
+/* GENERIFY-THIS */
 public class Pair<A, B> extends Tuple implements Map.Entry<A, B> {
 
     public A a;
@@ -32,7 +35,7 @@ public class Pair<A, B> extends Tuple implements Map.Entry<A, B> {
     }
 
     public <A1, B1> Pair<A1, B1> map(Function<A, A1> mapA, Function<B, B1> mapB) {
-        return new Pair<>(mapA.apply(this.a), mapB.apply(this.b));
+        return new Pair<A1, B1>(mapA.apply(this.a), mapB.apply(this.b));
     }
 
     @Override
@@ -65,13 +68,14 @@ public class Pair<A, B> extends Tuple implements Map.Entry<A, B> {
 
     @Override
     public boolean equals(Object other) {
-        if (!(other instanceof Pair)) return super.equals(other);
+        if (!(other instanceof /*PREFIX A*//*PREFIX B*/Pair)) return super.equals(other);
         Pair pair = (Pair) other;
-        return Objects.equals(this.a, pair.a) && Objects.equals(this.b, pair.b);
+        return Utils.equals(this.a, pair.a) && Utils.equals(this.b, pair.b);
     }
 
     @Override
     public int hashCode() {
-        return 961 + 31 * Objects.hashCode(a) + Objects.hashCode(b);
+        // Override hash code so we get slightly faster hashing (without having to allocate an array)
+        return 961 + 31 * Utils.hashCode(a) + Utils.hashCode(b);
     }
 }

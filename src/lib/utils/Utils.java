@@ -1,16 +1,18 @@
 package lib.utils;
 
-/* BEGIN-JAVA-8 */
+import lib.generated.DoubleIterator;
 import lib.generated.IntIterator;
+import lib.generated.IntList;
+import lib.generated.LongIterator;
 import lib.utils.various.ThrowingFunction;
+import lib.utils.various.ThrowingPredicate;
 import lib.utils.various.ThrowingRunnable;
 import lib.utils.various.ThrowingSupplier;
 
 import java.util.*;
 import java.util.function.Consumer;
-/* END-JAVA-8 */
-
 import java.util.function.Function;
+import java.util.function.Predicate;
 import java.util.function.Supplier;
 import java.util.stream.*;
 
@@ -20,7 +22,61 @@ public final class Utils {
     }
 
 
-    /* BEGIN-JAVA-8 */
+
+
+    public static boolean equals(int a, int b) {
+        return a == b;
+    }
+
+    public static boolean equals(long a, long b) {
+        return a == b;
+    }
+
+    public static boolean equals(double a, double b) {
+        return Double.doubleToLongBits(a) == Double.doubleToLongBits(b);
+    }
+
+    public static boolean equals(Object a, Object b) {
+        return Objects.equals(a, b);
+    }
+
+    public static int hashCode(int a) {
+        return Integer.hashCode(a);
+    }
+
+    public static int hashCode(long a) {
+        return Long.hashCode(a);
+    }
+
+    public static int hashCode(double a) {
+        return Double.hashCode(a);
+    }
+
+    public static int hashCode(Object a) {
+        return Objects.hashCode(a);
+    }
+
+    public static int compare(int a, int b) {
+        return Integer.compare(a, b);
+    }
+
+    public static int compare(long a, long b) {
+        return Long.compare(a, b);
+    }
+
+    public static int compare(double a, double b) {
+        return Double.compare(a, b);
+    }
+
+    public static <T extends Comparable<? super T>> int compare(T a, T b) {
+        return Objects.compare(a, b, Comparator.naturalOrder());
+    }
+
+
+
+
+
+
     public static void repeat(int times, Consumer<Integer> consumer) {
         for (int i = 0; i < times; i++) {
             consumer.accept(i);
@@ -83,7 +139,6 @@ public final class Utils {
     public static <T, E extends Throwable> T printTiming(ThrowingSupplier<T, E> supplier) throws E {
         return printTiming(supplier, null);
     }
-    /* END-JAVA-8 */
 
 
 
@@ -115,12 +170,58 @@ public final class Utils {
     }
 
 
-    public static IntStream stream(PrimitiveIterator.OfInt iterator) {
+    public static PrimitiveIterator.OfInt toPrimitiveIterator(IntIterator iterator) {
+        return new PrimitiveIterator.OfInt() {
+            @Override
+            public int nextInt() {
+                return iterator.next();
+            }
+
+            @Override
+            public boolean hasNext() {
+                return iterator.hasNext();
+            }
+        };
+    }
+
+
+    public static PrimitiveIterator.OfLong toPrimitiveIterator(LongIterator iterator) {
+        return new PrimitiveIterator.OfLong() {
+            @Override
+            public long nextLong() {
+                return iterator.next();
+            }
+
+            @Override
+            public boolean hasNext() {
+                return iterator.hasNext();
+            }
+        };
+    }
+
+
+    public static PrimitiveIterator.OfDouble toPrimitiveIterator(DoubleIterator iterator) {
+        return new PrimitiveIterator.OfDouble() {
+            @Override
+            public double nextDouble() {
+                return iterator.next();
+            }
+
+            @Override
+            public boolean hasNext() {
+                return iterator.hasNext();
+            }
+        };
+    }
+
+
+
+    public static IntStream stream(IntIterator iterator) {
         return stream(iterator, -1);
     }
 
-    public static IntStream stream(PrimitiveIterator.OfInt iterator, int estimatedSize) {
-        return stream(Spliterators.spliterator(iterator, estimatedSize, Spliterator.ORDERED));
+    public static IntStream stream(IntIterator iterator, int estimatedSize) {
+        return stream(Spliterators.spliterator(Utils.toPrimitiveIterator(iterator), estimatedSize, Spliterator.ORDERED));
     }
 
     public static IntStream stream(Spliterator.OfInt spliterator) {
@@ -128,17 +229,31 @@ public final class Utils {
     }
 
 
-    public static LongStream stream(PrimitiveIterator.OfLong iterator) {
+    public static LongStream stream(LongIterator iterator) {
         return stream(iterator, -1);
     }
 
-    public static LongStream stream(PrimitiveIterator.OfLong iterator, int estimatedSize) {
-        return stream(Spliterators.spliterator(iterator, estimatedSize, Spliterator.ORDERED));
+    public static LongStream stream(LongIterator iterator, int estimatedSize) {
+        return stream(Spliterators.spliterator(Utils.toPrimitiveIterator(iterator), estimatedSize, Spliterator.ORDERED));
     }
 
     public static LongStream stream(Spliterator.OfLong spliterator) {
         return StreamSupport.longStream(spliterator, false);
     }
+
+
+    public static DoubleStream stream(DoubleIterator iterator) {
+        return stream(iterator, -1);
+    }
+
+    public static DoubleStream stream(DoubleIterator iterator, int estimatedSize) {
+        return stream(Spliterators.spliterator(Utils.toPrimitiveIterator(iterator), estimatedSize, Spliterator.ORDERED));
+    }
+
+    public static DoubleStream stream(Spliterator.OfDouble spliterator) {
+        return StreamSupport.doubleStream(spliterator, false);
+    }
+
 
     public static <T> Stream<T> stream(Iterator<T> iterator) {
         return stream(iterator, -1);
@@ -394,6 +509,19 @@ public final class Utils {
         return (a) -> {
             try {
                 return r.apply(a);
+            } catch (Throwable e) {
+                throw new RuntimeException(e);
+            }
+        };
+    }
+
+    /**
+     * Returns an equivalent lambda that wraps all thrown exceptions and errors into a runtime exception.
+     */
+    public static <T> Predicate<T> nonThrowingPredicate(ThrowingPredicate<T, ?> r) {
+        return (a) -> {
+            try {
+                return r.test(a);
             } catch (Throwable e) {
                 throw new RuntimeException(e);
             }

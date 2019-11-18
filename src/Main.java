@@ -2,6 +2,10 @@ import lib.contest.AbstractSubmission;
 
 import java.util.*;
 
+/* BEGIN-NO-BUNDLE */
+This file should be excluded on compilation. (That's why it contains syntax errors)
+/* END-NO-BUNDLE */
+
 class Main {
     public static void main(String[] args) throws Exception {
         Class<? extends AbstractSubmission> clss = /* MAIN-CLASS-NAME */.class;

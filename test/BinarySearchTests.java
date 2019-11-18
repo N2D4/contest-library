@@ -1,4 +1,5 @@
 import lib.algorithms.BinarySearch;
+import lib.utils.ArrayUtils;
 import lib.utils.tuples.Pair;
 import lib.utils.various.Range;
 import org.junit.jupiter.api.Test;
@@ -23,7 +24,7 @@ public class BinarySearchTests {
                 arr[i] = random.nextInt(bound);
             }
 
-            Arrays.sort(arr);
+            ArrayUtils.sort(arr);
 
             for (int i = 0; i < 100; i++) {
                 int a = random.nextInt(bound);

@@ -1,111 +1,102 @@
-package lib.generated;
-
+import lib.utils.Utils;
 import lib.utils.various.Range;
 
 import java.io.Serializable;
 import java.util.Arrays;
-import java.util.List;
+import java.util.Collection;
+import java.util.Iterator;
+import java.util.NoSuchElementException;
 
-public class $CAP_TYPE$ArrayList implements Serializable {
-    private $TYPE$[] arr;
+/* GENERIFY-THIS */
+public class ArrayList<T> extends AbstractList<T> {
+    private /*BOX T*/Object[] arr;
     private int length = 0;
 
-    public $CAP_TYPE$ArrayList() {
+    public ArrayList() {
         this(10);
     }
 
-    public $CAP_TYPE$ArrayList(int initialCapacity) {
-        this.arr = new $TYPE$[initialCapacity];
+    public ArrayList(int initialCapacity) {
+        this.arr = new /*BOX T*/Object[initialCapacity];
     }
 
-    public $CAP_TYPE$ArrayList($TYPE$[] array) {
+    public ArrayList(T[] array) {
         this.arr = Arrays.copyOf(array, array.length);
+        this.length = array.length;
     }
 
-    public $CAP_TYPE$ArrayList(List<$WRAPPER_TYPE$> list) {
-        this.arr = new $TYPE$[list.size()];
-        for (int i = 0; i < list.size(); i++) {
-            arr[i] = list.get(i);
+    public ArrayList(Iterable<T> other) {
+        this();
+        for (Iterator<T> iter = other.iterator(); iter.hasNext();) {
+            this.add(iter.next());
         }
     }
 
-    public static $CAP_TYPE$ArrayList ofSize(int size) {
-        $CAP_TYPE$ArrayList result = new $CAP_TYPE$ArrayList(size);
-        result.length = size;
-        return result;
-    }
-
-    public static $CAP_TYPE$ArrayList ofSize(int size, $TYPE$ element) {
-        $CAP_TYPE$ArrayList result = new $CAP_TYPE$ArrayList(size);
-        result.length = size;
-        for (int i = 0; i < element; i++) {
-            result.arr[i] = element;
-        }
-        return result;
-    }
 
 
-
-
-    public $TYPE$[] toArray() {
+    @Override
+    public /*BOX T*/Object[] toArray() {
         return Arrays.copyOf(arr, length);
     }
 
-    public ArrayList<$WRAPPER_TYPE$> toArrayList() {
-        return new ArrayList<>(Arrays.asList(arr));
-    }
 
 
 
 
-
+    @Override
     public int size() {
         return length;
     }
 
-    public $TYPE$ get(int index) {
+    @Override
+    public T get(int index) {
         //rangeCheck(index);
-        return arr[index];
+        return (T) arr[index];
     }
 
-    public $TYPE$ set(int index, $TYPE$ val) {
+    @Override
+    public T set(int index, T val) {
         //rangeCheck(index);
-        $TYPE$ prev = arr[index];
+        T prev = (T) arr[index];
         arr[index] = val;
         return prev;
     }
 
-    public void add($TYPE$ val) {
+    @Override
+    public void add(T val) {
         ensureCapacity(length + 1);
         arr[length] = val;
         length++;
     }
 
-    public void add(int index, $TYPE$ val) {
-        rangeCheckAdd(index);
+    @Override
+    public void add(int index, T val) {
+        //rangeCheckAdd(index);
         shift(index, 1);
         arr[index] = val;
     }
 
-    public void addAll($TYPE$[] val) {
+    @Override
+    public void addAll(T[] val) {
         addAll(length, val);
     }
 
-    public void addAll(int index, $TYPE$[] val) {
+    @Override
+    public void addAll(int index, T[] val) {
         rangeCheckAdd(index);
         shift(index, val.length);
-        for (int i = 0; i < val.length; i++) {
-            arr[index + i] = val[i];
-        }
+        System.arraycopy(val, 0, this.arr, index, val.length);
     }
 
-    public $TYPE$ remove(int index) {
+    @Override
+    public T remove(int index) {
         rangeCheck(index);
-        $TYPE$ prev = arr[index];
+        T prev = (T) arr[index];
         shift(index + 1, -1);
         return prev;
     }
 
+    @Override
     public void removeAll(Range range) {
         rangeCheck(range.a);
         rangeCheck(range.b);
@@ -113,13 +104,36 @@ public class $CAP_TYPE$ArrayList implements Serializable {
         shift(range.b, range.a - range.b);
     }
 
+    @Override
     public void clear() {
-        shift(length, -length);
+        this.length = 0;
     }
 
+    @Override
+    public Iterator<T> iterator() {
+        return new Iterator<T>() {
+            int indx = 0;
+            @Override
+            public boolean hasNext() {
+                return indx < length;
+            }
 
+            @Override
+            public T next() {
+                if (!hasNext()) throw new NoSuchElementException();
+                return (T) arr[indx++];
+            }
+        };
+    }
 
-
+    @Override
+    public void reverse() {
+        int ln = size() / 2;
+        int la = length - 1;
+        for (int i = 0; i < ln; i++) {
+            swap(i, la - i);
+        }
+    }
 
 
     private void shift(int startIndex, int shift) {

@@ -23,33 +23,14 @@ public final class Sorting {
     public static <T> Pair<Integer, T>[] getSortedIndices(List<T> list, final Comparator<? super T> comp) {
         Pair<Integer, T>[] result = new Pair[list.size()];
         for (int i = 0; i < result.length; i++) {
-            result[i] = new Pair<Integer, T>(i, list.get(i));
+            result[i] = new Pair<>(i, list.get(i));
         }
 
-        /* BEGIN-JAVA-8 */
         if (comp != null) {
-            Arrays.sort(result, (a, b) -> comp.compare(a.getValue(), b.getValue()));
+            ArrayUtils.sort(result, (a, b) -> comp.compare(a.getValue(), b.getValue()));
         } else {
-            Arrays.sort(result, (a, b) -> ((Comparable<T>)a.getValue()).compareTo(b.getValue()));
+            ArrayUtils.sort(result, (a, b) -> ((Comparable<T>)a.getValue()).compareTo(b.getValue()));
         }
-        /* END-JAVA-8 */
-        /* BEGIN-POLYFILL-6 */
-        if (comp != null) {
-            Arrays.sort(result, new Comparator<Pair<Integer, T>>() {
-                @Override
-                public int compare(Pair<Integer, T> a, Pair<Integer, T> b) {
-                    return comp.compare(a.getValue(), b.getValue());
-                }
-            });
-        } else {
-            Arrays.sort(result, new Comparator<Pair<Integer, T>>() {
-                @Override
-                public int compare(Pair<Integer, T> a, Pair<Integer, T> b) {
-                    return ((Comparable<T>)a.getValue()).compareTo(b.getValue());
-                }
-            });
-        }
-        /* END-POLYFILL-6 */
 
         return result;
     }

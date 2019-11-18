@@ -1,10 +1,13 @@
 package lib.trees;
 
+import lib.algorithms.O;
 import lib.utils.tuples.Pair;
 
 import java.io.Serializable;
+import java.util.List;
 import java.util.function.DoubleBinaryOperator;
 
+/* GENERIFY-THIS */
 public class Tree<T> implements Serializable {
     private TreeNode<T> root;
     final Pair<Double, DoubleBinaryOperator> distanceFolder;
@@ -15,7 +18,7 @@ public class Tree<T> implements Serializable {
 
     public Tree(T rootValue, Pair<Double, DoubleBinaryOperator> distanceFolder) {
         this(distanceFolder);
-        initRoot(new TreeNode(rootValue, this));
+        initRoot(new TreeNode<T>(rootValue, this));
     }
 
     protected Tree() {
@@ -23,7 +26,7 @@ public class Tree<T> implements Serializable {
     }
 
     protected Tree(Pair<Double, DoubleBinaryOperator> distanceFolder) {
-        this.distanceFolder = distanceFolder == null ? new Pair<>(0.0, Double::sum) : distanceFolder;
+        this.distanceFolder = distanceFolder == null ? new Pair<Double, DoubleBinaryOperator>(0.0, Double::sum) : distanceFolder;
     }
 
     protected void initRoot(TreeNode<T> node) {
@@ -33,6 +36,23 @@ public class Tree<T> implements Serializable {
 
     public TreeNode<T> getRoot() {
         return root;
+    }
+
+
+
+    @O("n")
+    public List<TreeNode<T>> leafNodes() {
+        return getRoot().leafNodes();
+    }
+
+    @O("n")
+    public List<TreeNode<T>> preOrder() {
+        return getRoot().preOrder();
+    }
+
+    @O("n")
+    public List<TreeNode<T>> postOrder() {
+        return getRoot().postOrder();
     }
 
     @Override

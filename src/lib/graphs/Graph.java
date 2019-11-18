@@ -66,7 +66,7 @@ public interface Graph {
     default void forEachNeighbour(int vertex, EdgeConsumer action) {
         VectorElementIterator it = getNeighbours(vertex);
         while (it.hasNext()) {
-            action.accept(it.nextInt(), it.getValue());
+            action.accept(it.next(), it.getValue());
         }
     }
 
@@ -80,7 +80,7 @@ public interface Graph {
     }
 
 
-    class Edge extends Structure {
+    class Edge extends Structure implements Comparable<Edge> {
         public final int from;
         public final int to;
         public final double weight;
@@ -89,6 +89,11 @@ public interface Graph {
             this.from = from;
             this.to = to;
             this.weight = weight;
+        }
+
+        @Override
+        public int compareTo(Edge o) {
+            return Double.compare(this.weight, o.weight);
         }
     }
 }

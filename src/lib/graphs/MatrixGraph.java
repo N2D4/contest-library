@@ -1,7 +1,6 @@
 package lib.graphs;
 
 import lib.generated.IntArrayList;
-import lib.utils.various.FunctionalIterators;
 import lib.vectorization.ResizableMatrix;
 import lib.vectorization.VectorElementIterator;
 
@@ -19,9 +18,9 @@ public abstract class MatrixGraph extends AbstractGraph implements Graph {
         if (!matrix.isSquare()) throw new IllegalArgumentException("Matrix must be square!");
         this.directed = directed;
         this.matrix = matrix;
-        this.inDegrees = IntArrayList.ofSize(getVertexCount());
+        this.inDegrees = new IntArrayList(new int[getVertexCount()]);
         if (this.directed){
-            this.outDegrees = IntArrayList.ofSize(getVertexCount());
+            this.outDegrees = new IntArrayList(new int[getVertexCount()]);
         } else {
             this.outDegrees = null;
         }
@@ -62,7 +61,7 @@ public abstract class MatrixGraph extends AbstractGraph implements Graph {
                             if (++vertex >= n) return false;
                             iterator = getNeighbours(vertex);
                         }
-                        nxt = new Edge(vertex, iterator.nextInt(), iterator.getValue());
+                        nxt = new Edge(vertex, iterator.next(), iterator.getValue());
                     } while (!directed && nxt.to >= nxt.from);
                 }
                 return true;

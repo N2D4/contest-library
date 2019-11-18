@@ -6,6 +6,7 @@ import lib.graphs.Graph;
 import lib.graphs.UndirectedAdjacencyListGraph;
 import lib.graphs.UndirectedGraph;
 import lib.trees.Tree;
+import lib.utils.ArrayUtils;
 import lib.utils.Utils;
 import lib.utils.tuples.Pair;
 import lib.utils.various.UnionFind;
@@ -28,7 +29,7 @@ public class SpanningTrees extends Algorithm {
         UnionFind uf = new UnionFind(n);
 
         Graph.Edge[] edges = graph.getEdges().toArray(new Graph.Edge[0]);
-        Arrays.sort(edges, Comparator.comparingDouble(e -> e.weight));
+        ArrayUtils.sort(edges);
         int i = 0;
         for (Graph.Edge edge : edges) {
             if (uf.find(edge.from) != uf.find(edge.to)) {
@@ -52,7 +53,7 @@ public class SpanningTrees extends Algorithm {
         UnionFind uf = new UnionFind(n);
 
         Graph.Edge[] edges = graph.getEdges().toArray(new Graph.Edge[0]);
-        Arrays.sort(edges, Comparator.comparingDouble(e -> e.weight));
+        ArrayUtils.sort(edges, Comparator.comparingDouble(e -> e.weight));
         int i = 0;
         for (Graph.Edge edge : edges) {
             if (uf.find(edge.from) != uf.find(edge.to)) {

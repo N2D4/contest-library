@@ -2,6 +2,7 @@ package lib.graphs.algorithms;
 
 import lib.algorithms.Algorithm;
 import lib.algorithms.O;
+import lib.generated.IntTreeNode;
 import lib.graphs.DirectedGraph;
 import lib.graphs.Graph;
 import lib.trees.TreeNode;
@@ -43,12 +44,12 @@ public final class GraphFlow extends Algorithm {
             }
 
             @Override
-            protected TreeNode<Integer>[] getNodeArray(Graph graph) {
-                return new TreeNode[graph.getVertexCount()];
+            protected IntTreeNode[] getNodeArray(Graph graph) {
+                return new IntTreeNode[graph.getVertexCount()];
             }
 
             @Override
-            protected void onInspectVertex(int vertex, TreeNode<Integer> node) {
+            protected void onInspectVertex(int vertex, IntTreeNode node) {
                 if (vertex == sink) {
                     end(node);
                 }
@@ -65,13 +66,13 @@ public final class GraphFlow extends Algorithm {
 
         double result = 0;
         while (!Double.isInfinite(result)) {
-            TreeNode<Integer> node = (TreeNode<Integer>) search.run(graph, source);
+            IntTreeNode node = (IntTreeNode) search.run(graph, source);
             if (node == null) break;
             double curFlow = Double.POSITIVE_INFINITY;
 
-            TreeNode<Integer> curNode = node;
+            IntTreeNode curNode = node;
             while (curNode.hasParent()) {
-                TreeNode<Integer> curParent = curNode.getParent();
+                IntTreeNode curParent = curNode.getParent();
                 int a1 = curParent.getValue(), a2 = curNode.getValue();
                 curFlow = Math.min(curFlow, graph.getEdgeWeight(a1, a2));
                 curNode = curParent;
@@ -80,7 +81,7 @@ public final class GraphFlow extends Algorithm {
 
             curNode = node;
             while (curNode.hasParent()) {
-                TreeNode<Integer> curParent = curNode.getParent();
+                IntTreeNode curParent = curNode.getParent();
                 int a1 = curParent.getValue(), a2 = curNode.getValue();
                 final double curFlowFinal = curFlow;
                 graph.mapEdgeWeight(a1, a2, a -> a - curFlowFinal);

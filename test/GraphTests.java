@@ -1,3 +1,6 @@
+import lib.generated.IntIterator;
+import lib.generated.IntList;
+import lib.generated.IntTree;
 import lib.graphs.*;
 import lib.graphs.algorithms.FloydWarshall;
 import lib.graphs.algorithms.GraphComponents;
@@ -5,7 +8,6 @@ import lib.graphs.algorithms.GraphSearch;
 import lib.graphs.algorithms.SpanningTrees;
 import lib.trees.Tree;
 import lib.trees.TreeNode;
-import lib.trees.algorithms.TreeTraversal;
 import lib.utils.MathUtils;
 import org.junit.jupiter.api.Test;
 
@@ -54,7 +56,7 @@ public class GraphTests {
         Iterator<DirectedGraph> iterator = genDirectedGraph(50, 50, random).iterator();
         outer: for (int it = 0; it < 1000 * TestConstants.SCALE; it++) {
             DirectedGraph graph = iterator.next();
-            List<Integer> top = GraphSearch.getTopologicalOrder(graph);
+            IntList top = GraphSearch.getTopologicalOrder(graph);
 
             if (top == null) {
                 assertTrue(GraphSearch.hasCycle(graph));
@@ -64,7 +66,8 @@ public class GraphTests {
 
             assertEquals(top.size(), graph.getVertexCount());
             assertEquals(top.stream().distinct().count(), graph.getVertexCount());
-            for (int i : top) {
+            for (IntIterator iter = top.iterator(); iter.hasNext();) {
+                int i = iter.next();
                 assertTrue(graph.getInDegree(i) == 0);
 
                 for (int j = 0; j < graph.getVertexCount(); j++) {
@@ -103,14 +106,14 @@ public class GraphTests {
             //System.err.println();
             assertEquals(kruskal.getEdgeCount(), n - components);
 
-            Set<Tree<Integer>> prim = GraphSearch.getTrees(graph, GraphSearch.Type.PRIM);
+            Set<IntTree> prim = GraphSearch.getTrees(graph, GraphSearch.Type.PRIM);
             //System.err.println(prim);
             //System.err.println();
             assertEquals(prim.size(), components);
 
 
             double directSize = SpanningTrees.mstWeight(graph);
-            double primSize = prim.stream().flatMapToDouble(a -> TreeTraversal.preOrder(a).stream().filter(b -> b.hasParent()).mapToDouble(b -> b.getDistanceToParent())).sum();
+            double primSize = prim.stream().flatMapToDouble(a -> a.preOrder().stream().filter(b -> b.hasParent()).mapToDouble(b -> b.getDistanceToParent())).sum();
             double kruskalSize = kruskal.getEdges().stream().mapToDouble(a -> a.weight).sum();
             assertEquals(directSize, kruskalSize, 0.00001);
             assertEquals(primSize, kruskalSize, 0.00001);

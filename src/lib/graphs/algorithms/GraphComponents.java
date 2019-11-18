@@ -2,10 +2,10 @@ package lib.graphs.algorithms;
 
 import lib.algorithms.Algorithm;
 import lib.algorithms.O;
+import lib.generated.IntTreeNode;
 import lib.graphs.Graph;
 import lib.graphs.UndirectedGraph;
 import lib.trees.TreeNode;
-import lib.trees.algorithms.TreeTraversal;
 import lib.utils.Utils;
 import lib.utils.various.UnionFind;
 import lib.vectorization.VectorElementIterator;
@@ -46,7 +46,7 @@ public class GraphComponents extends Algorithm {
         Set<Integer> result = new HashSet<>();
         int totI = 0;
         for (GraphSearch.GraphSearchResult res : GraphSearch.getResults(graph, GraphSearch.Type.DEPTH_FIRST)) {
-            List<TreeNode<Integer>> order = TreeTraversal.preOrder(res.traversalTree);
+            List<IntTreeNode> order = res.traversalTree.preOrder();
             for (int i = 0; i < order.size(); i++) {
                 dfs[order.get(i).getValue()] = totI + i;
             }
@@ -56,9 +56,9 @@ public class GraphComponents extends Algorithm {
 
             for (int i = order.size() - 1; i >= 1; i--) {
                 int v = order.get(i).getValue();
-                TreeNode<Integer> node = res.nodes[v];
+                IntTreeNode node = res.nodes[v];
                 low[v] = totI + i;
-                for (TreeNode<Integer> child : node.getChildren()) {
+                for (IntTreeNode child : node.getChildren()) {
                     int n = child.getValue();
                     low[v] = Math.min(low[n], low[v]);
                     if (low[n] >= dfs[v]) result.add(v);
@@ -66,13 +66,13 @@ public class GraphComponents extends Algorithm {
 
                 VectorElementIterator neighbours = graph.getNeighbours(v);
                 while (neighbours.hasNext()) {
-                    int n = neighbours.nextInt();
+                    int n = neighbours.next();
                     low[v] = Math.min(dfs[n], low[v]);
                 }
             }
 
 
-            TreeNode<Integer> root = res.traversalTree.getRoot();
+            IntTreeNode root = res.traversalTree.getRoot();
             if (root.getChildren().size() >= 2) {
                 result.add(root.getValue());
             }

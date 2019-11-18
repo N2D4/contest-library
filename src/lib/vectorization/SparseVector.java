@@ -189,7 +189,7 @@ public class SparseVector implements Serializable {
                 }
 
                 @Override
-                public int nextInt() {
+                public int next() {
                     if (!hasNext()) throw new NoSuchElementException();
                     return inds.get(cur++);
                 }
@@ -215,7 +215,7 @@ public class SparseVector implements Serializable {
                 }
 
                 @Override
-                public int nextInt() {
+                public int next() {
                     return (cur = iterator.next()).getKey();
                 }
             };
