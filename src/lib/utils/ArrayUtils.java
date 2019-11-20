@@ -6,33 +6,7 @@ import java.util.stream.Stream;
 
 public class ArrayUtils {
 
-    /**
-     * Like Arrays.sort, but shuffles the elements first, making it less vulnerable to attacks. Both best and worst case
-     * complexity are now O(n log n) (instead of O(n) to O(n^2)).
-     */
-    public static void sort(byte[] arr) {
-        shuffle(arr);
-        Arrays.sort(arr);
-    }
-
-    /**
-     * Like Arrays.sort, but shuffles the elements first, making it less vulnerable to attacks. Both best and worst case
-     * complexity are now O(n log n) (instead of O(n) to O(n^2)).
-     */
-    public static void sort(short[] arr) {
-        shuffle(arr);
-        Arrays.sort(arr);
-    }
-
-    /**
-     * Like Arrays.sort, but shuffles the elements first, making it less vulnerable to attacks. Both best and worst case
-     * complexity are now O(n log n) (instead of O(n) to O(n^2)).
-     */
-    public static void sort(char[] arr) {
-        shuffle(arr);
-        Arrays.sort(arr);
-    }
-
+    //region sort()
     /**
      * Like Arrays.sort, but shuffles the elements first, making it less vulnerable to attacks. Both best and worst case
      * complexity are now O(n log n) (instead of O(n) to O(n^2)).
@@ -47,15 +21,6 @@ public class ArrayUtils {
      * complexity are now O(n log n) (instead of O(n) to O(n^2)).
      */
     public static void sort(long[] arr) {
-        shuffle(arr);
-        Arrays.sort(arr);
-    }
-
-    /**
-     * Like Arrays.sort, but shuffles the elements first, making it less vulnerable to attacks. Both best and worst case
-     * complexity are now O(n log n) (instead of O(n) to O(n^2)).
-     */
-    public static void sort(float[] arr) {
         shuffle(arr);
         Arrays.sort(arr);
     }
@@ -84,28 +49,14 @@ public class ArrayUtils {
     public static <T> void sort(T[] arr, Comparator<? super T> comparator) {
         Arrays.sort(arr, comparator);
     }
+    //endregion
 
-    public static void shuffle(byte[] arr) {
-        shuffle(arr, ThreadLocalRandom.current());
-    }
-
-    public static void shuffle(short[] arr) {
-        shuffle(arr, ThreadLocalRandom.current());
-    }
-
-    public static void shuffle(char[] arr) {
-        shuffle(arr, ThreadLocalRandom.current());
-    }
-
+    //region shuffle()
     public static void shuffle(int[] arr) {
         shuffle(arr, ThreadLocalRandom.current());
     }
 
     public static void shuffle(long[] arr) {
-        shuffle(arr, ThreadLocalRandom.current());
-    }
-
-    public static void shuffle(float[] arr) {
         shuffle(arr, ThreadLocalRandom.current());
     }
 
@@ -121,24 +72,6 @@ public class ArrayUtils {
         shuffle(arr, ThreadLocalRandom.current());
     }
 
-    public static void shuffle(byte[] arr, Random random) {
-        for (int i = 0; i < arr.length - 1; i++) {
-            swap(arr, i, i + random.nextInt(arr.length - i));
-        }
-    }
-
-    public static void shuffle(short[] arr, Random random) {
-        for (int i = 0; i < arr.length - 1; i++) {
-            swap(arr, i, i + random.nextInt(arr.length - i));
-        }
-    }
-
-    public static void shuffle(char[] arr, Random random) {
-        for (int i = 0; i < arr.length - 1; i++) {
-            swap(arr, i, i + random.nextInt(arr.length - i));
-        }
-    }
-
     public static void shuffle(int[] arr, Random random) {
         for (int i = 0; i < arr.length - 1; i++) {
             swap(arr, i, i + random.nextInt(arr.length - i));
@@ -146,12 +79,6 @@ public class ArrayUtils {
     }
 
     public static void shuffle(long[] arr, Random random) {
-        for (int i = 0; i < arr.length - 1; i++) {
-            swap(arr, i, i + random.nextInt(arr.length - i));
-        }
-    }
-
-    public static void shuffle(float[] arr, Random random) {
         for (int i = 0; i < arr.length - 1; i++) {
             swap(arr, i, i + random.nextInt(arr.length - i));
         }
@@ -174,25 +101,9 @@ public class ArrayUtils {
             swap(arr, i, i + random.nextInt(arr.length - i));
         }
     }
+    //endregion
 
-    public static void swap(byte[] arr, int i, int j) {
-        byte tmp = arr[i];
-        arr[i] = arr[j];
-        arr[j] = tmp;
-    }
-
-    public static void swap(short[] arr, int i, int j) {
-        short tmp = arr[i];
-        arr[i] = arr[j];
-        arr[j] = tmp;
-    }
-
-    public static void swap(char[] arr, int i, int j) {
-        char tmp = arr[i];
-        arr[i] = arr[j];
-        arr[j] = tmp;
-    }
-
+    //region swap()
     public static void swap(int[] arr, int i, int j) {
         int tmp = arr[i];
         arr[i] = arr[j];
@@ -201,12 +112,6 @@ public class ArrayUtils {
 
     public static void swap(long[] arr, int i, int j) {
         long tmp = arr[i];
-        arr[i] = arr[j];
-        arr[j] = tmp;
-    }
-
-    public static void swap(float[] arr, int i, int j) {
-        float tmp = arr[i];
         arr[i] = arr[j];
         arr[j] = tmp;
     }
@@ -228,28 +133,9 @@ public class ArrayUtils {
         arr[i] = arr[j];
         arr[j] = tmp;
     }
+    //endregion
 
-    public static int indexOf(byte[] arr, byte of) {
-        for (int i = 0; i < arr.length; i++) {
-            if (arr[i] == of) return i;
-        }
-        return -1;
-    }
-
-    public static int indexOf(char[] arr, char of) {
-        for (int i = 0; i < arr.length; i++) {
-            if (arr[i] == of) return i;
-        }
-        return -1;
-    }
-
-    public static int indexOf(short[] arr, short of) {
-        for (int i = 0; i < arr.length; i++) {
-            if (arr[i] == of) return i;
-        }
-        return -1;
-    }
-
+    //region indexOf()
     public static int indexOf(int[] arr, int of) {
         for (int i = 0; i < arr.length; i++) {
             if (arr[i] == of) return i;
@@ -258,13 +144,6 @@ public class ArrayUtils {
     }
 
     public static int indexOf(boolean[] arr, boolean of) {
-        for (int i = 0; i < arr.length; i++) {
-            if (arr[i] == of) return i;
-        }
-        return -1;
-    }
-
-    public static int indexOf(float[] arr, float of) {
         for (int i = 0; i < arr.length; i++) {
             if (arr[i] == of) return i;
         }
@@ -291,6 +170,20 @@ public class ArrayUtils {
         }
         return -1;
     }
+    //endregion
+
+    //region to[Int|Long|Double]Array()
+    public static int[] toIntArray(byte[] arr) {
+        return asList(arr).stream().mapToInt(a -> a).toArray();
+    }
+
+    public static int[] toIntArray(short[] arr) {
+        return asList(arr).stream().mapToInt(a -> a).toArray();
+    }
+
+    public static int[] toIntArray(char[] arr) {
+        return asList(arr).stream().mapToInt(a -> a).toArray();
+    }
 
     public static long[] toLongArray(byte[] arr) {
         return asList(arr).stream().mapToLong(a -> a).toArray();
@@ -308,6 +201,12 @@ public class ArrayUtils {
         return Arrays.stream(arr).mapToLong(a -> a).toArray();
     }
 
+    public static double[] toDoubleArray(float[] arr) {
+        return asList(arr).stream().mapToDouble(a -> a).toArray();
+    }
+    //endregion()
+
+    //region asList()
     public static List<Byte> asList(byte[] arr) {
         return new BackedList<>(arr);
     }
@@ -370,5 +269,10 @@ public class ArrayUtils {
             return length;
         }
     }
+    //endregion
 
+
+    public static <T> Iterator<T> iterator(T... arr) {
+        return asList(arr).iterator();
+    }
 }

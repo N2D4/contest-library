@@ -10,6 +10,7 @@ import java.util.stream.IntStream;
 
 public final class PrimeUtils {
 
+    //region getPrimeTable()
     /**
      * Returns a boolean array, where arr[i] means that range.a + i is a prime number.
      */
@@ -45,19 +46,54 @@ public final class PrimeUtils {
 
         return primeFacts;
     }
+    //endregion
 
+    //region isProbablePrime()
+    /**
+     * Returns true if there is at most a 1:2^certainty chance that this number is composite, or false if it is
+     * definitely composite.
+     */
     public static boolean isProbablePrime(long l, int certainty) {
         return BigInteger.valueOf(l).isProbablePrime(certainty);
     }
 
+    /**
+     * Returns true if there is at most a 1:2^certainty chance that this number is composite, or false if it is
+     * definitely composite.
+     */
+    public static boolean isProbablePrime(BigInteger l, int certainty) {
+        return l.isProbablePrime(certainty);
+    }
+    //endregion
+
+    //region isPrime()
+    /**
+     * Returns true if this number is prime, false otherwise.
+     */
     public static boolean isPrime(long l) {
         return isProbablePrime(l, 100);
     }
 
+    /**
+     * Returns true if this number is prime, false otherwise.
+     */
+    public static boolean isPrime(BigInteger l) {
+        return isProbablePrime(l, 100);
+    }
+    //endregion
+
+    //region findPrimeFactor[s]()
+    /**
+     * Returns the smallest prime factor of l.
+     */
     public static long findPrimeFactor(long l) {
         return findSmallestOddFactor(l, 1, l);
     }
 
+    /**
+     * Returns 2 if l is divisible by 2, or the smallest odd (possibly composite) factor in [min, max). If no such
+     * factor exists, return l.
+     */
     private static long findSmallestOddFactor(long l, long min, long max) {
         if (min <= 2) {
             if (l % 2 == 0) return 2;
@@ -75,7 +111,7 @@ public final class PrimeUtils {
     }
 
     public static List<Long> findPrimeFactors(long l, long max) {
-        if (PrimeUtils.isPrime(l)) return new ArrayList<>(Arrays.asList(l));
+        if (PrimeUtils.isPrime(l)) return Collections.singletonList(l);
 
         List<Long> result = new ArrayList<>();
         long pf = 1;
@@ -84,15 +120,7 @@ public final class PrimeUtils {
             result.add(pf);
             l /= pf;
         }
-        return result;
-    }
-
-    public static boolean isProbablePrime(BigInteger l, int certainty) {
-        return l.isProbablePrime(certainty);
-    }
-
-    public static boolean isPrime(BigInteger l) {
-        return isProbablePrime(l, 100);
+        return Collections.unmodifiableList(result);
     }
 
     public static BigInteger findPrimeFactor(BigInteger l) {
@@ -126,5 +154,6 @@ public final class PrimeUtils {
         }
         return result;
     }
+    //endregion
 
 }

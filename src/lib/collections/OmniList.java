@@ -269,6 +269,8 @@ public class OmniList<T> extends AbstractList<T> implements RandomAccess {
     }
 
     private Ref ref(int index) {
+        if (index == 0) return first.first();
+        if (index == size() - 1) return last.last();
         return root.ref(index);
     }
 

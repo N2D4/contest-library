@@ -235,7 +235,12 @@ public class BuildOutput {
             rBuilder.append("\n\n\n" + new String(Files.readAllBytes(Paths.get(launchersDir + "/" + launcher))));
         }
         rBuilder.append("\n" + res);
-        return compress(rBuilder.toString());
+
+        String s = rBuilder.toString();
+        // Remove annotations that may bother the dead code analyzer
+        s = s.replaceAll( "(@O|@CacheVersion)\\([\"a-zA-Z0-9*+\\s^]*\\)|(\"(?:\\\\[^\"]|\\\\\"|.)*?\")", "$2");
+
+        return compress(s);
     }
 
     public static void openOutput(Path path) throws IOException {

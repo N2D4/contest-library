@@ -113,12 +113,21 @@ public class UtilTests {
 
     @Test
     public void primeFactorTests() {
+        assertEquals(PrimeUtils.findPrimeFactors(0), Collections.emptyList());
+        assertEquals(PrimeUtils.findPrimeFactors(1), Collections.emptyList());
+
         Random random = new Random("random prime factor tests".hashCode());
-        for (long i = 0; i < 10 * TestConstants.SCALE; i++) {
-            long l = random.nextDouble() < 0.1 ? BigInteger.probablePrime(45, random).longValue() : getPositiveLong(random);
+        for (long i = 2; i < 1000 + 10 * TestConstants.SCALE; i++) {
+            long l = i < 1000 ? i : random.nextDouble() < 0.1 ? BigInteger.probablePrime(45, random).longValue() : getPositiveLong(random);
             long p = 1;
-            for (long f : PrimeUtils.findPrimeFactors(l)) {
+            List<Long> facs = PrimeUtils.findPrimeFactors(l);
+            long smallestPrimeFactor = PrimeUtils.findPrimeFactor(l);
+            assertEquals((long) facs.get(0), smallestPrimeFactor);
+            long lastF = -1;
+            for (long f : facs) {
+                assertTrue(f >= lastF);
                 assertTrue(PrimeUtils.isPrime(f));
+                assertTrue(l % f == 0);
                 p *= f;
             }
             assertEquals(l, p);

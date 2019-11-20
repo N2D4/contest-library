@@ -16,14 +16,11 @@ import java.util.function.Predicate;
 import java.util.function.Supplier;
 import java.util.stream.*;
 
-public final class Utils {
-    private Utils() {
-        // Quite dusty here...
-    }
+public class Utils {
 
+    //region Overloaded functions for primitives (equals, hashcode, compare)
 
-
-
+    //region equals()
     public static boolean equals(int a, int b) {
         return a == b;
     }
@@ -39,7 +36,9 @@ public final class Utils {
     public static boolean equals(Object a, Object b) {
         return Objects.equals(a, b);
     }
+    //endregion
 
+    //region hashCode()
     public static int hashCode(int a) {
         return Integer.hashCode(a);
     }
@@ -55,7 +54,9 @@ public final class Utils {
     public static int hashCode(Object a) {
         return Objects.hashCode(a);
     }
+    //endregion
 
+    //region compare()
     public static int compare(int a, int b) {
         return Integer.compare(a, b);
     }
@@ -71,12 +72,26 @@ public final class Utils {
     public static <T extends Comparable<? super T>> int compare(T a, T b) {
         return Objects.compare(a, b, Comparator.naturalOrder());
     }
+    //endregion
 
+    //endregion
 
+    //region hashAll()
+    public static <T> int hashAll(Object... objs) {
+        return hashAll(Arr.iterator(objs));
+    }
 
+    public static <T> int hashAll(Iterator<T> iterator) {
+        int hash = 1;
+        while (iterator.hasNext()) {
+            T obj = iterator.next();
+            hash = hash * 31 + Objects.hashCode(obj);
+        }
+        return hash;
+    }
+    //endregion
 
-
-
+    //region repeat()
     public static void repeat(int times, Consumer<Integer> consumer) {
         for (int i = 0; i < times; i++) {
             consumer.accept(i);
@@ -86,8 +101,11 @@ public final class Utils {
     public static void repeat(int times, Runnable runnable) {
         repeat(times, (a) -> runnable.run());
     }
+    //endregion
 
+    //region Timing
 
+    //region timing()
     /**
      * Returns the execution time of the lambda in seconds.
      */
@@ -97,7 +115,9 @@ public final class Utils {
         long end = System.nanoTime();
         return (end - start) / 1_000_000_000.0;
     }
+    //endregion
 
+    //region printTiming()
     private static int timingId = 0;
     /**
      * Prints the execution time of the lambda in stderr. Returns the value returned by the lambda.
@@ -139,10 +159,11 @@ public final class Utils {
     public static <T, E extends Throwable> T printTiming(ThrowingSupplier<T, E> supplier) throws E {
         return printTiming(supplier, null);
     }
+    //endregion
 
+    //endregion
 
-
-
+    //region toArrayList()
     public static <T> ArrayList<T> toArrayList(Iterable<T> iterable) {
         int size = iterable instanceof Collection ? ((Collection) iterable).size() : -1;
         return toArrayList(iterable, size);
@@ -168,8 +189,9 @@ public final class Utils {
         spliterator.forEachRemaining(result::add);
         return result;
     }
+    //endregion
 
-
+    //region toPrimitiveIterator()
     public static PrimitiveIterator.OfInt toPrimitiveIterator(IntIterator iterator) {
         return new PrimitiveIterator.OfInt() {
             @Override
@@ -213,9 +235,9 @@ public final class Utils {
             }
         };
     }
+    //endregion
 
-
-
+    //region stream()
     public static IntStream stream(IntIterator iterator) {
         return stream(iterator, -1);
     }
@@ -266,8 +288,9 @@ public final class Utils {
     public static <T> Stream<T> stream(Spliterator<T> spliterator) {
         return StreamSupport.stream(spliterator, false);
     }
+    //endregion
 
-
+    //region invert()
     /**
      * Returns a map containing each element of the collection and a set of its indices in the iterator order as a
      * key-value pair. The sets are immutable and ordered.
@@ -292,33 +315,19 @@ public final class Utils {
         }
         return Collections.unmodifiableMap(map);
     }
+    //endregion
 
-
-
-
+    //region arrayListOfSize()
     public static <T> ArrayList<T> arrayListOfSize(int size) {
         return arrayListOfSize(size, null);
     }
 
     public static <T> ArrayList<T> arrayListOfSize(int size, T element) {
-        ArrayList<T> result = new ArrayList<T>(size);
-        for (int i = 0; i < size; i++) {
-            result.add(element);
-        }
-        return result;
+        return new ArrayList<>(Collections.nCopies(size, element));
     }
+    //endregion
 
-
-    public static <T> int hashAll(Iterator<T> iterator) {
-        int hash = 1;
-        while (iterator.hasNext()) {
-            T obj = iterator.next();
-            hash = hash * 31 + Objects.hashCode(obj);
-        }
-        return hash;
-    }
-
-
+    //region as[Modifiable]Set()
     /**
      * Returns a Set given a collection of **unique** elements. If the collection contains duplicates, the Set will too
      * (which is, per the definition of a Set, not allowed).
@@ -404,18 +413,21 @@ public final class Utils {
             }
         };
     }
+    //endregion
 
+    //region collectToSet()
     /**
      * Returns a Collector which collects **unique** elements to a set. If the elements passed to it contains
      * duplicates, the Set will too (which is, per the definition of a Set, not allowed).
      *
-     * This is functionally equivalent to
-     * `Collectors.collectingAndThen(Collectors.toSet(), Collections::unmodifiableSet)`, but likely more performant.
+     * Generally, Collectors.toSet() should be preferred, though it is slightly slower as it checks for duplicates.
      */
     public static <T> Collector<T, ?, Set<T>> collectToSet() {
         return Collectors.collectingAndThen(Collectors.toList(), Utils::asSet);
     }
+    //endregion
 
+    //region reverseItera[tor|ble]()
     /**
      * Returns a reverse list iterator given a list. The iterator will start at the last element and end at the first.
      */
@@ -477,6 +489,15 @@ public final class Utils {
     }
 
     /**
+     * Returns an iterable with a reverse iterator of this list, backed by the original list.
+     */
+    public static <T> Iterable<T> reverseIterable(List<T> list) {
+        return () -> reverseIterator(list);
+    }
+    //endregion
+
+    //region nonThrowing()
+    /**
      * Returns an equivalent lambda that wraps all thrown exceptions and errors into a runtime exception.
      */
     public static Runnable nonThrowing(ThrowingRunnable<?> r) {
@@ -527,19 +548,9 @@ public final class Utils {
             }
         };
     }
+    //endregion
 
-
-
-    /**
-     * Returns an iterable with a reverse iterator of this list, backed by the original list.
-     */
-    public static <T> Iterable<T> reverseIterable(List<T> list) {
-        return () -> reverseIterator(list);
-    }
-
-
-
-
+    //region primitiveToWrapper()
     private static final Map<Class, Class> primitiveClassWrappers = new HashMap<Class, Class>() {{
         put(boolean.class, Boolean.class);
         put(byte.class, Byte.class);
@@ -553,5 +564,6 @@ public final class Utils {
     public static Class<?> primitiveToWrapper(Class<?> clss) {
         return primitiveClassWrappers.getOrDefault(clss, clss);
     }
+    //endregion
 
 }
