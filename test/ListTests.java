@@ -24,7 +24,7 @@ public class ListTests {
         final DOER<List<Integer>> D = new DOER<List<Integer>>() {
             @Override
             public void check() {
-                assertTrue(list.isConsistent());
+                assertTrue(list.isConsistent(), "List not consistent! " + list.treeToString());
                 assertEquals(list, golden);
             }
 
@@ -39,6 +39,8 @@ public class ListTests {
 
         D.bothAndCheckF(l -> l.add(5));
         D.bothAndCheckF(l -> l.add(7));
+        D.bothAndCheckC(l -> l.add(2, 5));
+        D.bothAndCheckF(l -> l.remove(2));
         D.bothAndCheckC(l -> l.add(1, 5));
         D.bothAndCheckC(l -> l.add(1, 5));
         D.bothAndCheckF(l -> l.set(1, 3));

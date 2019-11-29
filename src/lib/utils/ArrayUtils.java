@@ -1,10 +1,65 @@
 package lib.utils;
 
+import lib.utils.various.Range;
+
 import java.util.*;
 import java.util.concurrent.ThreadLocalRandom;
+import java.util.stream.DoubleStream;
+import java.util.stream.IntStream;
+import java.util.stream.LongStream;
 import java.util.stream.Stream;
 
 public class ArrayUtils {
+
+    //region stream()
+    public IntStream stream(int[] arr) {
+        return Arrays.stream(arr);
+    }
+
+    public LongStream stream(long[] arr) {
+        return Arrays.stream(arr);
+    }
+
+    public DoubleStream stream(double[] arr) {
+        return Arrays.stream(arr);
+    }
+
+    public <T> Stream<T> stream(T[] arr) {
+        return Arrays.stream(arr);
+    }
+
+    public IntStream stream(int[] arr, int startInclusive, int endExclusive) {
+        return Arrays.stream(arr, startInclusive, endExclusive);
+    }
+
+    public LongStream stream(long[] arr, int startInclusive, int endExclusive) {
+        return Arrays.stream(arr, startInclusive, endExclusive);
+    }
+
+    public DoubleStream stream(double[] arr, int startInclusive, int endExclusive) {
+        return Arrays.stream(arr, startInclusive, endExclusive);
+    }
+
+    public <T> Stream<T> stream(T[] arr, int startInclusive, int endExclusive) {
+        return Arrays.stream(arr, startInclusive, endExclusive);
+    }
+
+    public IntStream stream(int[] arr, Range range) {
+        return Arrays.stream(arr, range.a, range.b);
+    }
+
+    public LongStream stream(long[] arr, Range range) {
+        return Arrays.stream(arr, range.a, range.b);
+    }
+
+    public DoubleStream stream(double[] arr, Range range) {
+        return Arrays.stream(arr, range.a, range.b);
+    }
+
+    public <T> Stream<T> stream(T[] arr, Range range) {
+        return Arrays.stream(arr, range.a, range.b);
+    }
+    //endregion
 
     //region sort()
     /**
@@ -244,7 +299,7 @@ public class ArrayUtils {
     }
 
 
-    private static class BackedList<T, A> extends AbstractList<T> {
+    private static class BackedList<T, A> extends AbstractList<T> implements RandomAccess {
         private final A arr;
         private final int length;
         public BackedList(A arr) {
@@ -271,8 +326,132 @@ public class ArrayUtils {
     }
     //endregion
 
-
+    //region iterator()
     public static <T> Iterator<T> iterator(T... arr) {
         return asList(arr).iterator();
     }
+    //endregion
+
+    //region verboseCopy()
+    /**
+     * Copies the elements in src in the range [srcFromIndex, srcToIndex) to dest at destFromIndex. If
+     * srcToIndex < srcFromIndex, the copying will wrap around.
+     *
+     * In other words, the function does something like this (in py-, uh, pseudo-code):
+     *
+     *   if sfi <= sti:
+     *       dst[dfi:dfi+(sti-sfi)] = src[sfi:sti]
+     *   else:
+     *       dst[dfi:dfi+(sti-sfi)] = src[sfi:] + src[:sti]
+     *
+     */
+    public static int verboseCopy(byte[] src, int srcFromIndex, int srcToIndex, byte[] dest, int destFromIndex) {
+        int length = srcToIndex - srcFromIndex;
+        if (length < 0) {
+            length += src.length;
+            int copied = verboseCopy(src, srcFromIndex, src.length, dest, destFromIndex);
+            return copied + verboseCopy(src, 0, srcToIndex, dest, destFromIndex + copied);
+        } else {
+            System.arraycopy(src, srcFromIndex, dest, destFromIndex, length);
+            return length;
+        }
+    }
+
+    /**
+     * Copies the elements in src in the range [srcFromIndex, srcToIndex) to dest at destFromIndex. If
+     * srcToIndex < srcFromIndex, the copying will wrap around.
+     *
+     * In other words, the function does something like this (in py-, uh, pseudo-code):
+     *
+     *   if sfi <= sti:
+     *       dst[dfi:dfi+(sti-sfi)] = src[sfi:sti]
+     *   else:
+     *       dst[dfi:dfi+(sti-sfi)] = src[sfi:] + src[:sti]
+     *
+     */
+    public static int verboseCopy(int[] src, int srcFromIndex, int srcToIndex, int[] dest, int destFromIndex) {
+        int length = srcToIndex - srcFromIndex;
+        if (length < 0) {
+            length += src.length;
+            int copied = verboseCopy(src, srcFromIndex, src.length, dest, destFromIndex);
+            return copied + verboseCopy(src, 0, srcToIndex, dest, destFromIndex + copied);
+        } else {
+            System.arraycopy(src, srcFromIndex, dest, destFromIndex, length);
+            return length;
+        }
+    }
+
+    /**
+     * Copies the elements in src in the range [srcFromIndex, srcToIndex) to dest at destFromIndex. If
+     * srcToIndex < srcFromIndex, the copying will wrap around.
+     *
+     * In other words, the function does something like this (in py-, uh, pseudo-code):
+     *
+     *   if sfi <= sti:
+     *       dst[dfi:dfi+(sti-sfi)] = src[sfi:sti]
+     *   else:
+     *       dst[dfi:dfi+(sti-sfi)] = src[sfi:] + src[:sti]
+     *
+     */
+    public static int verboseCopy(long[] src, int srcFromIndex, int srcToIndex, long[] dest, int destFromIndex) {
+        int length = srcToIndex - srcFromIndex;
+        if (length < 0) {
+            length += src.length;
+            int copied = verboseCopy(src, srcFromIndex, src.length, dest, destFromIndex);
+            return copied + verboseCopy(src, 0, srcToIndex, dest, destFromIndex + copied);
+        } else {
+            System.arraycopy(src, srcFromIndex, dest, destFromIndex, length);
+            return length;
+        }
+    }
+
+    /**
+     * Copies the elements in src in the range [srcFromIndex, srcToIndex) to dest at destFromIndex. If
+     * srcToIndex < srcFromIndex, the copying will wrap around.
+     *
+     * In other words, the function does something like this (in py-, uh, pseudo-code):
+     *
+     *   if sfi <= sti:
+     *       dst[dfi:dfi+(sti-sfi)] = src[sfi:sti]
+     *   else:
+     *       dst[dfi:dfi+(sti-sfi)] = src[sfi:] + src[:sti]
+     *
+     */
+    public static int verboseCopy(double[] src, int srcFromIndex, int srcToIndex, double[] dest, int destFromIndex) {
+        int length = srcToIndex - srcFromIndex;
+        if (length < 0) {
+            length += src.length;
+            int copied = verboseCopy(src, srcFromIndex, src.length, dest, destFromIndex);
+            return copied + verboseCopy(src, 0, srcToIndex, dest, destFromIndex + copied);
+        } else {
+            System.arraycopy(src, srcFromIndex, dest, destFromIndex, length);
+            return length;
+        }
+    }
+
+    /**
+     * Copies the elements in src in the range [srcFromIndex, srcToIndex) to dest at destFromIndex. If
+     * srcToIndex < srcFromIndex, the copying will wrap around.
+     *
+     * In other words, the function does something like this (in py-, uh, pseudo-code):
+     *
+     *   if sfi <= sti:
+     *       dst[dfi:dfi+(sti-sfi)] = src[sfi:sti]
+     *   else:
+     *       dst[dfi:dfi+(sti-sfi)] = src[sfi:] + src[:sti]
+     *
+     */
+    public static <T> int verboseCopy(T[] src, int srcFromIndex, int srcToIndex, T[] dest, int destFromIndex) {
+        int length = srcToIndex - srcFromIndex;
+        if (length < 0) {
+            length += src.length;
+            int copied = verboseCopy(src, srcFromIndex, src.length, dest, destFromIndex);
+            return copied + verboseCopy(src, 0, srcToIndex, dest, destFromIndex + copied);
+        } else {
+            System.arraycopy(src, srcFromIndex, dest, destFromIndex, length);
+            return length;
+        }
+    }
+    //endregion
+
 }

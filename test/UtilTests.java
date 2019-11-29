@@ -1,3 +1,4 @@
+import lib.algorithms.ExtendedEuclid;
 import lib.utils.*;
 import lib.utils.tuples.*;
 import lib.utils.various.BruteForceIterable;
@@ -97,14 +98,16 @@ public class UtilTests {
 
     @Test
     public void primeTableTests() {
-        Random random = new Random("random prime table tests".hashCode());
+        Random random = new Random("prime table tests".hashCode());
         int msqrt = (int) (42 * Math.sqrt(Math.sqrt(TestConstants.SCALE)));
         for (long i = 0; i < msqrt * msqrt; i++) {
-            long L = i % msqrt;
-            long R = i / msqrt + L;
-            boolean[] primeFactors = PrimeUtils.getPrimeTable(new LongRange(L, R));
-            for (long j = L; j < R; j++) {
-                assertEquals(primeFactors[(int) (j - L)], PrimeUtils.isPrime(j));
+            for (boolean b : new boolean[] {true, false}) {
+                long L = i % msqrt + (b ? 0 : random.nextInt(100_000));
+                long R = i / msqrt + L;
+                boolean[] primeFactors = PrimeUtils.getPrimeTable(new LongRange(L, R));
+                for (long j = L; j < R; j++) {
+                    assertEquals(primeFactors[(int) (j - L)], PrimeUtils.isPrime(j));
+                }
             }
         }
     }
@@ -112,24 +115,44 @@ public class UtilTests {
 
 
     @Test
+    public void eulerTotientTests() {
+        for (int i = 1; i < 1000 * Math.sqrt(TestConstants.SCALE); i++) {
+            long golden = 0;
+            for (int j = 1; j <= i; j++) {
+                if (ExtendedEuclid.gcd(i, j) == 1) golden++;
+            }
+            long let = PrimeUtils.eulerTotient(i);
+            long bet = PrimeUtils.eulerTotientBI(BigInteger.valueOf(i)).longValueExact();
+            assertEquals(golden, let);
+            assertEquals(golden, bet);
+        }
+    }
+    
+    @Test
     public void primeFactorTests() {
         assertEquals(PrimeUtils.findPrimeFactors(0), Collections.emptyList());
         assertEquals(PrimeUtils.findPrimeFactors(1), Collections.emptyList());
 
         Random random = new Random("random prime factor tests".hashCode());
-        for (long i = 2; i < 1000 + 10 * TestConstants.SCALE; i++) {
-            long l = i < 1000 ? i : random.nextDouble() < 0.1 ? BigInteger.probablePrime(45, random).longValue() : getPositiveLong(random);
+        for (long i = 2; i < 1000 + 25 * TestConstants.SCALE; i++) {
+            long l =                  i < 1000 ? i
+                   : random.nextDouble() < 0.2 ? BigInteger.probablePrime(45, random).longValueExact()
+                   : random.nextDouble() < 0.2 ? BigInteger.probablePrime(23, random).longValueExact() * BigInteger.probablePrime(23, random).longValueExact()
+                   : 1 + getPositiveLong(random) % (1 << 60 - 1);
             long p = 1;
             List<Long> facs = PrimeUtils.findPrimeFactors(l);
-            long smallestPrimeFactor = PrimeUtils.findPrimeFactor(l);
-            assertEquals((long) facs.get(0), smallestPrimeFactor);
+            //System.err.println(l + " " + facs);
             long lastF = -1;
             for (long f : facs) {
+                //System.err.println(l + " " + f + " " + facs);
+                long smallestPrimeFactor = PrimeUtils.findPrimeFactor(l / p);
+                assertEquals((long) f, smallestPrimeFactor);
                 assertTrue(f >= lastF);
                 assertTrue(PrimeUtils.isPrime(f));
                 assertTrue(l % f == 0);
                 p *= f;
             }
+            //System.err.println(PrimeUtils.getCacheSize());
             assertEquals(l, p);
         }
     }
@@ -149,7 +172,7 @@ public class UtilTests {
             for (int j = 0; j < 1000; j++) {
                 if (a != 0 || j != 0) {
                     assertEquals(golden, MathUtils.pow(a, j));
-                    assertEquals((int) MathUtils.pow((long) a, j), MathUtils.pow(a, j));
+                    assertEquals(golden, (int) MathUtils.pow((long) a, j));
                 }
                 golden *= a;
             }

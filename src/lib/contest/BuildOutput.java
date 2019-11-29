@@ -238,7 +238,7 @@ public class BuildOutput {
 
         String s = rBuilder.toString();
         // Remove annotations that may bother the dead code analyzer
-        s = s.replaceAll( "(@O|@CacheVersion)\\([\"a-zA-Z0-9*+\\s^]*\\)|(\"(?:\\\\[^\"]|\\\\\"|.)*?\")", "$2");
+        s = s.replaceAll( "(@O)\\([\"a-zA-Z0-9*+\\s^]*\\)|(\"(?:\\\\[^\"]|\\\\\"|.)*?\")", "$2");
 
         return compress(s);
     }

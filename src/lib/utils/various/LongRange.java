@@ -28,12 +28,9 @@ public class LongRange extends Pair<Long, Long> implements Iterable<Long> {
         return new Range((int) (long) this.a, (int) (long) this.b);
     }
 
-
-    /* BEGIN-JAVA-8 */
     public LongStream stream() {
         return LongStream.range(a, b);
     }
-    /* END-JAVA-8 */
 
     @Override
     public Iterator<Long> iterator() {
@@ -72,5 +69,10 @@ public class LongRange extends Pair<Long, Long> implements Iterable<Long> {
 
     public void ensureValidity() throws IllegalArgumentException {
         if (this.b < this.a) throw new IllegalArgumentException("Second argument of range (" + this.a + ", " + this.b + ") must be larger than first");
+    }
+
+    @Override
+    public String toString() {
+        return "[" + a + ", " + b + ")";
     }
 }

@@ -20,6 +20,7 @@ import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicReference;
+import java.util.stream.Stream;
 
 public abstract class AbstractSubmission {
     /**
@@ -256,34 +257,38 @@ public abstract class AbstractSubmission {
 
     /* BEGIN-OPTIMIZER */
     public static <T extends AbstractSubmission> void optimizeFromPath(Class<T> clss, String inDir, boolean debug) throws IOException {
-        Files.list(Paths.get(inDir)).filter(inPath -> inPath.toString().endsWith(".in.txt") || inPath.toString().endsWith(".in")).forEachOrdered(inPath -> {
-            try {
-                System.out.println();
-                System.out.println();
-                System.out.println("===== Processing input file: " + inPath.getFileName() + " ======");
-                String inStr = new String(Files.readAllBytes(inPath));
-
-                Path cacheDir = Paths.get(inPath + ".cache");
-                AtomicReference<SubmissionCache> cache = new AtomicReference<>(SubmissionCache.readCache(clss, cacheDir));
-                Pair<Double, ByteArrayOutputStream> res = GeneticOptimizer.runLoudly(clss, Utils.nonThrowing(() -> AbstractSubmission.create(clss, cache.get())), Utils.nonThrowing(a -> {
-                    InputStream in = new ByteArrayInputStream(inStr.getBytes(StandardCharsets.UTF_8));
-                    ByteArrayOutputStream out = new ByteArrayOutputStream();
-                    a.runSubmission(in, new PrintStream(out), debug);
-                    cache.set(a.getCache());
-                    return new Pair<>(a.score, out);
-                }));
-                SubmissionCache.writeCache(clss, cache.get(), cacheDir);
-
-                if (res != null) {
-                    String scorestr = new DecimalFormat("#.###").format(res.a);
+        try (Stream<Path> files = Files.list(Paths.get(inDir))) {
+            files.filter(inPath -> inPath.toString().endsWith(".in.txt") || inPath.toString().endsWith(".in")).forEachOrdered(inPath -> {
+                try {
                     System.out.println();
-                    System.out.println("Best score for " + inPath.getFileName() + ": " + scorestr);
-                    Path outPath = Paths.get(inPath.toString() + " sc" + scorestr + "         " + new SimpleDateFormat("HH:mm:ss").format(new Date()) + ";" + Math.floor(Math.random() * 1000) + ".out.txt");
-                    System.out.println("Saving best output in: " + outPath);
-                    Files.write(outPath, res.b.toByteArray(), StandardOpenOption.CREATE);
+                    System.out.println();
+                    System.out.println("===== Processing input file: " + inPath.getFileName() + " ======");
+                    String inStr = new String(Files.readAllBytes(inPath));
+
+                    Path cacheDir = Paths.get(inPath + ".cache");
+                    AtomicReference<SubmissionCache> cache = new AtomicReference<>(SubmissionCache.readCache(clss, cacheDir));
+                    Pair<Double, ByteArrayOutputStream> res = GeneticOptimizer.runLoudly(clss, Utils.nonThrowing(() -> AbstractSubmission.create(clss, cache.get())), Utils.nonThrowing(a -> {
+                        InputStream in = new ByteArrayInputStream(inStr.getBytes(StandardCharsets.UTF_8));
+                        ByteArrayOutputStream out = new ByteArrayOutputStream();
+                        a.runSubmission(in, new PrintStream(out), debug);
+                        cache.set(a.getCache());
+                        return new Pair<>(a.score, out);
+                    }));
+                    SubmissionCache.writeCache(clss, cache.get(), cacheDir);
+
+                    if (res != null) {
+                        String scorestr = new DecimalFormat("#.###").format(res.a);
+                        System.out.println();
+                        System.out.println("Best score for " + inPath.getFileName() + ": " + scorestr);
+                        Path outPath = Paths.get(inPath.toString() + " sc" + scorestr + "         " + new SimpleDateFormat("HH:mm:ss").format(new Date()) + ";" + Math.floor(Math.random() * 1000) + ".out.txt");
+                        System.out.println("Saving best output in: " + outPath);
+                        Files.write(outPath, res.b.toByteArray(), StandardOpenOption.CREATE);
+                    }
+                } catch (IOException | IllegalAccessException e) {
+                    throw new RuntimeException(e);
                 }
-            } catch (IOException | IllegalAccessException e) { throw new RuntimeException(e); }
-        });
+            });
+        }
         System.out.println("Went through all input files!");
     }
     /* END-OPTIMIZER */
