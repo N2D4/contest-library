@@ -1,17 +1,19 @@
 package lib.utils.various;
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
+import lib.utils.Arr;
+
+import java.io.*;
 import java.math.BigDecimal;
 import java.math.BigInteger;
-import java.util.StringTokenizer;
+import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * Java's Scanner class is very slow so this is a faster implementation which for our purposes is sufficient
  */
 public class FastScanner {
+    private final String CHARSET_NAME = "utf8";
+
     private static final String spaceDelimiters = " \t\n\r\f";
     private BufferedReader buffer;
     private StringTokenizer tokenizer;
@@ -21,11 +23,54 @@ public class FastScanner {
         this.stream = stream;
     }
 
+    /**
+     * Reads all lines until EOF. Note that this does not read a line that is terminated by EOF instead of a line
+     * terminator
+     */
+    public List<String> readAllLines() {
+        ArrayList<String> res = new ArrayList<>();
+        while (true) {
+            String s = nextLine();
+            if (s == null) break;
+            res.add(s);
+        }
+        return Collections.unmodifiableList(res);
+    }
+
+    public List<String> readAllNonEmptyLines() {
+        return Collections.unmodifiableList(readAllLines().stream().filter(a -> !a.trim().isEmpty()).collect(Collectors.toList()));
+    }
+
+    public String readAll() {
+        ByteArrayOutputStream buffer = new ByteArrayOutputStream();
+
+        int nRead;
+        byte[] data = new byte[16384];
+
+        try {
+            while ((nRead = stream.read(data, 0, data.length)) != -1) {
+                buffer.write(data, 0, nRead);
+            }
+
+            return new String(buffer.toByteArray(), CHARSET_NAME);
+        } catch (IOException e) {
+            throw new RuntimeException("IO exception occured!", e);
+        }
+    }
+
     public String nextLine() {
-        if (this.buffer == null) this.buffer = new BufferedReader(new InputStreamReader(stream));
+        if (this.buffer == null) {
+            try {
+                this.buffer = new BufferedReader(new InputStreamReader(stream, CHARSET_NAME));
+            } catch (UnsupportedEncodingException e) {
+                e.printStackTrace();
+            }
+        }
         while (tokenizer == null) {
             try {
-                tokenizer = new StringTokenizer(buffer.readLine() + "\n");
+                String rl = buffer.readLine();
+                if (rl == null) return null;
+                tokenizer = new StringTokenizer(rl + "\n");
             } catch (IOException e) {
                 throw new RuntimeException("IO exception occured!", e);
             }
@@ -44,7 +89,9 @@ public class FastScanner {
         if (this.buffer == null) this.buffer = new BufferedReader(new InputStreamReader(stream));
         while (tokenizer == null || !tokenizer.hasMoreTokens()) {
             try {
-                tokenizer = new StringTokenizer(buffer.readLine() + "\n");
+                String rl = buffer.readLine();
+                if (rl == null) return null;
+                tokenizer = new StringTokenizer(rl + "\n");
             } catch (IOException e) {
                 throw new RuntimeException("IO exception occured!", e);
             }

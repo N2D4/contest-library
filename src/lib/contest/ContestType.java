@@ -9,6 +9,7 @@ public enum ContestType {
     FACEBOOK("Case #%d: ", -1),
     BLOOMBERG("", 1, "Problem.java", false, false, 8),
     SINGLE_TESTCASE("", 1),
+    RAW_IO("", 1),
     OPTIMIZER("", 1, null, false, false, 8, true),
     HACKERRANK("", 1, "Solution.java", false, false, 8),
     CODEFORCES("", 1, "Solution.java", false, false, 8);

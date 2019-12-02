@@ -4,6 +4,7 @@ import lib.utils.various.Range;
 
 import java.util.*;
 import java.util.concurrent.ThreadLocalRandom;
+import java.util.function.IntFunction;
 import java.util.stream.DoubleStream;
 import java.util.stream.IntStream;
 import java.util.stream.LongStream;
@@ -11,48 +12,86 @@ import java.util.stream.Stream;
 
 public class ArrayUtils {
 
+    //region concat()
+    public static int[] concat(int[]... arrs) {
+        int[] res = new int[stream(arrs).mapToInt(a -> a.length).sum()];
+        int pos = 0;
+        for (int[] arr : arrs) {
+            pos += verboseCopy(arr, 0, arr.length, res, pos);
+        }
+        return res;
+    }
+
+    public static long[] concat(long[]... arrs) {
+        long[] res = new long[stream(arrs).mapToInt(a -> a.length).sum()];
+        int pos = 0;
+        for (long[] arr : arrs) {
+            pos += verboseCopy(arr, 0, arr.length, res, pos);
+        }
+        return res;
+    }
+
+    public static double[] concat(double[]... arrs) {
+        double[] res = new double[stream(arrs).mapToInt(a -> a.length).sum()];
+        int pos = 0;
+        for (double[] arr : arrs) {
+            pos += verboseCopy(arr, 0, arr.length, res, pos);
+        }
+        return res;
+    }
+
+    public static <T> T[] concat(IntFunction<T[]> arrConstructor, T[]... arrs) {
+        T[] res = arrConstructor.apply(stream(arrs).mapToInt(a -> a.length).sum());
+        int pos = 0;
+        for (T[] arr : arrs) {
+            pos += verboseCopy(arr, 0, arr.length, res, pos);
+        }
+        return res;
+    }
+    //endregion
+
     //region stream()
-    public IntStream stream(int[] arr) {
+    public static IntStream stream(int[] arr) {
         return Arrays.stream(arr);
     }
 
-    public LongStream stream(long[] arr) {
+    public static LongStream stream(long[] arr) {
         return Arrays.stream(arr);
     }
 
-    public DoubleStream stream(double[] arr) {
+    public static DoubleStream stream(double[] arr) {
         return Arrays.stream(arr);
     }
 
-    public <T> Stream<T> stream(T[] arr) {
+    public static <T> Stream<T> stream(T[] arr) {
         return Arrays.stream(arr);
     }
 
-    public IntStream stream(int[] arr, int startInclusive, int endExclusive) {
+    public static IntStream stream(int[] arr, int startInclusive, int endExclusive) {
         return Arrays.stream(arr, startInclusive, endExclusive);
     }
 
-    public LongStream stream(long[] arr, int startInclusive, int endExclusive) {
+    public static LongStream stream(long[] arr, int startInclusive, int endExclusive) {
         return Arrays.stream(arr, startInclusive, endExclusive);
     }
 
-    public DoubleStream stream(double[] arr, int startInclusive, int endExclusive) {
+    public static DoubleStream stream(double[] arr, int startInclusive, int endExclusive) {
         return Arrays.stream(arr, startInclusive, endExclusive);
     }
 
-    public <T> Stream<T> stream(T[] arr, int startInclusive, int endExclusive) {
+    public static <T> Stream<T> stream(T[] arr, int startInclusive, int endExclusive) {
         return Arrays.stream(arr, startInclusive, endExclusive);
     }
 
-    public IntStream stream(int[] arr, Range range) {
+    public static IntStream stream(int[] arr, Range range) {
         return Arrays.stream(arr, range.a, range.b);
     }
 
-    public LongStream stream(long[] arr, Range range) {
+    public static LongStream stream(long[] arr, Range range) {
         return Arrays.stream(arr, range.a, range.b);
     }
 
-    public DoubleStream stream(double[] arr, Range range) {
+    public static DoubleStream stream(double[] arr, Range range) {
         return Arrays.stream(arr, range.a, range.b);
     }
 

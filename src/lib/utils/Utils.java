@@ -4,16 +4,14 @@ import lib.generated.DoubleIterator;
 import lib.generated.IntIterator;
 import lib.generated.IntList;
 import lib.generated.LongIterator;
+import lib.utils.tuples.Pair;
 import lib.utils.various.ThrowingFunction;
 import lib.utils.various.ThrowingPredicate;
 import lib.utils.various.ThrowingRunnable;
 import lib.utils.various.ThrowingSupplier;
 
 import java.util.*;
-import java.util.function.Consumer;
-import java.util.function.Function;
-import java.util.function.Predicate;
-import java.util.function.Supplier;
+import java.util.function.*;
 import java.util.stream.*;
 
 public class Utils {
@@ -565,5 +563,35 @@ public class Utils {
         return primitiveClassWrappers.getOrDefault(clss, clss);
     }
     //endregion
+
+    //region converge()
+    public static <T> T converge(T t, UnaryOperator<T> func) {
+        T prev, cur = t;
+        do {
+            prev = cur;
+            cur = func.apply(cur);
+        } while (!Utils.equals(prev, cur));
+        return cur;
+    }
+    //endregion
+
+    //region let()
+    public static <A, B, R> R let(Pair<A, B> t, BiFunction<A, B, R> in) {
+        return in.apply(t.a, t.b);
+    }
+
+    public static <A, B> void let(Pair<A, B> t, BiConsumer<A, B> in) {
+        in.accept(t.a, t.b);
+    }
+
+    public static <T, R> R let(T t, Function<T, R> in) {
+        return in.apply(t);
+    }
+
+    public static <T, R> void let(T t, Consumer<T> in) {
+        in.accept(t);
+    }
+    //endregion
+
 
 }
