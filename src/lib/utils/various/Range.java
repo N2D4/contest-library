@@ -1,6 +1,5 @@
 package lib.utils.various;
 
-import lib.polyfill.PolyfillIterator;
 import lib.utils.tuples.Pair;
 
 import java.util.Arrays;
@@ -34,7 +33,7 @@ public class Range extends Pair<Integer, Integer> implements Iterable<Integer> {
 
     @Override
     public Iterator<Integer> iterator() {
-        return new PolyfillIterator<Integer>() {
+        return new Iterator<Integer>() {
             int c = getLeft();
             @Override
             public boolean hasNext() {

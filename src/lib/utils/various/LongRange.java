@@ -1,6 +1,5 @@
 package lib.utils.various;
 
-import lib.polyfill.PolyfillIterator;
 import lib.utils.tuples.Pair;
 
 import java.util.Arrays;
@@ -34,7 +33,7 @@ public class LongRange extends Pair<Long, Long> implements Iterable<Long> {
 
     @Override
     public Iterator<Long> iterator() {
-        return new PolyfillIterator<Long>() {
+        return new Iterator<Long>() {
             long c = getLeft();
             @Override
             public boolean hasNext() {

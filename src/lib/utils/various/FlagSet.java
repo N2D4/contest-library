@@ -1,7 +1,5 @@
 package lib.utils.various;
 
-import lib.polyfill.PolyfillIterator;
-
 import java.io.Serializable;
 import java.util.AbstractSet;
 import java.util.Iterator;
@@ -18,7 +16,7 @@ public class FlagSet extends AbstractSet<Integer> implements Set<Integer>, Seria
 
     @Override
     public Iterator<Integer> iterator() {
-        return new PolyfillIterator<Integer>() {
+        return new Iterator<Integer>() {
             int cur = 0;
 
             @Override

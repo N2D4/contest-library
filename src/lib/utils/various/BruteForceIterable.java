@@ -1,7 +1,5 @@
 package lib.utils.various;
 
-import lib.polyfill.PolyfillIterator;
-
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Iterator;
@@ -37,7 +35,7 @@ public class BruteForceIterable implements Iterable<int[]> {
         for (int i = 0; i < min.length; i++) {
             if (min[i] >= max[i]) return Collections.emptyIterator();
         }
-        return new PolyfillIterator<int[]>() {
+        return new Iterator<int[]>() {
             int[] cur = Arrays.copyOf(min, min.length);
 
             {

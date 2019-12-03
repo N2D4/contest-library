@@ -1,6 +1,8 @@
 package lib.ml.optimize;
 
 import lib.utils.Utils;
+import lib.utils.function.Func;
+import lib.utils.function.Supp;
 import lib.utils.tuples.Pair;
 import lib.utils.tuples.Triple;
 import lib.utils.various.VoidPrintStream;
@@ -8,15 +10,14 @@ import lib.utils.various.VoidPrintStream;
 import java.io.*;
 import java.lang.reflect.Field;
 import java.util.*;
-import java.util.function.*;
 import java.util.stream.*;
 
 public class GeneticOptimizer<T, U> {
 
     private static long subjectUidCounter = 0;
     private final Class<T> clss;
-    private final Supplier<T> constructor;
-    private final Function<T, Pair<Double, U>> runFunc;
+    private final Supp<T> constructor;
+    private final Func<T, Pair<Double, U>> runFunc;
     private final int keepBest;
     private final boolean parallel;
     private List<Subject> lastGeneration;
@@ -26,11 +27,11 @@ public class GeneticOptimizer<T, U> {
     private int totalGenerations = 0;
 
 
-    public GeneticOptimizer(Class<T> clss, Supplier<T> constructor, Function<T, Pair<Double, U>> evaluateFunc) {
+    public GeneticOptimizer(Class<T> clss, Supp<T> constructor, Func<T, Pair<Double, U>> evaluateFunc) {
         this(clss, constructor, evaluateFunc, 1, false);
     }
 
-    public GeneticOptimizer(Class<T> clss, Supplier<T> constructor, Function<T, Pair<Double, U>> evaluateFunc, int keepBest, boolean parallel) {
+    public GeneticOptimizer(Class<T> clss, Supp<T> constructor, Func<T, Pair<Double, U>> evaluateFunc, int keepBest, boolean parallel) {
         this.clss = clss;
         this.constructor = constructor;
         this.runFunc = evaluateFunc;
@@ -39,7 +40,7 @@ public class GeneticOptimizer<T, U> {
     }
 
 
-    public static <T, U> Pair<Double, U> runLoudly(Class<T> clss, Supplier<T> constructor, Function<T, Pair<Double, U>> runFunc) {
+    public static <T, U> Pair<Double, U> runLoudly(Class<T> clss, Supp<T> constructor, Func<T, Pair<Double, U>> runFunc) {
         if (GeneticOptimizer.canOptimize(clss)) {
             Scanner sc = new Scanner(System.in);
             GeneticOptimizer<T, U> optimizer = new GeneticOptimizer<>(clss, constructor, runFunc, 1, true);

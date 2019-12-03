@@ -1,7 +1,5 @@
 package lib.utils.various;
 
-import lib.polyfill.PolyfillIterator;
-
 import java.util.*;
 import java.util.function.*;
 import java.util.stream.Stream;
@@ -24,7 +22,7 @@ public class IterativeRecursionIterable<T, R> implements Iterable<R> {
 
     @Override
     public Iterator<R> iterator() {
-        return new PolyfillIterator<R>() {
+        return new Iterator<R>() {
             R nextObj = null;
             ArrayDeque<Either<T, Object>> stack = new ArrayDeque<Either<T, Object>>(startingVals);
 

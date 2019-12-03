@@ -1,6 +1,5 @@
 package lib.utils.various;
 
-import lib.polyfill.PolyfillIterator;
 import lib.utils.MathUtils;
 import lib.utils.Utils;
 
@@ -22,7 +21,7 @@ public class PermutationIterable<T> implements Iterable<List<T>> {
 
     @Override
     public Iterator<List<T>> iterator() {
-        return new PolyfillIterator<List<T>>() {
+        return new Iterator<List<T>>() {
             List<T> cur = new ArrayList<T>(list);
             int[] c = new int[cur.size()];
 

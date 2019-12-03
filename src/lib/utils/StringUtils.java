@@ -1,7 +1,5 @@
 package lib.utils;
 
-import lib.polyfill.PolyfillIterator;
-
 import java.util.Iterator;
 import java.util.NoSuchElementException;
 
@@ -41,7 +39,7 @@ public final class StringUtils {
             jumpBacks[i] = sub.charAt(i) == sub.charAt(h) ? h + 1 : 0;
         }
 
-        return new PolyfillIterator<Integer>() {
+        return new Iterator<Integer>() {
             int i = start;
             int j = 0;
             int next = -1;

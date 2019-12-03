@@ -1,13 +1,13 @@
 package lib.utils.various;
 
-import lib.polyfill.PolyfillIterator;
-
 import java.util.Iterator;
 import java.util.NoSuchElementException;
 import java.util.function.Function;
 import java.util.function.Predicate;
 
-
+/**
+ * some pre-java 8 stuff... crazy.
+ */
 public final class FunctionalIterators {
     private FunctionalIterators() {
         // Quite dusty here...
@@ -27,7 +27,7 @@ public final class FunctionalIterators {
 
 
 
-    private static class SelectiveIterator<T> extends PolyfillIterator<T> {
+    private static class SelectiveIterator<T> implements Iterator<T> {
         private final Iterator<T> iterator;
         private final Predicate<T> filter;
 
@@ -63,7 +63,7 @@ public final class FunctionalIterators {
     }
 
 
-    private static class MappedIterator<T, R> extends PolyfillIterator<R> {
+    private static class MappedIterator<T, R> implements Iterator<R> {
         private final Iterator<T> iterator;
         private final Function<T, R> map;
 

@@ -1,6 +1,5 @@
 package lib.vectorization;
 
-import lib.polyfill.PolyfillIterator;
 import lib.utils.tuples.Triple;
 
 import java.util.*;
@@ -128,7 +127,7 @@ public class RowListSparseMatrix extends AbstractMatrix implements ResizableMatr
 
     @Override
     public Iterator<Triple<Integer, Integer, Double>> iterator() {
-        return new PolyfillIterator<Triple<Integer, Integer, Double>>() {
+        return new Iterator<Triple<Integer, Integer, Double>>() {
             int rowi = -1;
             VectorElementIterator colit;
 

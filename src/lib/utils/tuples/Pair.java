@@ -1,11 +1,11 @@
 package lib.utils.tuples;
 
 import lib.utils.Utils;
+import lib.utils.function.BiCons;
+import lib.utils.function.BiFunc;
+import lib.utils.function.Func;
 
 import java.util.Map;
-import java.util.Objects;
-import java.util.function.Function;
-import java.util.stream.Stream;
 
 /* GENERIFY-THIS */
 public class Pair<A, B> extends Tuple implements Map.Entry<A, B> {
@@ -34,8 +34,16 @@ public class Pair<A, B> extends Tuple implements Map.Entry<A, B> {
         this.b = b;
     }
 
-    public <A1, B1> Pair<A1, B1> map(Function<A, A1> mapA, Function<B, B1> mapB) {
+    public <A1, B1> Pair<A1, B1> map(Func<A, A1> mapA, Func<B, B1> mapB) {
         return new Pair<A1, B1>(mapA.apply(this.a), mapB.apply(this.b));
+    }
+
+    public <R> R match(BiFunc<A, B, R> func) {
+        return func.apply(a, b);
+    }
+
+    public void match(BiCons<A, B> func) {
+        func.accept(a, b);
     }
 
     @Override

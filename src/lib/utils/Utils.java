@@ -2,16 +2,13 @@ package lib.utils;
 
 import lib.generated.DoubleIterator;
 import lib.generated.IntIterator;
-import lib.generated.IntList;
 import lib.generated.LongIterator;
+import lib.utils.function.*;
 import lib.utils.tuples.Pair;
-import lib.utils.various.ThrowingFunction;
-import lib.utils.various.ThrowingPredicate;
-import lib.utils.various.ThrowingRunnable;
-import lib.utils.various.ThrowingSupplier;
+import lib.utils.various.*;
 
 import java.util.*;
-import java.util.function.*;
+import java.util.function.Function;
 import java.util.stream.*;
 
 public class Utils {
@@ -90,7 +87,7 @@ public class Utils {
     //endregion
 
     //region repeat()
-    public static void repeat(int times, Consumer<Integer> consumer) {
+    public static void repeat(int times, Cons<Integer> consumer) {
         for (int i = 0; i < times; i++) {
             consumer.accept(i);
         }
@@ -511,7 +508,7 @@ public class Utils {
     /**
      * Returns an equivalent lambda that wraps all thrown exceptions and errors into a runtime exception.
      */
-    public static <T> Supplier<T> nonThrowing(ThrowingSupplier<T, ?> r) {
+    public static <T> Supp<T> nonThrowing(ThrowingSupplier<T, ?> r) {
         return () -> {
             try {
                 return r.get();
@@ -524,7 +521,7 @@ public class Utils {
     /**
      * Returns an equivalent lambda that wraps all thrown exceptions and errors into a runtime exception.
      */
-    public static <T, R> Function<T, R> nonThrowing(ThrowingFunction<T, R, ?> r) {
+    public static <T, R> Func<T, R> nonThrowing(ThrowingFunction<T, R, ?> r) {
         return (a) -> {
             try {
                 return r.apply(a);
@@ -537,7 +534,7 @@ public class Utils {
     /**
      * Returns an equivalent lambda that wraps all thrown exceptions and errors into a runtime exception.
      */
-    public static <T> Predicate<T> nonThrowingPredicate(ThrowingPredicate<T, ?> r) {
+    public static <T> Pred<T> nonThrowingPredicate(ThrowingPredicate<T, ?> r) {
         return (a) -> {
             try {
                 return r.test(a);
@@ -565,7 +562,7 @@ public class Utils {
     //endregion
 
     //region converge()
-    public static <T> T converge(T t, UnaryOperator<T> func) {
+    public static <T> T converge(T t, Func<T, T> func) {
         T prev, cur = t;
         do {
             prev = cur;
@@ -576,19 +573,19 @@ public class Utils {
     //endregion
 
     //region let()
-    public static <A, B, R> R let(Pair<A, B> t, BiFunction<A, B, R> in) {
+    public static <A, B, R> R let(Pair<A, B> t, BiFunc<A, B, R> in) {
         return in.apply(t.a, t.b);
     }
 
-    public static <A, B> void let(Pair<A, B> t, BiConsumer<A, B> in) {
+    public static <A, B> void let(Pair<A, B> t, BiCons<A, B> in) {
         in.accept(t.a, t.b);
     }
 
-    public static <T, R> R let(T t, Function<T, R> in) {
+    public static <T, R> R let(T t, Func<T, R> in) {
         return in.apply(t);
     }
 
-    public static <T, R> void let(T t, Consumer<T> in) {
+    public static <T, R> void let(T t, Cons<T> in) {
         in.accept(t);
     }
     //endregion
