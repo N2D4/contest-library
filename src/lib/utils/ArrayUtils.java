@@ -1,5 +1,9 @@
 package lib.utils;
 
+import lib.generated.DoubleExtendedStream;
+import lib.generated.IntExtendedStream;
+import lib.generated.LongExtendedStream;
+import lib.utils.various.ExtendedStream;
 import lib.utils.various.Range;
 
 import java.util.*;
@@ -51,52 +55,52 @@ public class ArrayUtils {
     //endregion
 
     //region stream()
-    public static IntStream stream(int[] arr) {
-        return Arrays.stream(arr);
+    public static IntExtendedStream stream(int[] arr) {
+        return Utils.stream(arr);
     }
 
-    public static LongStream stream(long[] arr) {
-        return Arrays.stream(arr);
+    public static LongExtendedStream stream(long[] arr) {
+        return Utils.stream(arr);
     }
 
-    public static DoubleStream stream(double[] arr) {
-        return Arrays.stream(arr);
+    public static DoubleExtendedStream stream(double[] arr) {
+        return Utils.stream(arr);
     }
 
-    public static <T> Stream<T> stream(T[] arr) {
-        return Arrays.stream(arr);
+    public static <T> ExtendedStream<T> stream(T[] arr) {
+        return Utils.stream(arr);
     }
 
-    public static IntStream stream(int[] arr, int startInclusive, int endExclusive) {
-        return Arrays.stream(arr, startInclusive, endExclusive);
+    public static IntExtendedStream stream(int[] arr, int startInclusive, int endExclusive) {
+        return Utils.stream(arr, startInclusive, endExclusive);
     }
 
-    public static LongStream stream(long[] arr, int startInclusive, int endExclusive) {
-        return Arrays.stream(arr, startInclusive, endExclusive);
+    public static LongExtendedStream stream(long[] arr, int startInclusive, int endExclusive) {
+        return Utils.stream(arr, startInclusive, endExclusive);
     }
 
-    public static DoubleStream stream(double[] arr, int startInclusive, int endExclusive) {
-        return Arrays.stream(arr, startInclusive, endExclusive);
+    public static DoubleExtendedStream stream(double[] arr, int startInclusive, int endExclusive) {
+        return Utils.stream(arr, startInclusive, endExclusive);
     }
 
-    public static <T> Stream<T> stream(T[] arr, int startInclusive, int endExclusive) {
-        return Arrays.stream(arr, startInclusive, endExclusive);
+    public static <T> ExtendedStream<T> stream(T[] arr, int startInclusive, int endExclusive) {
+        return Utils.stream(arr, startInclusive, endExclusive);
     }
 
-    public static IntStream stream(int[] arr, Range range) {
-        return Arrays.stream(arr, range.a, range.b);
+    public static IntExtendedStream stream(int[] arr, Range range) {
+        return Utils.stream(arr, range);
     }
 
-    public static LongStream stream(long[] arr, Range range) {
-        return Arrays.stream(arr, range.a, range.b);
+    public static LongExtendedStream stream(long[] arr, Range range) {
+        return Utils.stream(arr, range);
     }
 
-    public static DoubleStream stream(double[] arr, Range range) {
-        return Arrays.stream(arr, range.a, range.b);
+    public static DoubleExtendedStream stream(double[] arr, Range range) {
+        return Utils.stream(arr, range);
     }
 
-    public <T> Stream<T> stream(T[] arr, Range range) {
-        return Arrays.stream(arr, range.a, range.b);
+    public <T> ExtendedStream<T> stream(T[] arr, Range range) {
+        return Utils.stream(arr, range);
     }
     //endregion
 

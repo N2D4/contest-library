@@ -1,5 +1,7 @@
 package lib.utils.various;
 
+import lib.generated.IntExtendedStream;
+import lib.utils.Utils;
 import lib.utils.tuples.Pair;
 
 import java.util.Arrays;
@@ -27,8 +29,8 @@ public class Range extends Pair<Integer, Integer> implements Iterable<Integer> {
         return new LongRange(this.a, this.b);
     }
 
-    public IntStream stream() {
-        return IntStream.range(a, b);
+    public IntExtendedStream stream() {
+        return Utils.stream(IntStream.range(a, b));
     }
 
     @Override

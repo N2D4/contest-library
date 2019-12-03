@@ -189,6 +189,11 @@ public class SparseVector implements Serializable {
                 }
 
                 @Override
+                public void remove() {
+                    values.remove(--cur);
+                }
+
+                @Override
                 public int next() {
                     if (!hasNext()) throw new NoSuchElementException();
                     return inds.get(cur++);
@@ -212,6 +217,11 @@ public class SparseVector implements Serializable {
                 @Override
                 public boolean hasNext() {
                     return iterator.hasNext();
+                }
+
+                @Override
+                public void remove() {
+                    iterator.remove();
                 }
 
                 @Override

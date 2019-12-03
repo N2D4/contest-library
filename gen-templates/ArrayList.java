@@ -123,6 +123,12 @@ public class ArrayList<T> extends AbstractList<T> {
                 if (!hasNext()) throw new NoSuchElementException();
                 return (T) arr[indx++];
             }
+
+            @Override
+            public void remove() {
+                if (indx <= 0) throw new NoSuchElementException();
+                /*PREFIX T*/ArrayList.this.remove(--indx);
+            }
         };
     }
 

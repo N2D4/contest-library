@@ -77,7 +77,8 @@ public class Pair<A, B> extends Tuple implements Map.Entry<A, B> {
     @Override
     public boolean equals(Object other) {
         if (!(other instanceof /*PREFIX A*//*PREFIX B*/Pair)) return super.equals(other);
-        Pair pair = (Pair) other;
+        // Short-circuit if both elements are tuples
+        Pair<A, B> pair = (Pair<A, B>) other;
         return Utils.equals(this.a, pair.a) && Utils.equals(this.b, pair.b);
     }
 

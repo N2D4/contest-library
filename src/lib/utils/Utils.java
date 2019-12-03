@@ -1,14 +1,15 @@
 package lib.utils;
 
-import lib.generated.DoubleIterator;
-import lib.generated.IntIterator;
-import lib.generated.LongIterator;
+import lib.generated.*;
 import lib.utils.function.*;
 import lib.utils.tuples.Pair;
 import lib.utils.various.*;
 
 import java.util.*;
-import java.util.function.Function;
+import java.util.function.Consumer;
+import java.util.function.DoubleConsumer;
+import java.util.function.IntConsumer;
+import java.util.function.LongConsumer;
 import java.util.stream.*;
 
 public class Utils {
@@ -233,56 +234,164 @@ public class Utils {
     //endregion
 
     //region stream()
-    public static IntStream stream(IntIterator iterator) {
+    //region stream(Stream<T>)
+    public static IntExtendedStream stream(IntStream stream) {
+        return IntExtendedStream.ofStream(stream);
+    }
+
+    public static LongExtendedStream stream(LongStream stream) {
+        return LongExtendedStream.ofStream(stream);
+    }
+
+    public static DoubleExtendedStream stream(DoubleStream stream) {
+        return DoubleExtendedStream.ofStream(stream);
+    }
+
+    public static <T> ExtendedStream<T> stream(Stream<T> stream) {
+        return ExtendedStream.ofStream(stream);
+    }
+    //endregion
+
+    //region stream([Spli|I]terator)
+    public static IntExtendedStream stream(IntIterator iterator) {
         return stream(iterator, -1);
     }
 
-    public static IntStream stream(IntIterator iterator, int estimatedSize) {
+    public static IntExtendedStream stream(IntIterator iterator, int estimatedSize) {
         return stream(Spliterators.spliterator(Utils.toPrimitiveIterator(iterator), estimatedSize, Spliterator.ORDERED));
     }
 
-    public static IntStream stream(Spliterator.OfInt spliterator) {
-        return StreamSupport.intStream(spliterator, false);
+    public static IntExtendedStream stream(Spliterator.OfInt spliterator) {
+        return stream(StreamSupport.intStream(spliterator, false));
     }
 
 
-    public static LongStream stream(LongIterator iterator) {
+    public static LongExtendedStream stream(LongIterator iterator) {
         return stream(iterator, -1);
     }
 
-    public static LongStream stream(LongIterator iterator, int estimatedSize) {
+    public static LongExtendedStream stream(LongIterator iterator, int estimatedSize) {
         return stream(Spliterators.spliterator(Utils.toPrimitiveIterator(iterator), estimatedSize, Spliterator.ORDERED));
     }
 
-    public static LongStream stream(Spliterator.OfLong spliterator) {
-        return StreamSupport.longStream(spliterator, false);
+    public static LongExtendedStream stream(Spliterator.OfLong spliterator) {
+        return stream(StreamSupport.longStream(spliterator, false));
     }
 
 
-    public static DoubleStream stream(DoubleIterator iterator) {
+    public static DoubleExtendedStream stream(DoubleIterator iterator) {
         return stream(iterator, -1);
     }
 
-    public static DoubleStream stream(DoubleIterator iterator, int estimatedSize) {
+    public static DoubleExtendedStream stream(DoubleIterator iterator, int estimatedSize) {
         return stream(Spliterators.spliterator(Utils.toPrimitiveIterator(iterator), estimatedSize, Spliterator.ORDERED));
     }
 
-    public static DoubleStream stream(Spliterator.OfDouble spliterator) {
-        return StreamSupport.doubleStream(spliterator, false);
+    public static DoubleExtendedStream stream(Spliterator.OfDouble spliterator) {
+        return stream(StreamSupport.doubleStream(spliterator, false));
     }
 
 
-    public static <T> Stream<T> stream(Iterator<T> iterator) {
+    public static <T> ExtendedStream<T> stream(Iterator<T> iterator) {
         return stream(iterator, -1);
     }
 
-    public static <T> Stream<T> stream(Iterator<T> iterator, int estimatedSize) {
+    public static <T> ExtendedStream<T> stream(Iterator<T> iterator, int estimatedSize) {
         return stream(Spliterators.spliterator(iterator, estimatedSize, Spliterator.ORDERED));
     }
 
-    public static <T> Stream<T> stream(Spliterator<T> spliterator) {
-        return StreamSupport.stream(spliterator, false);
+    public static <T> ExtendedStream<T> stream(Spliterator<T> spliterator) {
+        return stream(StreamSupport.stream(spliterator, false));
     }
+    //endregion
+
+    //region stream(T[])
+    public static IntExtendedStream stream(int[] arr) {
+        return stream(Arrays.stream(arr));
+    }
+
+    public static LongExtendedStream stream(long[] arr) {
+        return stream(Arrays.stream(arr));
+    }
+
+    public static DoubleExtendedStream stream(double[] arr) {
+        return stream(Arrays.stream(arr));
+    }
+
+    public static <T> ExtendedStream<T> stream(T[] arr) {
+        return stream(Arrays.stream(arr));
+    }
+
+
+    public static IntExtendedStream stream(int[] arr, Range range) {
+        return stream(Arrays.stream(arr, range.a, range.b));
+    }
+
+    public static LongExtendedStream stream(long[] arr, Range range) {
+        return stream(Arrays.stream(arr, range.a, range.b));
+    }
+
+    public static DoubleExtendedStream stream(double[] arr, Range range) {
+        return stream(Arrays.stream(arr, range.a, range.b));
+    }
+
+    public static <T> ExtendedStream<T> stream(T[] arr, Range range) {
+        return stream(Arrays.stream(arr, range.a, range.b));
+    }
+
+
+    public static IntExtendedStream stream(int[] arr, int a, int b) {
+        return stream(Arrays.stream(arr, a, b));
+    }
+
+    public static LongExtendedStream stream(long[] arr, int a, int b) {
+        return stream(Arrays.stream(arr, a, b));
+    }
+
+    public static DoubleExtendedStream stream(double[] arr, int a, int b) {
+        return stream(Arrays.stream(arr, a, b));
+    }
+
+    public static <T> ExtendedStream<T> stream(T[] arr, int a, int b) {
+        return stream(Arrays.stream(arr, a, b));
+    }
+    //endregion
+
+    //region stream(Collection)
+    public static IntExtendedStream stream(IntCollection coll) {
+        return coll.stream();
+    }
+
+    public static LongExtendedStream stream(LongCollection coll) {
+        return coll.stream();
+    }
+
+    public static DoubleExtendedStream stream(DoubleCollection coll) {
+        return coll.stream();
+    }
+
+    public static <T> ExtendedStream<T> stream(Collection<T> coll) {
+        return stream(coll.stream());
+    }
+    //endregion
+
+    //region stream(Iterable)
+    public static IntExtendedStream stream(IntIterable iter) {
+        return stream(iter.iterator());
+    }
+
+    public static LongExtendedStream stream(LongIterable iter) {
+        return stream(iter.iterator());
+    }
+
+    public static DoubleExtendedStream stream(DoubleIterable iter) {
+        return stream(iter.iterator());
+    }
+
+    public static <T> ExtendedStream<T> stream(Iterable<T> iter) {
+        return stream(iter.iterator());
+    }
+    //endregion
     //endregion
 
     //region invert()
@@ -590,5 +699,136 @@ public class Utils {
     }
     //endregion
 
+    //region unwrapLazyIterator()
+    /*public interface __LazyIntIterator__TypeClash extends Lazy<IntIterator> {}
+    public static IntIterator unwrapLazyIterator(__LazyIntIterator__TypeClash lazyIt) {
+        return unwrapLazyIntIterator(lazyIt);
+    }
+    public static IntIterator unwrapLazyIntIterator(Lazy<IntIterator> lazyIt) {
+        return new IntIterator() {
+            private IntIterator opt = null;
+            private IntIterator get() {
+                return opt != null ? opt : (opt = lazyIt.get());
+            }
+
+            @Override
+            public boolean hasNext() {
+                return get().hasNext();
+            }
+
+            @Override
+            public int next() {
+                return get().next();
+            }
+
+            @Override
+            public void forEachRemaining(IntConsumer cons) {
+                get().forEachRemaining(cons);
+            }
+
+            @Override
+            public void remove() {
+                get().remove();
+            }
+        };
+    }
+
+
+    public interface __LazyLongIterator__TypeClash extends Lazy<LongIterator> {}
+    public static LongIterator unwrapLazyIterator(__LazyLongIterator__TypeClash lazyIt) {
+        return unwrapLazyLongIterator(lazyIt);
+    }
+    public static LongIterator unwrapLazyLongIterator(Lazy<LongIterator> lazyIt) {
+        return new LongIterator() {
+            private LongIterator opt = null;
+            private LongIterator get() {
+                return opt != null ? opt : (opt = lazyIt.get());
+            }
+
+            @Override
+            public boolean hasNext() {
+                return get().hasNext();
+            }
+
+            @Override
+            public long next() {
+                return get().next();
+            }
+
+            @Override
+            public void forEachRemaining(LongConsumer cons) {
+                get().forEachRemaining(cons);
+            }
+
+            @Override
+            public void remove() {
+                get().remove();
+            }
+        };
+    }
+
+
+    public interface __LazyDoubleIterator__TypeClash extends Lazy<DoubleIterator> {}
+    public static DoubleIterator unwrapLazyIterator(__LazyDoubleIterator__TypeClash lazyIt) {
+        return unwrapLazyDoubleIterator(lazyIt);
+    }
+    public static DoubleIterator unwrapLazyDoubleIterator(Lazy<DoubleIterator> lazyIt) {
+        return new DoubleIterator() {
+            private DoubleIterator opt = null;
+            private DoubleIterator get() {
+                return opt != null ? opt : (opt = lazyIt.get());
+            }
+
+            @Override
+            public boolean hasNext() {
+                return get().hasNext();
+            }
+
+            @Override
+            public double next() {
+                return get().next();
+            }
+
+            @Override
+            public void forEachRemaining(DoubleConsumer cons) {
+                get().forEachRemaining(cons);
+            }
+
+            @Override
+            public void remove() {
+                get().remove();
+            }
+        };
+    }
+
+    public static <T> Iterator<T> unwrapLazyIterator(Lazy<Iterator<T>> lazyIt) {
+        return new Iterator<T>() {
+            private Iterator<T> opt = null;
+            private Iterator<T> get() {
+                return opt != null ? opt : (opt = lazyIt.get());
+            }
+
+            @Override
+            public boolean hasNext() {
+                return get().hasNext();
+            }
+
+            @Override
+            public T next() {
+                return get().next();
+            }
+
+            @Override
+            public void forEachRemaining(Consumer<? super T> cons) {
+                get().forEachRemaining(cons);
+            }
+
+            @Override
+            public void remove() {
+                get().remove();
+            }
+        };
+    }*/
+    //endregion
 
 }

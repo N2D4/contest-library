@@ -13,7 +13,7 @@ import java.util.Iterator;
 import java.lang.Iterable;
 
 /* GENERIFY-THIS */
-public interface List<T> extends Iterable<T>, Serializable {
+public interface List<T> extends Collection<T> {
     /*BOX T*/Object[] toArray();
     int size();
     T get(int index);
@@ -31,9 +31,5 @@ public interface List<T> extends Iterable<T>, Serializable {
         T tmp = get(i);
         set(i, get(j));
         set(j, tmp);
-    }
-
-    default Stream<T> stream() {
-        return Utils.stream(iterator());
     }
 }

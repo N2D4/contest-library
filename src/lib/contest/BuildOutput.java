@@ -230,7 +230,7 @@ public class BuildOutput {
         for (String s : imports) {
             rBuilder.append(s + "\n");
         }
-        rBuilder.append("\n\n\n// Solution can be found in Submission.testCase(). psvm method can be found in Main.main(String[] args)\n// Please note that the code isn't obfuscated; only compressed");
+        rBuilder.append("\n\n\n// Solution can be found in Submission.testCase(). psvm method can be found in Main.main(String[] args)\n// You can find the full code here: github.com/N2D4/contest-library");
         if (launcher != null) {
             rBuilder.append("\n\n\n" + new String(Files.readAllBytes(Paths.get(launchersDir + "/" + launcher))));
         }
