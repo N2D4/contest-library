@@ -238,7 +238,7 @@ public final class PrimeUtils {
      * Returns all prime factors of l in the range [0, max].
      */
     public static List<Long> findPrimeFactors(long l, long max) {
-        if (l > BIG_INTEGER_THRESHOLD) return findPrimeFactors(BigInteger.valueOf(l)).stream().map(BigInteger::longValueExact).collect(Collectors.toList());
+        if (l > BIG_INTEGER_THRESHOLD) return Utils.stream(findPrimeFactors(BigInteger.valueOf(l))).map(BigInteger::longValueExact).collect(Collectors.toList());
 
         if (l <= 1) return Collections.emptyList();
         int sqrt = (int) Math.sqrt(l);

@@ -1,5 +1,6 @@
 package lib.algorithms;
 
+import lib.utils.Arr;
 import lib.utils.MathUtils;
 import lib.utils.tuples.Pair;
 import lib.utils.tuples.Triple;
@@ -91,7 +92,7 @@ public final class ExtendedEuclid extends Algorithm {
             long res = MathUtils.realMod(bia.multiply(biv).multiply(bin).add(bib.multiply(biu).multiply(bim)).divide(biT).mod(biM).longValueExact(), M);
             return new Pair<>(res, M);
         } else {
-            return Arrays.stream(equations).reduce(new Pair<>(0l, 1l), ExtendedEuclid::chineseRemainderTheorem);
+            return Arr.stream(equations).reduce(new Pair<>(0l, 1l), ExtendedEuclid::chineseRemainderTheorem);
         }
     }
 

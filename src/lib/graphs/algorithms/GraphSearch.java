@@ -11,6 +11,7 @@ import lib.graphs.Graph;
 import lib.graphs.UndirectedGraph;
 import lib.trees.Tree;
 import lib.trees.TreeNode;
+import lib.utils.Arr;
 import lib.utils.QueueUtils;
 import lib.utils.Utils;
 import lib.utils.tuples.Monad;
@@ -195,7 +196,7 @@ public abstract class GraphSearch extends Algorithm {
 
         final List<Set<Integer>> result = new ArrayList<>();
         for (GraphSearchResult res : getResults(graph, Type.BREADTH_FIRST)) {
-            result.add(res.traversalTree.preOrder().stream().map(a -> a.getValue()).collect(Utils.collectToSet()));
+            result.add(Utils.stream(res.traversalTree.preOrder()).map(a -> a.getValue()).collect(Utils.collectToSet()));
         }
         return Utils.asSet(result);
     }
@@ -285,12 +286,12 @@ public abstract class GraphSearch extends Algorithm {
 
     @O("n + m")
     private static int[] getEdgeDistances(Graph graph, int start, boolean directed) {
-        return Arrays.stream(getResult(graph, start, Type.BREADTH_FIRST, directed).nodes).mapToInt(a -> a == null ? Integer.MAX_VALUE : a.getHeight()).toArray();
+        return Arr.stream(getResult(graph, start, Type.BREADTH_FIRST, directed).nodes).mapToInt(a -> a == null ? Integer.MAX_VALUE : a.getHeight()).toArray();
     }
 
     @O("n + m")
     private static double[] getDistances(Graph graph, int start, boolean directed) {
-        return Arrays.stream(getResult(graph, start, Type.DIJKSTRA, directed).nodes).mapToDouble(a -> a == null ? Double.POSITIVE_INFINITY : a.getDistance()).toArray();
+        return Arr.stream(getResult(graph, start, Type.DIJKSTRA, directed).nodes).mapToDouble(a -> a == null ? Double.POSITIVE_INFINITY : a.getDistance()).toArray();
     }
 
 

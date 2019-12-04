@@ -2,6 +2,7 @@
 
 package lib.contest;
 
+import lib.utils.Utils;
 import lib.utils.tuples.Pair;
 
 import java.awt.*;
@@ -62,9 +63,9 @@ public class BuildOutput {
             sroots.add(new Pair<>(root, res));
         }
 
-        if (sroots.stream().filter(a -> a.b != 1).count() <= 0) {
+        if (Utils.stream(sroots).filter(a -> a.b != 1).count() <= 0) {
             System.out.println("No valid roots found! Please check whether the main file can be found at one of these locations:");
-            System.out.println("  " + roots.stream().filter(Files::isDirectory).map(root -> root.resolve("src/" + className + ".java")).collect(Collectors.toList()));
+            System.out.println("  " + Utils.stream(roots).filter(Files::isDirectory).map(root -> root.resolve("src/" + className + ".java")).collect(Collectors.toList()));
         }
 
         if (runTests) {

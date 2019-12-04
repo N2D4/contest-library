@@ -10,6 +10,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 public final class FloydWarshall extends Algorithm {
     private FloydWarshall() {
@@ -20,7 +21,8 @@ public final class FloydWarshall extends Algorithm {
     @O("n^3")
     public static void createShortestPaths(Graph graph) {
         // TODO Line below should use weakly connected components for directed graphs instead of 1...n, don't be lazy and finally implement that
-        Set<? extends Iterable<Integer>> components = graph instanceof UndirectedGraph ? GraphSearch.getComponents((UndirectedGraph) graph) : Collections.singleton(new Range(0, graph.getVertexCount()));
+        Set<? extends Iterable<Integer>> components = graph instanceof UndirectedGraph ? GraphSearch.getComponents((UndirectedGraph) graph)
+                                                                                       : Collections.singleton(new Range(0, graph.getVertexCount()).stream().boxed().collect(Collectors.toList()));
 
         for (int i = 0; i < graph.getVertexCount(); i++) {
             graph.setEdgeWeight(i, i, 0.0);

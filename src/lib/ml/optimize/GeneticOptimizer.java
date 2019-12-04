@@ -1,5 +1,6 @@
 package lib.ml.optimize;
 
+import lib.utils.Arr;
 import lib.utils.Utils;
 import lib.utils.function.Func;
 import lib.utils.function.Supp;
@@ -85,7 +86,7 @@ public class GeneticOptimizer<T, U> {
     }
 
     public static List<Field> getOptimizableProperties(Class<?> clss) {
-        return Arrays.stream(clss.getDeclaredFields())
+        return Arr.stream(clss.getDeclaredFields())
                 .filter(f -> { f.setAccessible(true); return f.getAnnotation(Optimize.class) != null; })
                 .collect(Collectors.toList());
     }

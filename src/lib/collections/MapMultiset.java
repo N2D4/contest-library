@@ -1,6 +1,8 @@
 package lib.collections;
 
+import lib.utils.Utils;
 import lib.utils.tuples.Pair;
+import lib.utils.various.ExtendedStream;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -22,7 +24,7 @@ public class MapMultiset<T> extends AbstractMultiset<T> {
 
     @Override
     public Iterator<T> iterator() {
-        return map.entrySet().stream().flatMap(a -> Collections.nCopies(a.getValue(), a.getKey()).stream()).iterator();
+        return Utils.stream(map.entrySet()).flatMap(a -> Collections.nCopies(a.getValue(), a.getKey()).stream()).iterator();
     }
 
     @Override
@@ -36,8 +38,10 @@ public class MapMultiset<T> extends AbstractMultiset<T> {
     }
 
     @Override
-    public Stream<Pair<T, Integer>> entryStream() {
-        return map.entrySet().stream().map(a -> new Pair<>(a.getKey(), a.getValue())).filter(a -> a.b > 0);
+    public ExtendedStream<Pair<T, Integer>> entryStream() {
+        return Utils.stream(map.entrySet())
+                .map(a -> new Pair<>(a.getKey(), a.getValue()))
+                .filter(a -> a.b > 0);
     }
 
     @Override

@@ -1,6 +1,10 @@
 package lib.utils.various;
 
 import lib.generated.LongExtendedStream;
+import lib.generated.LongIterable;
+import lib.generated.LongIterator;
+import lib.generated.LongLongPair;
+import lib.utils.Arr;
 import lib.utils.Utils;
 import lib.utils.tuples.Pair;
 
@@ -8,7 +12,7 @@ import java.util.Arrays;
 import java.util.Iterator;
 import java.util.stream.LongStream;
 
-public class LongRange extends Pair<Long, Long> implements Iterable<Long> {
+public class LongRange extends LongLongPair implements LongIterable {
 
     public LongRange(long i, long j) {
         super(i, j);
@@ -34,8 +38,8 @@ public class LongRange extends Pair<Long, Long> implements Iterable<Long> {
     }
 
     @Override
-    public Iterator<Long> iterator() {
-        return new Iterator<Long>() {
+    public LongIterator iterator() {
+        return new LongIterator() {
             long c = getLeft();
             @Override
             public boolean hasNext() {
@@ -43,7 +47,7 @@ public class LongRange extends Pair<Long, Long> implements Iterable<Long> {
             }
 
             @Override
-            public Long next() {
+            public long next() {
                 return c++;
             }
         };
@@ -65,7 +69,7 @@ public class LongRange extends Pair<Long, Long> implements Iterable<Long> {
     }
 
     public static LongRange getIntersection(LongRange... a) {
-        return Arrays.stream(a).reduce((res, b) -> res.intersectedWith(b)).get();
+        return Arr.stream(a).reduce((res, b) -> res.intersectedWith(b)).get();
     }
 
     public void ensureValidity() throws IllegalArgumentException {

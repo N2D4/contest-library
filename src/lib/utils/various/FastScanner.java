@@ -1,6 +1,7 @@
 package lib.utils.various;
 
 import lib.utils.Arr;
+import lib.utils.Utils;
 
 import java.io.*;
 import java.math.BigDecimal;
@@ -38,7 +39,7 @@ public class FastScanner {
     }
 
     public List<String> readAllNonEmptyLines() {
-        return Collections.unmodifiableList(readAllLines().stream().filter(a -> !a.trim().isEmpty()).collect(Collectors.toList()));
+        return Collections.unmodifiableList(Utils.stream(readAllLines()).filter(a -> !a.trim().isEmpty()).collect(Collectors.toList()));
     }
 
     public String readAll() {

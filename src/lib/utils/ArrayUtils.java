@@ -55,19 +55,19 @@ public class ArrayUtils {
     //endregion
 
     //region stream()
-    public static IntExtendedStream stream(int[] arr) {
+    public static IntExtendedStream stream(int... arr) {
         return Utils.stream(arr);
     }
 
-    public static LongExtendedStream stream(long[] arr) {
+    public static LongExtendedStream stream(long... arr) {
         return Utils.stream(arr);
     }
 
-    public static DoubleExtendedStream stream(double[] arr) {
+    public static DoubleExtendedStream stream(double... arr) {
         return Utils.stream(arr);
     }
 
-    public static <T> ExtendedStream<T> stream(T[] arr) {
+    public static <T> ExtendedStream<T> stream(T... arr) {
         return Utils.stream(arr);
     }
 
@@ -296,7 +296,7 @@ public class ArrayUtils {
     }
 
     public static long[] toLongArray(int[] arr) {
-        return Arrays.stream(arr).mapToLong(a -> a).toArray();
+        return Arr.stream(arr).mapToLong(a -> a).toArray();
     }
 
     public static double[] toDoubleArray(float[] arr) {
@@ -305,39 +305,39 @@ public class ArrayUtils {
     //endregion()
 
     //region asList()
-    public static List<Byte> asList(byte[] arr) {
+    public static List<Byte> asList(byte... arr) {
         return new BackedList<>(arr);
     }
 
-    public static List<Character> asList(char[] arr) {
+    public static List<Character> asList(char... arr) {
         return new BackedList<>(arr);
     }
 
-    public static List<Short> asList(short[] arr) {
+    public static List<Short> asList(short... arr) {
         return new BackedList<>(arr);
     }
 
-    public static List<Integer> asList(int[] arr) {
+    public static List<Integer> asList(int... arr) {
         return new BackedList<>(arr);
     }
 
-    public static List<Boolean> asList(boolean[] arr) {
+    public static List<Boolean> asList(boolean... arr) {
         return new BackedList<>(arr);
     }
 
-    public static List<Float> asList(float[] arr) {
+    public static List<Float> asList(float... arr) {
         return new BackedList<>(arr);
     }
 
-    public static List<Double> asList(double[] arr) {
+    public static List<Double> asList(double... arr) {
         return new BackedList<>(arr);
     }
 
-    public static List<Long> asList(long[] arr) {
+    public static List<Long> asList(long... arr) {
         return new BackedList<>(arr);
     }
 
-    public static <T> List<T> asList(T[] arr) {
+    public static <T> List<T> asList(T... arr) {
         return Arrays.asList(arr);
     }
 

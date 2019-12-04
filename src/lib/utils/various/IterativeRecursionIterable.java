@@ -1,5 +1,7 @@
 package lib.utils.various;
 
+import lib.utils.Utils;
+
 import java.util.*;
 import java.util.function.*;
 import java.util.stream.Stream;
@@ -77,13 +79,11 @@ public class IterativeRecursionIterable<T, R> implements Iterable<R> {
         for (Iterator<R> iterator = iterator(); iterator().hasNext(); iterator.next());
     }
 
-    /* BEGIN-JAVA-8 */
     public Stream<R> stream() {
-        return StreamSupport.stream(spliterator(), false);
+        return Utils.stream(spliterator());
     }
 
     public Stream<R> parallelStream() {
-        return StreamSupport.stream(spliterator(), true);
+        return stream().parallel();
     }
-    /* END-JAVA-8 */
 }

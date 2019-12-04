@@ -367,7 +367,7 @@ class ExtendedStreamImpl<T> implements ExtendedStream<T> {
     /*IS-PRIMITIVE T./
     @Override
     public T sum() {
-        return 0;
+        return s().sum();
     }
 
     @Override

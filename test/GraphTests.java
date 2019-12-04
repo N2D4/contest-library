@@ -9,6 +9,7 @@ import lib.graphs.algorithms.SpanningTrees;
 import lib.trees.Tree;
 import lib.trees.TreeNode;
 import lib.utils.MathUtils;
+import lib.utils.Utils;
 import org.junit.jupiter.api.Test;
 
 import java.util.*;
@@ -65,7 +66,7 @@ public class GraphTests {
             assertTrue(!GraphSearch.hasCycle(graph));
 
             assertEquals(top.size(), graph.getVertexCount());
-            assertEquals(top.stream().distinct().count(), graph.getVertexCount());
+            assertEquals(Utils.stream(top).distinct().count(), graph.getVertexCount());
             for (IntIterator iter = top.iterator(); iter.hasNext();) {
                 int i = iter.next();
                 assertTrue(graph.getInDegree(i) == 0);
@@ -113,8 +114,8 @@ public class GraphTests {
 
 
             double directSize = SpanningTrees.mstWeight(graph);
-            double primSize = prim.stream().flatMapToDouble(a -> a.preOrder().stream().filter(b -> b.hasParent()).mapToDouble(b -> b.getDistanceToParent())).sum();
-            double kruskalSize = kruskal.getEdges().stream().mapToDouble(a -> a.weight).sum();
+            double primSize = Utils.stream(prim).flatMapToDouble(a -> a.preOrder().stream().filter(b -> b.hasParent()).mapToDouble(b -> b.getDistanceToParent())).sum();
+            double kruskalSize = Utils.stream(kruskal.getEdges()).mapToDouble(a -> a.weight).sum();
             assertEquals(directSize, kruskalSize, 0.00001);
             assertEquals(primSize, kruskalSize, 0.00001);
         }

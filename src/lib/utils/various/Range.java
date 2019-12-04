@@ -1,6 +1,10 @@
 package lib.utils.various;
 
 import lib.generated.IntExtendedStream;
+import lib.generated.IntIntPair;
+import lib.generated.IntIterable;
+import lib.generated.IntIterator;
+import lib.utils.Arr;
 import lib.utils.Utils;
 import lib.utils.tuples.Pair;
 
@@ -8,7 +12,7 @@ import java.util.Arrays;
 import java.util.Iterator;
 import java.util.stream.IntStream;
 
-public class Range extends Pair<Integer, Integer> implements Iterable<Integer> {
+public class Range extends IntIntPair implements IntIterable {
 
     public Range(int i, int j) {
         super(i, j);
@@ -34,8 +38,8 @@ public class Range extends Pair<Integer, Integer> implements Iterable<Integer> {
     }
 
     @Override
-    public Iterator<Integer> iterator() {
-        return new Iterator<Integer>() {
+    public IntIterator iterator() {
+        return new IntIterator() {
             int c = getLeft();
             @Override
             public boolean hasNext() {
@@ -43,7 +47,7 @@ public class Range extends Pair<Integer, Integer> implements Iterable<Integer> {
             }
 
             @Override
-            public Integer next() {
+            public int next() {
                 return c++;
             }
         };
@@ -65,7 +69,7 @@ public class Range extends Pair<Integer, Integer> implements Iterable<Integer> {
     }
 
     public static Range getIntersection(Range... a) {
-        return Arrays.stream(a).reduce((res, b) -> res.intersectedWith(b)).get();
+        return Arr.stream(a).reduce((res, b) -> res.intersectedWith(b)).get();
     }
 
     public void ensureValidity() throws IllegalArgumentException {

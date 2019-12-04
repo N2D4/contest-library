@@ -38,6 +38,13 @@ public class Pair<A, B> extends Tuple implements Map.Entry<A, B> {
         return new Pair<A1, B1>(mapA.apply(this.a), mapB.apply(this.b));
     }
 
+    /*IS-PRIMITIVE *./
+    public Pair</*OBJT* /A, /*OBJT* /B> boxed() {
+        return new Pair</*OBJT* /A, /*OBJT* /B>(a, b);
+    }
+    /.ELSE*/
+    /*END*/
+
     public <R> R match(BiFunc<A, B, R> func) {
         return func.apply(a, b);
     }

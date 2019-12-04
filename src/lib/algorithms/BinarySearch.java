@@ -17,27 +17,19 @@ public final class BinarySearch extends Algorithm {
         // Quite dusty here...
     }
 
-    public static int searchFirst(int[] array, int a) {
-        return searchInRange(new Range(0, array.length), i -> array[i] >= a);
-    }
-
-    public static int searchLast(int[] array, int a) {
-        return searchInRange(new Range(0, array.length), i -> array[i] >= a);
-    }
-
-    public static int searchFirst(long[] array, int a) {
-        return searchInRange(new Range(0, array.length), i -> array[i] >= a);
-    }
-
-    public static int searchLast(long[] array, int a) {
-        return searchInRange(new Range(0, array.length), i -> array[i] >= a);
-    }
-
     public static Range search(int[] array, Range searchForRange) {
-        return search(ArrayUtils.asList(array), searchForRange);
+        return search(ArrayUtils.asList(array), searchForRange.boxed());
     }
 
     public static Range search(int[] array, int searchFor) {
+        return search(ArrayUtils.asList(array), searchFor);
+    }
+
+    public static Range search(long[] array, LongRange searchForRange) {
+        return search(ArrayUtils.asList(array), searchForRange.boxed());
+    }
+
+    public static Range search(long[] array, long searchFor) {
         return search(ArrayUtils.asList(array), searchFor);
     }
 
