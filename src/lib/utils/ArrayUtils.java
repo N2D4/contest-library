@@ -4,12 +4,54 @@ import lib.generated.DoubleExtendedStream;
 import lib.generated.IntExtendedStream;
 import lib.generated.LongExtendedStream;
 import lib.utils.various.ExtendedStream;
+import lib.utils.various.Range;
 
 import java.util.*;
 import java.util.concurrent.ThreadLocalRandom;
+import java.util.function.IntFunction;
+import java.util.stream.DoubleStream;
+import java.util.stream.IntStream;
+import java.util.stream.LongStream;
+import java.util.stream.Stream;
 
 public class ArrayUtils {
 
+    //region concat()
+    public static int[] concat(int[]... arrs) {
+        int[] res = new int[stream(arrs).mapToInt(a -> a.length).sum()];
+        int pos = 0;
+        for (int[] arr : arrs) {
+            pos += verboseCopy(arr, 0, arr.length, res, pos);
+        }
+        return res;
+    }
+
+    public static long[] concat(long[]... arrs) {
+        long[] res = new long[stream(arrs).mapToInt(a -> a.length).sum()];
+        int pos = 0;
+        for (long[] arr : arrs) {
+            pos += verboseCopy(arr, 0, arr.length, res, pos);
+        }
+        return res;
+    }
+
+    public static double[] concat(double[]... arrs) {
+        double[] res = new double[stream(arrs).mapToInt(a -> a.length).sum()];
+        int pos = 0;
+        for (double[] arr : arrs) {
+            pos += verboseCopy(arr, 0, arr.length, res, pos);
+        }
+        return res;
+    }
+
+    public static <T> T[] concat(IntFunction<T[]> arrConstructor, T[]... arrs) {
+        T[] res = arrConstructor.apply(stream(arrs).mapToInt(a -> a.length).sum());
+        int pos = 0;
+        for (T[] arr : arrs) {
+            pos += verboseCopy(arr, 0, arr.length, res, pos);
+        }
+        return res;
+    }
     //endregion
 
     //region stream()
@@ -29,6 +71,37 @@ public class ArrayUtils {
         return Utils.stream(arr);
     }
 
+    public static IntExtendedStream stream(int[] arr, int startInclusive, int endExclusive) {
+        return Utils.stream(arr, startInclusive, endExclusive);
+    }
+
+    public static LongExtendedStream stream(long[] arr, int startInclusive, int endExclusive) {
+        return Utils.stream(arr, startInclusive, endExclusive);
+    }
+
+    public static DoubleExtendedStream stream(double[] arr, int startInclusive, int endExclusive) {
+        return Utils.stream(arr, startInclusive, endExclusive);
+    }
+
+    public static <T> ExtendedStream<T> stream(T[] arr, int startInclusive, int endExclusive) {
+        return Utils.stream(arr, startInclusive, endExclusive);
+    }
+
+    public static IntExtendedStream stream(int[] arr, Range range) {
+        return Utils.stream(arr, range);
+    }
+
+    public static LongExtendedStream stream(long[] arr, Range range) {
+        return Utils.stream(arr, range);
+    }
+
+    public static DoubleExtendedStream stream(double[] arr, Range range) {
+        return Utils.stream(arr, range);
+    }
+
+    public <T> ExtendedStream<T> stream(T[] arr, Range range) {
+        return Utils.stream(arr, range);
+    }
     //endregion
 
     //region sort()
@@ -89,6 +162,14 @@ public class ArrayUtils {
         shuffle(arr, ThreadLocalRandom.current());
     }
 
+    public static void shuffle(boolean[] arr) {
+        shuffle(arr, ThreadLocalRandom.current());
+    }
+
+    public static <T> void shuffle(T[] arr) {
+        shuffle(arr, ThreadLocalRandom.current());
+    }
+
     public static void shuffle(int[] arr, Random random) {
         for (int i = 0; i < arr.length - 1; i++) {
             swap(arr, i, i + random.nextInt(arr.length - i));
@@ -107,6 +188,17 @@ public class ArrayUtils {
         }
     }
 
+    public static <T> void shuffle(T[] arr, Random random) {
+        for (int i = 0; i < arr.length - 1; i++) {
+            swap(arr, i, i + random.nextInt(arr.length - i));
+        }
+    }
+
+    public static void shuffle(boolean[] arr, Random random) {
+        for (int i = 0; i < arr.length - 1; i++) {
+            swap(arr, i, i + random.nextInt(arr.length - i));
+        }
+    }
     //endregion
 
     //region swap()
@@ -141,12 +233,75 @@ public class ArrayUtils {
     }
     //endregion
 
+    //region indexOf()
+    public static int indexOf(int[] arr, int of) {
+        for (int i = 0; i < arr.length; i++) {
+            if (arr[i] == of) return i;
+        }
+        return -1;
+    }
+
+    public static int indexOf(boolean[] arr, boolean of) {
+        for (int i = 0; i < arr.length; i++) {
+            if (arr[i] == of) return i;
+        }
+        return -1;
+    }
+
+    public static int indexOf(double[] arr, double of) {
+        for (int i = 0; i < arr.length; i++) {
+            if (arr[i] == of) return i;
+        }
+        return -1;
+    }
+
+    public static int indexOf(long[] arr, long of) {
+        for (int i = 0; i < arr.length; i++) {
+            if (arr[i] == of) return i;
+        }
+        return -1;
+    }
+
+    public static int indexOf(Object[] arr, Object of) {
+        for (int i = 0; i < arr.length; i++) {
+            if (Utils.equals(arr[i], of)) return i;
+        }
+        return -1;
+    }
     //endregion
+
+    //region to[Int|Long|Double]Array()
+    public static int[] toIntArray(byte[] arr) {
+        return asList(arr).stream().mapToInt(a -> a).toArray();
+    }
+
+    public static int[] toIntArray(short[] arr) {
+        return asList(arr).stream().mapToInt(a -> a).toArray();
+    }
+
+    public static int[] toIntArray(char[] arr) {
+        return asList(arr).stream().mapToInt(a -> a).toArray();
+    }
+
+    public static long[] toLongArray(byte[] arr) {
+        return asList(arr).stream().mapToLong(a -> a).toArray();
+    }
+
+    public static long[] toLongArray(short[] arr) {
+        return asList(arr).stream().mapToLong(a -> a).toArray();
+    }
+
+    public static long[] toLongArray(char[] arr) {
+        return asList(arr).stream().mapToLong(a -> a).toArray();
+    }
 
     public static long[] toLongArray(int[] arr) {
         return Arr.stream(arr).mapToLong(a -> a).toArray();
     }
 
+    public static double[] toDoubleArray(float[] arr) {
+        return asList(arr).stream().mapToDouble(a -> a).toArray();
+    }
     //endregion()
 
     //region asList()
@@ -163,6 +318,14 @@ public class ArrayUtils {
     }
 
     public static List<Integer> asList(int... arr) {
+        return new BackedList<>(arr);
+    }
+
+    public static List<Boolean> asList(boolean... arr) {
+        return new BackedList<>(arr);
+    }
+
+    public static List<Float> asList(float... arr) {
         return new BackedList<>(arr);
     }
 
@@ -213,6 +376,101 @@ public class ArrayUtils {
     //endregion
 
     //region verboseCopy()
+    /**
+     * Copies the elements in src in the range [srcFromIndex, srcToIndex) to dest at destFromIndex. If
+     * srcToIndex < srcFromIndex, the copying will wrap around.
+     *
+     * In other words, the function does something like this (in py-, uh, pseudo-code):
+     *
+     *   if sfi <= sti:
+     *       dst[dfi:dfi+(sti-sfi)] = src[sfi:sti]
+     *   else:
+     *       dst[dfi:dfi+(sti-sfi)] = src[sfi:] + src[:sti]
+     *
+     */
+    public static int verboseCopy(byte[] src, int srcFromIndex, int srcToIndex, byte[] dest, int destFromIndex) {
+        int length = srcToIndex - srcFromIndex;
+        if (length < 0) {
+            length += src.length;
+            int copied = verboseCopy(src, srcFromIndex, src.length, dest, destFromIndex);
+            return copied + verboseCopy(src, 0, srcToIndex, dest, destFromIndex + copied);
+        } else {
+            System.arraycopy(src, srcFromIndex, dest, destFromIndex, length);
+            return length;
+        }
+    }
+
+    /**
+     * Copies the elements in src in the range [srcFromIndex, srcToIndex) to dest at destFromIndex. If
+     * srcToIndex < srcFromIndex, the copying will wrap around.
+     *
+     * In other words, the function does something like this (in py-, uh, pseudo-code):
+     *
+     *   if sfi <= sti:
+     *       dst[dfi:dfi+(sti-sfi)] = src[sfi:sti]
+     *   else:
+     *       dst[dfi:dfi+(sti-sfi)] = src[sfi:] + src[:sti]
+     *
+     */
+    public static int verboseCopy(int[] src, int srcFromIndex, int srcToIndex, int[] dest, int destFromIndex) {
+        int length = srcToIndex - srcFromIndex;
+        if (length < 0) {
+            length += src.length;
+            int copied = verboseCopy(src, srcFromIndex, src.length, dest, destFromIndex);
+            return copied + verboseCopy(src, 0, srcToIndex, dest, destFromIndex + copied);
+        } else {
+            System.arraycopy(src, srcFromIndex, dest, destFromIndex, length);
+            return length;
+        }
+    }
+
+    /**
+     * Copies the elements in src in the range [srcFromIndex, srcToIndex) to dest at destFromIndex. If
+     * srcToIndex < srcFromIndex, the copying will wrap around.
+     *
+     * In other words, the function does something like this (in py-, uh, pseudo-code):
+     *
+     *   if sfi <= sti:
+     *       dst[dfi:dfi+(sti-sfi)] = src[sfi:sti]
+     *   else:
+     *       dst[dfi:dfi+(sti-sfi)] = src[sfi:] + src[:sti]
+     *
+     */
+    public static int verboseCopy(long[] src, int srcFromIndex, int srcToIndex, long[] dest, int destFromIndex) {
+        int length = srcToIndex - srcFromIndex;
+        if (length < 0) {
+            length += src.length;
+            int copied = verboseCopy(src, srcFromIndex, src.length, dest, destFromIndex);
+            return copied + verboseCopy(src, 0, srcToIndex, dest, destFromIndex + copied);
+        } else {
+            System.arraycopy(src, srcFromIndex, dest, destFromIndex, length);
+            return length;
+        }
+    }
+
+    /**
+     * Copies the elements in src in the range [srcFromIndex, srcToIndex) to dest at destFromIndex. If
+     * srcToIndex < srcFromIndex, the copying will wrap around.
+     *
+     * In other words, the function does something like this (in py-, uh, pseudo-code):
+     *
+     *   if sfi <= sti:
+     *       dst[dfi:dfi+(sti-sfi)] = src[sfi:sti]
+     *   else:
+     *       dst[dfi:dfi+(sti-sfi)] = src[sfi:] + src[:sti]
+     *
+     */
+    public static int verboseCopy(double[] src, int srcFromIndex, int srcToIndex, double[] dest, int destFromIndex) {
+        int length = srcToIndex - srcFromIndex;
+        if (length < 0) {
+            length += src.length;
+            int copied = verboseCopy(src, srcFromIndex, src.length, dest, destFromIndex);
+            return copied + verboseCopy(src, 0, srcToIndex, dest, destFromIndex + copied);
+        } else {
+            System.arraycopy(src, srcFromIndex, dest, destFromIndex, length);
+            return length;
+        }
+    }
 
     /**
      * Copies the elements in src in the range [srcFromIndex, srcToIndex) to dest at destFromIndex. If

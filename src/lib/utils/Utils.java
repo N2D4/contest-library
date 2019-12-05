@@ -2,9 +2,14 @@ package lib.utils;
 
 import lib.generated.*;
 import lib.utils.function.*;
+import lib.utils.tuples.Pair;
 import lib.utils.various.*;
 
 import java.util.*;
+import java.util.function.Consumer;
+import java.util.function.DoubleConsumer;
+import java.util.function.IntConsumer;
+import java.util.function.LongConsumer;
 import java.util.stream.*;
 
 public class Utils {
@@ -47,9 +52,30 @@ public class Utils {
     }
     //endregion
 
+    //region compare()
+    public static int compare(int a, int b) {
+        return Integer.compare(a, b);
+    }
+
+    public static int compare(long a, long b) {
+        return Long.compare(a, b);
+    }
+
+    public static int compare(double a, double b) {
+        return Double.compare(a, b);
+    }
+
+    public static <T extends Comparable<? super T>> int compare(T a, T b) {
+        return Objects.compare(a, b, Comparator.naturalOrder());
+    }
     //endregion
 
     //endregion
+
+    //region hashAll()
+    public static <T> int hashAll(Object... objs) {
+        return hashAll(Arr.iterator(objs));
+    }
 
     public static <T> int hashAll(Iterator<T> iterator) {
         int hash = 1;
@@ -61,6 +87,16 @@ public class Utils {
     }
     //endregion
 
+    //region repeat()
+    public static void repeat(int times, Cons<Integer> consumer) {
+        for (int i = 0; i < times; i++) {
+            consumer.accept(i);
+        }
+    }
+
+    public static void repeat(int times, Runnable runnable) {
+        repeat(times, (a) -> runnable.run());
+    }
     //endregion
 
     //region Timing
@@ -96,6 +132,29 @@ public class Utils {
         }
     }
 
+    /**
+     * Prints the execution time of the lambda in stderr.
+     */
+    public static <E extends Throwable> void printTiming(ThrowingRunnable<E> runnable, String name) throws E {
+        printTiming(() -> {
+            runnable.run();
+            return null;
+        }, name);
+    }
+
+    /**
+     * Prints the execution time of the lambda in stderr.
+     */
+    public static <E extends Throwable> void printTiming(ThrowingRunnable<E> runnable) throws E {
+        printTiming(runnable, null);
+    }
+
+    /**
+     * Prints the execution time of the lambda in stderr. Returns the value returned by the lambda.
+     */
+    public static <T, E extends Throwable> T printTiming(ThrowingSupplier<T, E> supplier) throws E {
+        return printTiming(supplier, null);
+    }
     //endregion
 
     //endregion
@@ -333,12 +392,6 @@ public class Utils {
         return stream(iter.iterator());
     }
     //endregion
-
-    //region stream(CharSequence)
-    public static IntExtendedStream stream(CharSequence seq) {
-        return stream(seq.codePoints());
-    }
-    //endregion
     //endregion
 
     //region invert()
@@ -368,6 +421,14 @@ public class Utils {
     }
     //endregion
 
+    //region arrayListOfSize()
+    public static <T> ArrayList<T> arrayListOfSize(int size) {
+        return arrayListOfSize(size, null);
+    }
+
+    public static <T> ArrayList<T> arrayListOfSize(int size, T element) {
+        return new ArrayList<>(Collections.nCopies(size, element));
+    }
     //endregion
 
     //region as[Modifiable]Set()
@@ -540,6 +601,18 @@ public class Utils {
     //endregion
 
     //region nonThrowing()
+    /**
+     * Returns an equivalent lambda that wraps all thrown exceptions and errors into a runtime exception.
+     */
+    public static Runnable nonThrowing(ThrowingRunnable<?> r) {
+        return () -> {
+            try {
+                r.run();
+            } catch (Throwable e) {
+                throw new RuntimeException(e);
+            }
+        };
+    }
 
     /**
      * Returns an equivalent lambda that wraps all thrown exceptions and errors into a runtime exception.
@@ -567,6 +640,18 @@ public class Utils {
         };
     }
 
+    /**
+     * Returns an equivalent lambda that wraps all thrown exceptions and errors into a runtime exception.
+     */
+    public static <T> Pred<T> nonThrowingPredicate(ThrowingPredicate<T, ?> r) {
+        return (a) -> {
+            try {
+                return r.test(a);
+            } catch (Throwable e) {
+                throw new RuntimeException(e);
+            }
+        };
+    }
     //endregion
 
     //region primitiveToWrapper()
@@ -585,8 +670,33 @@ public class Utils {
     }
     //endregion
 
+    //region converge()
+    public static <T> T converge(T t, Func<T, T> func) {
+        T prev, cur = t;
+        do {
+            prev = cur;
+            cur = func.apply(cur);
+        } while (!Utils.equals(prev, cur));
+        return cur;
+    }
     //endregion
 
+    //region let()
+    public static <A, B, R> R let(Pair<A, B> t, BiFunc<A, B, R> in) {
+        return in.apply(t.a, t.b);
+    }
+
+    public static <A, B> void let(Pair<A, B> t, BiCons<A, B> in) {
+        in.accept(t.a, t.b);
+    }
+
+    public static <T, R> R let(T t, Func<T, R> in) {
+        return in.apply(t);
+    }
+
+    public static <T, R> void let(T t, Cons<T> in) {
+        in.accept(t);
+    }
     //endregion
 
     //region unwrapLazyIterator()
