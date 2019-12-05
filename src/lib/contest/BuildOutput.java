@@ -283,7 +283,7 @@ public class BuildOutput {
         s = removeComments(s);
 
         // Unnecessary stuff
-        s = s.replaceAll( "(@Override|@Documented)|(\"(?:\\\\[^\"]|\\\\\"|.)*?\")", "$2");
+        s = s.replaceAll( "(@Override|@Documented|@FunctionalInterface)|(\"(?:\\\\[^\"]|\\\\\"|.)*?\")", "$2");
         if (javaVersion >= 8)
             s = s.replaceAll( "(final)([^l])|(\"(?:\\\\[^\"]|\\\\\"|.)*?\")", "$2$3");
 
