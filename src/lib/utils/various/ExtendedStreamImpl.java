@@ -22,7 +22,9 @@ class ExtendedStreamImpl<T> implements ExtendedStream<T> {
 
 
     private Stream<T> portStream(Stream<T> stream, Stream<T> from) {
-        return stream.onClose(from::close);
+        Stream<T> res = stream.onClose(from::close);
+        res = stream.isParallel() ? res.parallel() : res.sequential();
+        return res;
     }
 
     private ExtendedStream<T> arrOpF(Func</*BOX T*/Object[], /*BOX T*/Object[]> func) {

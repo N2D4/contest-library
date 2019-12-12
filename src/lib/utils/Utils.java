@@ -252,6 +252,12 @@ public class Utils {
     }
     //endregion
 
+    //region stream(CharSequence)
+    public static IntExtendedStream stream(CharSequence sequence) {
+        return Utils.stream(sequence.codePoints());
+    }
+    //endregion
+
     //region stream([Spli|I]terator)
     public static IntExtendedStream stream(IntIterator iterator) {
         return stream(iterator, -1);
