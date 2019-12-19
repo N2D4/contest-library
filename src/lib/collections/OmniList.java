@@ -425,7 +425,7 @@ public class OmniList<T> extends AbstractList<T> implements RandomAccess {
         }
 
         private void updateTotalLength() {
-            // TODO slow (implement lazy updating)
+            // TODO slow (implement lazy updating; don't update until queried)
             if (!isLeafNode()) this.totalLengthCached = left.totalLength() + right.totalLength();
             if (parent != null) parent.updateTotalLength();
         }

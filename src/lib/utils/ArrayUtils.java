@@ -6,15 +6,66 @@ import lib.generated.LongExtendedStream;
 import lib.utils.various.ExtendedStream;
 import lib.utils.various.Range;
 
+import java.lang.reflect.Array;
 import java.util.*;
 import java.util.concurrent.ThreadLocalRandom;
 import java.util.function.IntFunction;
-import java.util.stream.DoubleStream;
-import java.util.stream.IntStream;
-import java.util.stream.LongStream;
-import java.util.stream.Stream;
 
 public class ArrayUtils {
+
+    //region copyOf()
+    public static boolean[] copyOf(boolean[] arr) {
+        return Arrays.copyOf(arr, arr.length);
+    }
+
+    public static byte[] copyOf(byte[] arr) {
+        return Arrays.copyOf(arr, arr.length);
+    }
+
+    public static char[] copyOf(char[] arr) {
+        return Arrays.copyOf(arr, arr.length);
+    }
+
+    public static short[] copyOf(short[] arr) {
+        return Arrays.copyOf(arr, arr.length);
+    }
+
+    public static float[] copyOf(float[] arr) {
+        return Arrays.copyOf(arr, arr.length);
+    }
+
+    public static int[] copyOf(int[] arr) {
+        return Arrays.copyOf(arr, arr.length);
+    }
+
+    public static long[] copyOf(long[] arr) {
+        return Arrays.copyOf(arr, arr.length);
+    }
+
+    public static double[] copyOf(double[] arr) {
+        return Arrays.copyOf(arr, arr.length);
+    }
+
+    public static <T> T[] copyOf(T[] arr) {
+        return Arrays.copyOf(arr, arr.length);
+    }
+
+    public static <T> T[] deepCopyOf(T[] arr) {
+        return Arrays.stream(arr).map(a -> {
+            if (!a.getClass().isArray()) return a;
+            if (a instanceof boolean[]) return copyOf((boolean[]) a);
+            if (a instanceof char[]) return copyOf((char[]) a);
+            if (a instanceof byte[]) return copyOf((byte[]) a);
+            if (a instanceof short[]) return copyOf((short[]) a);
+            if (a instanceof int[]) return copyOf((int[]) a);
+            if (a instanceof float[]) return copyOf((float[]) a);
+            if (a instanceof double[]) return copyOf((double[]) a);
+            if (a instanceof long[]) return copyOf((long[]) a);
+            if (a instanceof Object[]) return deepCopyOf((Object[]) a);
+            throw new RuntimeException("Array type not recognized!");
+        }).toArray(i -> (T[]) Array.newInstance(arr.getClass().getComponentType(), i));
+    }
+    //endregion
 
     //region concat()
     public static int[] concat(int[]... arrs) {
@@ -104,7 +155,7 @@ public class ArrayUtils {
     }
     //endregion
 
-    //region stream()
+    //region toString()
     public static String toString(int[] arr) {
         return Arrays.toString(arr);
     }
@@ -119,6 +170,48 @@ public class ArrayUtils {
 
     public static <T> String toString(T... arr) {
         return Arrays.deepToString(arr);
+    }
+    //endregion
+
+    //region parallelSort()
+    /**
+     * Like Arrays.parallelSort, but shuffles the elements first, making it less vulnerable to attacks.
+     */
+    public static void parallelSort(int[] arr) {
+        shuffle(arr);
+        Arrays.parallelSort(arr);
+    }
+
+    /**
+     * Like Arrays.parallelSort, but shuffles the elements first, making it less vulnerable to attacks.
+     */
+    public static void parallelSort(long[] arr) {
+        shuffle(arr);
+        Arrays.parallelSort(arr);
+    }
+
+    /**
+     * Like Arrays.parallelSort, but shuffles the elements first, making it less vulnerable to attacks.
+     */
+    public static void parallelSort(double[] arr) {
+        shuffle(arr);
+        Arrays.parallelSort(arr);
+    }
+
+    /**
+     * Like Arrays.parallelSort. Does not shuffle the elements first, yet is still not vulnerable to attacks as it uses
+     * Timsort (and is therefore stable).
+     */
+    public static <T extends Comparable<? super T>> void parallelSort(T[] arr) {
+        Arrays.parallelSort(arr);
+    }
+
+    /**
+     * Like Arrays.sort. Does not shuffle the elements first, yet is still not vulnerable to attacks as it uses Timsort
+     * (and is therefore stable).
+     */
+    public static <T> void parallelSort(T[] arr, Comparator<? super T> comparator) {
+        Arrays.parallelSort(arr, comparator);
     }
     //endregion
 
@@ -154,7 +247,7 @@ public class ArrayUtils {
      * Like Arrays.sort. Does not shuffle the elements first, yet is still not vulnerable to attacks as it uses Timsort
      * (and is therefore stable).
      */
-    public static <T> void sort(T[] arr) {
+    public static <T extends Comparable<? super T>> void sort(T[] arr) {
         Arrays.sort(arr);
     }
 

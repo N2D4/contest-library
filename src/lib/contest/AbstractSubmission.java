@@ -20,6 +20,7 @@ import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicReference;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 public abstract class AbstractSubmission {
@@ -100,7 +101,8 @@ public abstract class AbstractSubmission {
 
         private Object conv(Object obj) {
             if (obj instanceof byte[]) return Arrays.toString((byte[]) obj);
-            else if (obj instanceof char[]) return Arrays.toString((char[]) obj);
+            else if (obj instanceof char[]) return "\"" + new String((char[]) obj) + "\"";
+            else if (obj instanceof char[][]) return Utils.stream((char[][]) obj).map(String::new).collect(Collectors.joining("\n"));
             else if (obj instanceof short[]) return Arrays.toString((short[]) obj);
             else if (obj instanceof int[]) return Arrays.toString((int[]) obj);
             else if (obj instanceof long[]) return Arrays.toString((long[]) obj);

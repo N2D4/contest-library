@@ -103,13 +103,33 @@ public interface ExtendedStream<T> extends Stream<T> {
     /.ELSE*/
     /*END*/
 
+    /**
+     * Returns a parallel stream if parallel is true, or sequential if it's not.
+     */
+    default ExtendedStream<T> setParallel(boolean parallel) {
+        if (parallel) {
+            return parallel();
+        } else {
+            return sequential();
+        }
+    }
+
+
+    /**
+     * Returns this stream. Can be used to ensure that this stream is of type ExtendedStream at compile-time (useful for
+     * code generators).
+     */
+    default ExtendedStream<T> ensureExtended() {
+        return this;
+    }
+
 
     static /*IS-PRIMITIVE T./ /.ELSE*/<T>/*END*/ ExtendedStream<T> ofStream(Stream<T> stream) {
         if (stream instanceof /*PREFIX T*/ExtendedStream) return (ExtendedStream<T>) stream;
-        return ofLazyStream(() -> stream);
+        return ofLazyStream(() -> stream, stream.isParallel());
     }
 
-    static /*IS-PRIMITIVE T./ /.ELSE*/<T>/*END*/ ExtendedStream<T> ofLazyStream(Lazy<Stream<T>> stream) {
-        return new ExtendedStreamImpl<T>(stream);
+    static /*IS-PRIMITIVE T./ /.ELSE*/<T>/*END*/ ExtendedStream<T> ofLazyStream(Lazy<? extends Stream<T>> stream, boolean parallel) {
+        return new ExtendedStreamImpl<T>(stream, parallel);
     }
 }
