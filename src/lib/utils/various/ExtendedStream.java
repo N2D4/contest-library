@@ -4,6 +4,7 @@ import lib.generated.DoubleExtendedStream;
 import lib.generated.IntExtendedStream;
 import lib.generated.LongExtendedStream;
 import lib.utils.Arr;
+import lib.utils.tuples.Monad;
 
 import java.util.*;
 import java.util.function.*;
@@ -126,10 +127,10 @@ public interface ExtendedStream<T> extends Stream<T> {
 
     static /*IS-PRIMITIVE T./ /.ELSE*/<T>/*END*/ ExtendedStream<T> ofStream(Stream<T> stream) {
         if (stream instanceof /*PREFIX T*/ExtendedStream) return (ExtendedStream<T>) stream;
-        return ofLazyStream(() -> stream, stream.isParallel());
+        return ofLazySpliterator(stream::spliterator, stream.isParallel()).onClose(stream::close);
     }
 
-    static /*IS-PRIMITIVE T./ /.ELSE*/<T>/*END*/ ExtendedStream<T> ofLazyStream(Lazy<? extends Stream<T>> stream, boolean parallel) {
-        return new ExtendedStreamImpl<T>(stream, parallel);
+    static /*IS-PRIMITIVE T./ /.ELSE*/<T>/*END*/ ExtendedStream<T> ofLazySpliterator(Lazy<? extends Spliterator<T>> spliterator, boolean parallel) {
+        return new ExtendedStreamImpl<T>(spliterator, parallel);
     }
 }

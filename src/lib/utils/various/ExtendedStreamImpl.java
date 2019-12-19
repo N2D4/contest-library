@@ -1,11 +1,7 @@
 package lib.utils.various;
 
-import lib.generated.DoubleExtendedStream;
-import lib.generated.IntExtendedStream;
-import lib.generated.IntIntFunc;
-import lib.generated.LongExtendedStream;
+import lib.generated.*;
 import lib.utils.Arr;
-import lib.utils.Utils;
 import lib.utils.function.Cons;
 import lib.utils.function.Func;
 
@@ -15,31 +11,73 @@ import java.util.stream.*;
 
 /* GENERIFY-THIS */
 class ExtendedStreamImpl<T> implements ExtendedStream<T> {
-    private final Lazy<? extends Stream<T>> lazyStream;
-    private final boolean isStreamParallel;
+    private final Lazy<? extends Spliterator<T>> lazySpliterator;
+    private boolean isStreamParallel;
+    private Runnable closeHandler;
 
-    ExtendedStreamImpl(Lazy<? extends Stream<T>> lazyStream, boolean isParallel) {
-        this.lazyStream = lazyStream;
+    ExtendedStreamImpl(Lazy<? extends Spliterator<T>> lazySpliterator, boolean isParallel) {
+        this.lazySpliterator = lazySpliterator;
         this.isStreamParallel = isParallel;
+        this.closeHandler = () -> {};
     }
 
 
-
-    private Stream<T> portStream(Stream<T> stream, Stream<T> from, boolean isParallel) {
-        Stream<T> res = stream.onClose(from::close);
-        res = isParallel ? res.parallel() : res.sequential();
-        return res;
+    private static IntStream normieStream(Spliterator.OfInt spliterator, boolean isParallel) {
+        return StreamSupport.intStream(spliterator, isParallel);
     }
+
+    private static LongStream normieStream(Spliterator.OfLong spliterator, boolean isParallel) {
+        return StreamSupport.longStream(spliterator, isParallel);
+    }
+
+    private static DoubleStream normieStream(Spliterator.OfDouble spliterator, boolean isParallel) {
+        return StreamSupport.doubleStream(spliterator, isParallel);
+    }
+
+    private static <U> Stream<U> normieStream(Spliterator<U> spliterator, boolean isParallel) {
+        return StreamSupport.stream(spliterator, isParallel);
+    }
+
+
+    private IntExtendedStream ofLazyIntegerSpliterator(Lazy<Spliterator.OfInt> spliterator) {
+        Runnable closeHandler = this.closeHandler;
+        IntExtendedStream stream = IntExtendedStream.ofLazySpliterator(spliterator, isParallel()).onClose(closeHandler);
+        this.closeHandler = stream::close;
+        return stream;
+    }
+
+    private LongExtendedStream ofLazyLongSpliterator(Lazy<Spliterator.OfLong> spliterator) {
+        Runnable closeHandler = this.closeHandler;
+        LongExtendedStream stream = LongExtendedStream.ofLazySpliterator(spliterator, isParallel()).onClose(closeHandler);
+        this.closeHandler = stream::close;
+        return stream;
+    }
+
+    private DoubleExtendedStream ofLazyDoubleSpliterator(Lazy<Spliterator.OfDouble> spliterator) {
+        Runnable closeHandler = this.closeHandler;
+        DoubleExtendedStream stream = DoubleExtendedStream.ofLazySpliterator(spliterator, isParallel()).onClose(closeHandler);
+        this.closeHandler = stream::close;
+        return stream;
+    }
+
+    private <U> ExtendedStream<U> ofLazyObjectSpliterator(Lazy<Spliterator<U>> spliterator) {
+        Runnable closeHandler = this.closeHandler;
+        ExtendedStream<U> stream = ExtendedStream.ofLazySpliterator(spliterator, isParallel()).onClose(closeHandler);
+        this.closeHandler = stream::close;
+        return stream;
+    }
+
 
     private ExtendedStream<T> arrOpF(Func</*BOX T*/Object[], /*BOX T*/Object[]> serial, Func</*BOX T*/Object[], /*BOX T*/Object[]> parallel, IntIntFunc characteristics) {
-        return c(s -> {
-            boolean isParallel = s.isParallel();
-            Spliterator<T> orig = s.spliterator();
+        return l(orig -> {
+            boolean isParallel = isParallel();
             int charas = orig.characteristics();
-            /*BOX T*/Object[] arr = Utils.stream(orig).toArray();
+
+            /*BOX T*/Object[] arr = normieStream(orig, isParallel).toArray();
             arr = (isParallel ? parallel : serial).apply(arr);
+
             Spliterator<T> spliterator = Spliterators.spliterator(arr, Spliterator.ORDERED | Spliterator.IMMUTABLE | characteristics.apply(charas));
-            return portStream(Utils.stream(spliterator), s, isParallel);
+            return spliterator;
         });
     }
 
@@ -53,59 +91,76 @@ class ExtendedStreamImpl<T> implements ExtendedStream<T> {
         }, characteristics);
     }
 
-    private Stream<T> getAndUpPort() {
-        Stream<T> b = lazyStream.get();
-        if (isParallel()) {
-            return b.parallel();
-        } else {
-            return b.sequential();
-        }
+    private IntExtendedStream li(Func<Spliterator<T>, Spliterator.OfInt> func) {
+        return ofLazyIntegerSpliterator(() -> func.apply(lazySpliterator.get()));
     }
 
-    private Lazy<IntStream> li(Func<Stream<T>, IntStream> func) {
-        return () -> func.apply(getAndUpPort());
+    private LongExtendedStream ll(Func<Spliterator<T>, Spliterator.OfLong> func) {
+        return ofLazyLongSpliterator(() -> func.apply(lazySpliterator.get()));
     }
 
-    private Lazy<LongStream> ll(Func<Stream<T>, LongStream> func) {
-        return () -> func.apply(getAndUpPort());
+    private DoubleExtendedStream ld(Func<Spliterator<T>, Spliterator.OfDouble> func) {
+        return ofLazyDoubleSpliterator(() -> func.apply(lazySpliterator.get()));
     }
 
-    private Lazy<DoubleStream> ld(Func<Stream<T>, DoubleStream> func) {
-        return () -> func.apply(getAndUpPort());
+    private <U> ExtendedStream<U> lo(Func<Spliterator<T>, Spliterator<U>> func) {
+        return ofLazyObjectSpliterator(() -> func.apply(lazySpliterator.get()));
     }
 
-    private <U> Lazy<Stream<U>> lo(Func<Stream<T>, Stream<U>> func) {
-        return () -> func.apply(getAndUpPort());
+    /**
+     * Helper function for intermediate stream operations.
+     */
+    private IntExtendedStream ci(Func<Stream<T>, IntStream> func) {
+        return li(s -> func.apply(normieStream(s, isParallel())).spliterator());
+    }
+
+    /**
+     * Helper function for intermediate stream operations.
+     */
+    private LongExtendedStream cl(Func<Stream<T>, LongStream> func) {
+        return ll(s -> func.apply(normieStream(s, isParallel())).spliterator());
+    }
+
+    /**
+     * Helper function for intermediate stream operations.
+     */
+    private DoubleExtendedStream cd(Func<Stream<T>, DoubleStream> func) {
+        return ld(s -> func.apply(normieStream(s, isParallel())).spliterator());
+    }
+
+    /**
+     * Helper function for intermediate stream operations.
+     */
+    private <U> ExtendedStream<U> co(Func<Stream<T>, Stream<U>> func) {
+        return lo(s -> func.apply(normieStream(s, isParallel())).spliterator());
     }
 
     /*IS-PRIMITIVE T./
-    private Lazy<Stream<T>> l(Func<Stream<T>, Stream<T>> func) {
-        return () -> func.apply(getAndUpPort());
+    private ExtendedStream<T> l(Func<Spliterator<T>, Spliterator<T>> func) {
+        return ofLazy/*OBJT* /TSpliterator(() -> func.apply(lazySpliterator.get()));
     }
 
-    private ExtendedStreamImpl<T> c(Func<Stream<T>, Stream<T>> func) {
-        return c(func, isParallel());
-    }
-
-    private ExtendedStreamImpl<T> c(Func<Stream<T>, Stream<T>> func, boolean isParallel) {
-        return new ExtendedStreamImpl<T>(l(func), isParallel);
+    private ExtendedStream<T> c(Func<Stream<T>, Stream<T>> func) {
+        return l(s -> func.apply(normieStream(s, isParallel())).spliterator());
     }
     /.ELSE*/
-    private <R> Lazy<Stream<R>> l(Func<Stream<T>, Stream<R>> func) {
-        return () -> func.apply(getAndUpPort());
+    private <R> ExtendedStream<R> l(Func<Spliterator<T>, Spliterator<R>> func) {
+        return ofLazyObjectSpliterator(() -> func.apply(lazySpliterator.get()));
     }
 
-    private <R> ExtendedStreamImpl<R> c(Func<Stream<T>, Stream<R>> func) {
-        return c(func, isParallel());
-    }
-
-    private <R> ExtendedStreamImpl<R> c(Func<Stream<T>, Stream<R>> func, boolean isParallel) {
-        return new ExtendedStreamImpl<>(l(func), isParallel);
+    /**
+     * Helper function for intermediate stream operations.
+     */
+    private <R> ExtendedStream<R> c(Func<Stream<T>, Stream<R>> func) {
+        return l(s -> func.apply(normieStream(s, isParallel())).spliterator());
     }
     /*END*/
 
+    /**
+     * Helper function for terminal stream operations.
+     */
     private Stream<T> s() {
-        return getAndUpPort();
+        return normieStream(lazySpliterator.get(), isParallel());
     }
 
 
@@ -125,12 +180,12 @@ class ExtendedStreamImpl<T> implements ExtendedStream<T> {
 
     @Override
     public <U> ExtendedStream<U> mapToObj(Function<T, ? extends U> mapper) {
-        return ExtendedStream.ofLazyStream(lo(s -> s.mapToObj(mapper)), isParallel());
+        return co((s -> s.mapToObj(mapper)));
     }
 
     @Override
     public ExtendedStream</*OBJT* /T> boxed() {
-        return ExtendedStream.ofLazyStream(lo(s -> s.boxed()), isParallel());
+        return co((s -> s.boxed()));
     }
     /.ELSE*/
     @Override
@@ -142,29 +197,29 @@ class ExtendedStreamImpl<T> implements ExtendedStream<T> {
     /*IS-Int T./
     @Override
     public DoubleExtendedStream asDoubleStream() {
-        return DoubleExtendedStream.ofLazyStream(ld(s -> s.asDoubleStream()), isParallel());
+        return cd((s -> s.asDoubleStream()));
     }
 
     @Override
     public LongExtendedStream asLongStream() {
-        return LongExtendedStream.ofLazyStream(ll(s -> s.asLongStream()), isParallel());
+        return cl((s -> s.asLongStream()));
     }
     /.ELSE*/
     @Override
     public IntExtendedStream mapToInt(ToIntFunction<? super T> mapper) {
-        return IntExtendedStream.ofLazyStream(li(s -> s.mapToInt(mapper)), isParallel());
+        return ci(s -> s.mapToInt(mapper));
     }
     /*END*/
 
     /*IS-Long T./
     @Override
     public DoubleExtendedStream asDoubleStream() {
-        return DoubleExtendedStream.ofLazyStream(ld(s -> s.asDoubleStream()), isParallel());
+        return cd((s -> s.asDoubleStream()));
     }
     /.ELSE*/
     @Override
     public LongExtendedStream mapToLong(ToLongFunction<? super T> mapper) {
-        return LongExtendedStream.ofLazyStream(ll(s -> s.mapToLong(mapper)), isParallel());
+        return cl(s -> s.mapToLong(mapper));
     }
     /*END*/
 
@@ -172,7 +227,7 @@ class ExtendedStreamImpl<T> implements ExtendedStream<T> {
     /.ELSE*/
     @Override
     public DoubleExtendedStream mapToDouble(ToDoubleFunction<? super T> mapper) {
-        return DoubleExtendedStream.ofLazyStream(ld(s -> s.mapToDouble(mapper)), isParallel());
+        return cd(s -> s.mapToDouble(mapper));
     }
     /*END*/
 
@@ -189,17 +244,17 @@ class ExtendedStreamImpl<T> implements ExtendedStream<T> {
 
     @Override
     public IntExtendedStream flatMapToInt(Function<? super T, ? extends IntStream> mapper) {
-        return IntExtendedStream.ofLazyStream(li(s -> s.flatMapToInt(mapper)), isParallel());
+        return ci((s -> s.flatMapToInt(mapper)));
     }
 
     @Override
     public LongExtendedStream flatMapToLong(Function<? super T, ? extends LongStream> mapper) {
-        return LongExtendedStream.ofLazyStream(ll(s -> s.flatMapToLong(mapper)), isParallel());
+        return cl((s -> s.flatMapToLong(mapper)));
     }
 
     @Override
     public DoubleExtendedStream flatMapToDouble(Function<? super T, ? extends DoubleStream> mapper) {
-        return DoubleExtendedStream.ofLazyStream(ld(s -> s.flatMapToDouble(mapper)), isParallel());
+        return cd((s -> s.flatMapToDouble(mapper)));
     }
     /*END*/
 
@@ -374,12 +429,14 @@ class ExtendedStreamImpl<T> implements ExtendedStream<T> {
 
     @Override
     public ExtendedStream<T> sequential() {
-        return c(a -> a, false);
+        this.isStreamParallel = false;
+        return this;
     }
 
     @Override
     public ExtendedStream<T> parallel() {
-        return c(a -> a, true);
+        this.isStreamParallel = true;
+        return this;
     }
 
     @Override
@@ -389,12 +446,17 @@ class ExtendedStreamImpl<T> implements ExtendedStream<T> {
 
     @Override
     public ExtendedStream<T> onClose(Runnable closeHandler) {
-        return c(s -> s.onClose(closeHandler));
+        this.closeHandler = () -> {
+            this.closeHandler.run();
+            closeHandler.run();
+        };
+        return this;
     }
 
     @Override
     public void close() {
-        s().close();
+        closeHandler.run();
+        closeHandler = null;
     }
 
     /*IS-PRIMITIVE T./
