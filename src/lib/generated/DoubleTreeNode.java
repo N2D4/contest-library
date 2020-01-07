@@ -161,15 +161,6 @@ public class DoubleTreeNode implements Serializable {
     @O("n")
     private List<DoubleTreeNode> traverse(int mode) {
         List<DoubleTreeNode> list = new ArrayList<DoubleTreeNode>();
-        traverse(list, mode);
-        return list;
-    }
-
-    /**
-     * Mode 0 = pre-order, mode 1 = post-order, mode 2 = leaf nodes
-     */
-    @O("n")
-    private void traverse(List<DoubleTreeNode> list, int mode) {
         Queue<DoubleTreeNode> queue = QueueUtils.createLIFO();
         queue.add(this);
 
@@ -184,6 +175,8 @@ public class DoubleTreeNode implements Serializable {
         }
 
         if (mode == 1) Collections.reverse(list);
+
+        return list;
     }
 
 

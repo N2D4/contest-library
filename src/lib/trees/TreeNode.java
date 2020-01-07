@@ -155,15 +155,6 @@ public class TreeNode<T> implements Serializable {
     @O("n")
     private List<TreeNode<T>> traverse(int mode) {
         List<TreeNode<T>> list = new ArrayList<TreeNode<T>>();
-        traverse(list, mode);
-        return list;
-    }
-
-    /**
-     * Mode 0 = pre-order, mode 1 = post-order, mode 2 = leaf nodes
-     */
-    @O("n")
-    private void traverse(List<TreeNode<T>> list, int mode) {
         Queue<TreeNode<T>> queue = QueueUtils.createLIFO();
         queue.add(this);
 
@@ -178,6 +169,8 @@ public class TreeNode<T> implements Serializable {
         }
 
         if (mode == 1) Collections.reverse(list);
+
+        return list;
     }
 
 

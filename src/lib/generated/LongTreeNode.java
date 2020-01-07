@@ -161,15 +161,6 @@ public class LongTreeNode implements Serializable {
     @O("n")
     private List<LongTreeNode> traverse(int mode) {
         List<LongTreeNode> list = new ArrayList<LongTreeNode>();
-        traverse(list, mode);
-        return list;
-    }
-
-    /**
-     * Mode 0 = pre-order, mode 1 = post-order, mode 2 = leaf nodes
-     */
-    @O("n")
-    private void traverse(List<LongTreeNode> list, int mode) {
         Queue<LongTreeNode> queue = QueueUtils.createLIFO();
         queue.add(this);
 
@@ -184,6 +175,8 @@ public class LongTreeNode implements Serializable {
         }
 
         if (mode == 1) Collections.reverse(list);
+
+        return list;
     }
 
 
